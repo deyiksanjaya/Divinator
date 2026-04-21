@@ -20,10 +20,13 @@
             font-family: 'Lora', serif;
             background-color: var(--bg-bottom);
             color: white;
-            /* Card app style anti-zoom & anti-bounce */
-            touch-action: none;
-            -webkit-touch-callout: none;
+            margin: 0;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
             -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         .font-logo { font-family: 'Playfair Display', serif; }
@@ -88,9 +91,6 @@
             backdrop-filter: blur(5px);
         }
 
-        /* =========================================================
-           SCARY FATAL GLITCH EFFECT
-           ========================================================= */
         .glitch-active {
             animation: fatalHorrorGlitch 0.25s infinite steps(2) !important;
             position: relative;
@@ -145,11 +145,10 @@
         }
     </style>
 </head>
-<!-- Fix Layout: Pakai h-screen w-screen overflow-hidden m-0 relative -->
 <body class="overflow-hidden h-screen w-screen m-0 relative">
 
-    <!-- Indicator Error Merah -->
-    <div id="error-dot" class="hidden fixed top-3 right-3 w-3 h-3 bg-red-600 rounded-full shadow-[0_0_10px_rgba(255,0,0,0.8)] z-[9999]"></div>
+    <!-- Indicator Error Merah (Diturunin dikit biar gak nabrak notch) -->
+    <div id="error-dot" class="hidden fixed top-[max(1rem,env(safe-area-inset-top))] right-4 w-3 h-3 bg-red-600 rounded-full shadow-[0_0_10px_rgba(255,0,0,0.8)] z-[9999]"></div>
 
     <!-- Latar Belakang -->
     <img src="https://raw.githubusercontent.com/deyiksanjaya/akeynator/refs/heads/main/IMG_0854.jpeg" 
@@ -165,14 +164,12 @@
     <!-- Tetapan Modal -->
     <div id="settings-modal" class="fixed inset-0 z-[200] flex items-center justify-center hidden-screen p-4 fade-in">
         <div class="bg-[#2d1331] w-full max-w-sm rounded-xl border-2 border-[#f7b733] shadow-2xl flex flex-col max-h-[90dvh]">
-            <!-- touch-action: pan-y biar tetep bisa discroll isinya walau body di-lock -->
             <div class="p-5 overflow-y-auto overscroll-contain" style="touch-action: pan-y;">
                 <div class="flex items-center gap-2 border-b border-[#f7b733]/30 pb-2 mb-4">
                     <svg class="w-6 h-6 text-[#f7b733]" fill="currentColor" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
                     <h2 class="text-[#f7b733] font-logo text-2xl font-bold">Settings</h2>
                 </div>
                 
-                <!-- API Settings -->
                 <div class="mb-4 bg-black/20 p-3 rounded-lg border border-red-500/30">
                     <label class="block text-white/80 text-xs mb-1 uppercase tracking-wider font-bold text-red-300">Gemini API Key (Wajib)</label>
                     <input type="password" id="input-api-key" placeholder="Masukkan API Key" class="w-full p-2.5 rounded bg-white/90 text-black focus:outline-none focus:ring-2 focus:ring-[#f7b733] mb-2">
@@ -181,7 +178,6 @@
                     <input type="text" id="input-ai-model" placeholder="gemini-2.5-flash" class="w-full p-2.5 rounded bg-white/90 text-black text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
                 </div>
 
-                <!-- Mode Sulap Target -->
                 <div class="mb-4 bg-black/20 p-3 rounded-lg border border-white/10">
                     <label class="block text-white/80 text-xs mb-1 uppercase tracking-wider">Karakter Target (Manual)</label>
                     <input type="text" id="input-magic-manual" placeholder="Contoh: Reza Arap" class="w-full p-2.5 rounded bg-white/90 text-black text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
@@ -194,7 +190,6 @@
                     <input type="text" id="input-magic-key" placeholder="Contoh: data.nama atau result" class="w-full p-2.5 rounded bg-white/90 text-black text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
                 </div>
 
-                <!-- Tetapan Glitch Seram -->
                 <div class="mb-2 bg-black/20 p-3 rounded-lg border border-white/10">
                     <label class="block text-white/80 text-xs mb-1 uppercase tracking-wider">Delay Glitch (Detik)</label>
                     <input type="number" id="input-glitch-delay" placeholder="0" min="0" step="0.5" class="w-full p-2.5 rounded bg-white/90 text-black text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733] mb-2">
@@ -211,12 +206,13 @@
         </div>
     </div>
 
-    <!-- Kontena Utama (Fixed: Menggunakan absolute inset-0) -->
+    <!-- Kontena Utama -->
     <div id="main-app-container" class="absolute inset-0 flex flex-col z-10 w-full max-w-md mx-auto overflow-hidden transition-all duration-75">
 
         <!-- ================= START SCREEN ================= -->
         <section id="screen-start" class="flex flex-col h-full fade-in">
-            <header class="flex justify-between items-center px-6 pt-8 pb-4 shrink-0">
+            <!-- Header dikasih pt-[max(2rem,env(safe-area-inset-top))] biar turun ngikutin notch -->
+            <header class="flex justify-between items-center px-6 pt-[max(2rem,env(safe-area-inset-top))] pb-4 shrink-0">
                 <button type="button" class="w-10 h-10 rounded-full flex items-center justify-center active:bg-white/10 transition-colors" onclick="openSettings()">
                     <svg class="w-8 h-8 text-[#f7b733] drop-shadow-md" fill="currentColor" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
                 </button>
@@ -243,7 +239,8 @@
 
         <!-- ================= GAME SCREEN ================= -->
         <section id="screen-game" class="hidden-screen flex flex-col h-full fade-in">
-            <div class="flex justify-between items-center px-4 pt-8 z-50 w-full shrink-0">
+            <!-- Header diturunin juga -->
+            <div class="flex justify-between items-center px-4 pt-[max(2rem,env(safe-area-inset-top))] z-50 w-full shrink-0">
                 <button type="button" class="w-10 h-10 rounded-full bg-black/30 border border-white/20 flex items-center justify-center shadow-lg active:bg-black/50 transition-colors backdrop-blur-sm pointer-events-auto" onclick="resetGame()">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
                 </button>
@@ -287,13 +284,14 @@
 
         <!-- ================= GUESS SCREEN (REVEAL) ================= -->
         <section id="screen-guess" class="hidden-screen flex flex-col h-full fade-in">
-            <div class="flex justify-start px-4 pt-8 z-50 w-full shrink-0 absolute top-0 left-0">
+            <div class="flex justify-start px-4 pt-[max(2rem,env(safe-area-inset-top))] z-50 w-full shrink-0 absolute top-0 left-0">
                 <button type="button" class="w-10 h-10 rounded-full bg-black/30 border border-white/20 flex items-center justify-center shadow-lg active:bg-black/50 transition-colors backdrop-blur-sm pointer-events-auto" onclick="resetGame()">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
                 </button>
             </div>
 
-            <div class="w-full text-center shrink-0 mb-4 z-20 pt-16">
+            <!-- Text digeser dikit ke bawah biar gak nabrak tombol back yang turun -->
+            <div class="w-full text-center shrink-0 mb-4 z-20 pt-[calc(env(safe-area-inset-top,0px)+4.5rem)]">
                 <h2 class="font-logo text-3xl font-black akinator-logo-text tracking-wide">Saya berpikir tentang...</h2>
             </div>
 
@@ -337,6 +335,17 @@
     </div>
 
     <script>
+        document.addEventListener('touchmove', function(event) {
+            if (event.scale !== 1) { event.preventDefault(); }
+        }, { passive: false });
+
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) { event.preventDefault(); }
+            lastTouchEnd = now;
+        }, false);
+
         let config = {
             magicManualName: "",
             magicApiUrl: "",

@@ -16,15 +16,24 @@
             --bg-bottom: #2d1331;
         }
 
+        /* FIX LAYOUT: Pastikan html & body fixed ke ujung layar, gak bisa nge-scroll/bouncing */
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            position: fixed;
+            inset: 0;
+            overscroll-behavior: none;
+        }
+
         body {
             font-family: 'Lora', serif;
             background-color: var(--bg-bottom);
             color: white;
-            margin: 0;
-            height: 100dvh;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
         }
@@ -395,7 +404,11 @@
         }
 
         function openSettings() { document.getElementById('settings-modal').classList.remove('hidden-screen'); }
-        function closeSettings() { document.getElementById('settings-modal').classList.add('hidden-screen'); loadSettings(); }
+        
+        function closeSettings() { 
+            document.getElementById('settings-modal').classList.add('hidden-screen'); 
+            loadSettings(); 
+        }
 
         function saveSettings() {
             config.magicManualName = document.getElementById('input-magic-manual').value.trim();
@@ -407,6 +420,10 @@
             config.glitchDuration = document.getElementById('input-glitch-duration').value.trim() || "1.5";
             
             localStorage.setItem('akinatorSettingsPro', JSON.stringify(config));
+            
+            // Asumsikan kalau udah di-save, user udah ngebenerin konfigurasi (Titik merah hilang)
+            showErrorDot(false);
+            
             closeSettings();
         }
 
@@ -561,7 +578,6 @@ Balas HANYA dengan format JSON murni tanpa markdown:
             if (glitchTimeout) clearTimeout(glitchTimeout);
             if (glitchEndTimeout) clearTimeout(glitchEndTimeout);
             document.getElementById('main-app-container').classList.remove('glitch-active');
-            showErrorDot(false);
             
             currentQuestionIndex = 0;
             isGameOver = false;

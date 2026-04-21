@@ -1,7 +1,7 @@
 {
   "name": "Divinator",
   "short_name": "Divinator",
-  "description": "give more mind reading power to akinator",
+  "description": "giving more mind reading power to akinator",
   "start_url": "/",
   "display": "fullscreen",
   "background_color": "#2d1331",

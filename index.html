@@ -9,7 +9,6 @@
     <title>Akinator App - Magic Mode</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,700&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="manifest" href="/manifest.json">
     <style>
         :root {
             --bg-top: #4a244c;
@@ -27,6 +26,7 @@
             background-color: var(--bg-bottom);
             color: white;
             margin: 0;
+            touch-action: none;
         }
 
         .font-logo { font-family: 'Playfair Display', serif; }
@@ -91,23 +91,63 @@
             backdrop-filter: blur(5px);
         }
 
-        .glitch-active {
-            animation: fatalHorrorGlitch 0.25s infinite steps(2) !important;
-            position: relative;
-            pointer-events: none;
-        }
-
-        @keyframes fatalHorrorGlitch {
-            0% { transform: translate(0, 0); filter: invert(0); clip-path: inset(0 0 0 0); }
-            10% { transform: translate(-15px, 5px) scale(1.05); filter: invert(100%); clip-path: inset(10% 0 60% 0); }
-            50% { transform: translate(0, 15px); filter: brightness(5%); clip-path: inset(0 0 0 0); }
-            100% { transform: translate(0, 0); filter: invert(0); clip-path: inset(0 0 0 0); }
-        }
-
         /* Custom Scrollbar for Textarea */
         textarea::-webkit-scrollbar { width: 4px; }
         textarea::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); }
         textarea::-webkit-scrollbar-thumb { background: rgba(247, 183, 51, 0.5); border-radius: 4px; }
+
+        /* =========================================================
+           GLOBAL HORROR GLITCH EFFECT
+           ========================================================= */
+        .glitch-active {
+            animation: fatalHorrorGlitch 0.25s infinite steps(2) !important;
+            pointer-events: none;
+        }
+        .glitch-active::before {
+            content: ""; position: fixed; inset: 0;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.9), rgba(0,0,0,0.9) 2px, transparent 2px, transparent 5px);
+            z-index: 9998; pointer-events: none; mix-blend-mode: overlay;
+        }
+        .glitch-active::after {
+            content: ""; position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+            mix-blend-mode: color-burn; animation: panicFlicker 0.1s infinite steps(1);
+        }
+
+        @keyframes fatalHorrorGlitch {
+            0% { transform: translate(0, 0); filter: invert(0) contrast(100%); clip-path: inset(0 0 0 0); }
+            10% { transform: translate(-10px, 5px) scale(1.05); filter: invert(100%) contrast(300%) drop-shadow(15px 0 0 red) drop-shadow(-15px 0 0 blue); clip-path: inset(10% 0 60% 0); }
+            20% { transform: translate(15px, -10px); filter: hue-rotate(90deg) saturate(300%); clip-path: inset(80% 0 5% 0); }
+            30% { transform: translate(-5px, 15px) skew(15deg); filter: invert(1) drop-shadow(-10px 0 0 lime); clip-path: inset(30% 0 30% 0); }
+            40% { transform: translate(20px, -5px) skew(-15deg); filter: contrast(1000%) saturate(500%); clip-path: inset(50% 0 10% 0); }
+            50% { transform: translate(0, 10px); filter: brightness(10%) contrast(2000%); clip-path: inset(0 0 0 0); }
+            60% { transform: translate(-20px, -10px); filter: invert(1) hue-rotate(-50deg) drop-shadow(0 15px 0 red); clip-path: inset(20% 0 50% 0); }
+            70% { transform: translate(10px, 20px) scale(1.1); filter: contrast(400%); clip-path: inset(70% 0 20% 0); }
+            80% { transform: translate(-25px, -5px); filter: invert(1) hue-rotate(180deg); clip-path: inset(5% 0 85% 0); }
+            90% { transform: translate(15px, 10px) skew(10deg); filter: saturate(1000%); clip-path: inset(45% 0 45% 0); }
+            100% { transform: translate(0, 0); filter: invert(0) contrast(100%); clip-path: inset(0 0 0 0); }
+        }
+        @keyframes panicFlicker {
+            0% { opacity: 0.1; background: #000; }
+            33% { opacity: 0.9; background: #3b0000; }
+            66% { opacity: 0.4; background: #fff; }
+            100% { opacity: 0.2; background: #000; }
+        }
+
+        /* =========================================================
+           SUBTLE TEXT GLITCH (For Q2 & Q3)
+           ========================================================= */
+        @keyframes textSubtleGlitch {
+            0% { transform: translate(0, 0); opacity: 1; text-shadow: none; }
+            20% { transform: translate(-2px, 1px); opacity: 0.8; color: #ff3b3b; text-shadow: 2px 0 blue; }
+            40% { transform: translate(1px, -1px); opacity: 1; color: #1a1a1a; text-shadow: none; }
+            60% { transform: translate(-1px, 2px); opacity: 0.9; color: #3b3bff; text-shadow: -2px 0 red; }
+            80% { transform: translate(2px, -2px); opacity: 1; color: #1a1a1a; text-shadow: none; }
+            100% { transform: translate(0, 0); opacity: 1; text-shadow: none; }
+        }
+        .text-glitch-fx {
+            animation: textSubtleGlitch 0.2s infinite;
+        }
+
     </style>
 </head>
 <body class="overflow-hidden h-[100dvh] w-screen m-0 relative">
@@ -128,8 +168,12 @@
 
     <!-- Secret T9 Keypad Modal -->
     <div id="t9-modal" class="fixed inset-0 z-[300] flex items-center justify-center hidden-screen fade-in">
-        <div class="bg-black/90 border border-[#f7b733]/40 p-5 rounded-2xl shadow-2xl w-64 backdrop-blur-md">
-            <div id="t9-display" class="text-[#f7b733] text-right h-8 mb-4 tracking-widest text-2xl font-mono border-b border-white/20 pb-1"></div>
+        <div class="bg-black/90 border border-[#f7b733]/40 p-5 rounded-2xl shadow-2xl w-64 backdrop-blur-md flex flex-col">
+            <div id="t9-display" class="text-[#f7b733] text-right h-8 mb-2 tracking-widest text-2xl font-mono border-b border-white/20 pb-1"></div>
+            
+            <!-- Tempat Nampilin Nama Target Singkat -->
+            <div id="t9-target-name" class="text-green-400 font-bold text-center text-[10px] tracking-widest uppercase mb-4 h-4 opacity-0 transition-opacity"></div>
+            
             <div class="grid grid-cols-3 gap-3">
                 <button onclick="t9Press('1')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">1</button>
                 <button onclick="t9Press('2')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">2</button>
@@ -142,7 +186,8 @@
                 <button onclick="t9Press('9')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">9</button>
                 <button onclick="t9Clear()" class="bg-red-500/20 py-4 rounded-xl active:bg-red-500/40 text-red-400 font-bold text-lg transition-colors">DEL</button>
                 <button onclick="t9Press('0')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">0</button>
-                <button onclick="t9Submit()" class="bg-green-500/20 py-4 rounded-xl active:bg-green-500/40 text-green-400 font-bold text-lg transition-colors">OK</button>
+                <!-- Tombol Submit Manual dihilangkan -->
+                <div class="py-4"></div>
             </div>
             <button onclick="closeT9()" class="w-full mt-4 text-white/40 text-xs uppercase tracking-widest py-2 active:text-white transition-colors">Tutup</button>
         </div>
@@ -167,8 +212,8 @@
 
                 <div class="mb-4 bg-black/20 p-3 rounded-lg border border-white/10">
                     <label class="block text-white/80 text-xs mb-2 uppercase tracking-wider">List Karakter Target</label>
-                    <p class="text-[10px] text-[#f7b733] mb-2 leading-tight opacity-80">Pisahkan tiap nama dengan baris baru (Enter). Nomor akan otomatis di-assign sesuai urutan dari 1 sampai seterusnya.</p>
-                    <textarea id="input-character-list" rows="6" class="w-full p-2.5 rounded bg-white/90 text-black text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733] allow-scroll whitespace-pre" style="line-height: 1.5;"></textarea>
+                    <p class="text-[10px] text-[#f7b733] mb-2 leading-tight opacity-80">Pisahkan tiap nama dengan baris baru (Enter). Baris 1 akan dipanggil dengan angka 01, baris 50 dengan angka 50.</p>
+                    <textarea id="input-character-list" rows="8" class="w-full p-2.5 rounded bg-white/90 text-black text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733] allow-scroll whitespace-pre" style="line-height: 1.5;"></textarea>
                 </div>
 
                 <div class="mb-2 bg-black/20 p-3 rounded-lg border border-white/10">
@@ -187,14 +232,13 @@
         </div>
     </div>
 
-    <!-- Kontena Utama -->
-    <div id="main-app-container" class="absolute inset-0 flex flex-col z-10 w-full max-w-md mx-auto overflow-hidden transition-all duration-75">
+    <!-- Kontena Utama (Fullscreen Layout dgn absolute inset-0) -->
+    <div id="main-app-container" class="absolute inset-0 w-full max-w-md mx-auto overflow-hidden transition-all duration-75 z-10">
 
         <!-- ================= START SCREEN ================= -->
-        <section id="screen-start" class="flex flex-col h-full fade-in overflow-hidden">
-            <header class="flex justify-between items-center px-6 pt-[max(2rem,env(safe-area-inset-top))] pb-4 shrink-0">
+        <section id="screen-start" class="absolute inset-0 flex flex-col fade-in">
+            <header class="flex justify-between items-center px-6 pt-[max(1.5rem,env(safe-area-inset-top))] pb-4 shrink-0">
                 <button type="button" class="w-10 h-10 rounded-full flex items-center justify-center active:bg-white/10 transition-colors" onclick="openSettings()">
-                    <!-- Solid Gear Icon -->
                     <svg class="w-8 h-8 text-[#f7b733] drop-shadow-md" fill="currentColor" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
                 </button>
                 <h1 class="font-logo text-4xl font-black akinator-logo-text tracking-wide">akinator</h1>
@@ -202,11 +246,10 @@
             </header>
 
             <div class="flex-grow flex justify-center items-center relative px-4 z-10 min-h-0">
-                <img src="https://en.akinator.com/assets/img/akinator.png" alt="Akinator" class="h-full max-h-[40vh] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.5)] z-10">
+                <img src="https://en.akinator.com/assets/img/akinator.png" alt="Akinator" class="w-full h-full max-h-[40vh] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.5)] z-10">
             </div>
 
-            <div class="w-full flex flex-col items-center z-30 pb-12 pt-4 shrink-0">
-                <!-- Pita dengan Trigger Rahasia T9 -->
+            <div class="w-full flex flex-col items-center z-30 pt-4 pb-[max(2rem,env(safe-area-inset-bottom))] shrink-0">
                 <div class="ribbon-dark w-[110%] py-4 px-6 text-center shadow-2xl relative z-20 mb-8 cursor-pointer" onclick="openT9()">
                     <p class="font-logo text-[17px] text-white/90 drop-shadow-md tracking-wide">
                         Pikirkan tokoh nyata atau fiksi
@@ -220,12 +263,12 @@
         </section>
 
         <!-- ================= GAME SCREEN ================= -->
-        <section id="screen-game" class="hidden-screen flex flex-col h-full fade-in overflow-hidden">
-            <div class="flex justify-between items-center px-4 pt-[max(2rem,env(safe-area-inset-top))] z-50 w-full shrink-0">
-                <button type="button" class="w-10 h-10 rounded-full bg-black/30 border border-white/20 flex items-center justify-center shadow-lg active:bg-black/50 pointer-events-auto" onclick="resetGame()">
+        <section id="screen-game" class="absolute inset-0 flex flex-col fade-in hidden-screen">
+            <div class="flex justify-between items-center px-4 pt-[max(1.5rem,env(safe-area-inset-top))] z-50 w-full shrink-0">
+                <button type="button" class="w-10 h-10 rounded-full bg-black/30 border border-white/20 flex items-center justify-center shadow-lg active:bg-black/50 transition-colors backdrop-blur-sm pointer-events-auto" onclick="resetGame()">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
                 </button>
-                <button type="button" class="w-10 h-10 rounded-full bg-gradient-to-b from-[#fce484] to-[#d4a02d] flex items-center justify-center shadow-lg border border-[#fdf2b9] active:scale-95 pointer-events-auto" onclick="resetGame()">
+                <button type="button" class="w-10 h-10 rounded-full bg-gradient-to-b from-[#fce484] to-[#d4a02d] flex items-center justify-center shadow-lg border border-[#fdf2b9] active:scale-95 transition-transform pointer-events-auto" onclick="resetGame()">
                     <svg class="w-5 h-5 text-[#4a2e10] fill-current" viewBox="0 0 24 24"><path d="M12 3l10 9h-3v9H5v-9H2L12 3z"/></svg>
                 </button>
             </div>
@@ -234,7 +277,7 @@
                 <img id="jin-image" src="https://en.akinator.com/assets/img/akitudes_520x650/serein_2.png" alt="Akinator Game" onclick="triggerGlitch()" class="cursor-pointer h-full max-h-[40vh] min-h-[200px] object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)] transition-all duration-300">
             </div>
 
-            <div class="w-full flex flex-col z-20 shrink-0">
+            <div class="w-full flex flex-col z-20 shrink-0 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
                 <div class="speech-bubble w-full min-h-[140px] rounded-t-[4px] flex flex-col justify-center relative shadow-2xl">
                     <div class="flex items-center justify-center pt-5">
                         <h2 id="question-number" class="font-logo font-bold text-[20px] text-gray-900 drop-shadow-sm tracking-wide uppercase">Question 1</h2>
@@ -243,7 +286,8 @@
                         <p id="question-text" class="font-logo font-bold text-[20px] leading-snug text-[#1a1a1a] overflow-y-auto max-h-[80px]">...</p>
                     </div>
                 </div>
-                <div class="w-full font-sans text-[16px] font-bold text-[#351e02] pb-6">
+                <!-- ID ditambahin buat disable tombol gampang -->
+                <div id="answer-buttons-container" class="w-full font-sans text-[16px] font-bold text-[#351e02] pb-2 transition-opacity duration-300">
                     <div class="flex w-full h-[65px]">
                         <button type="button" class="btn-gold-3d flex-1 flex items-center justify-center" onclick="submitAnswer('Mungkin')">Probably</button>
                         <button type="button" class="btn-gold-3d flex-1 flex items-center justify-center" onclick="submitAnswer('Mungkin Tidak')">Probably not</button>
@@ -258,13 +302,13 @@
         </section>
 
         <!-- ================= GUESS SCREEN (REVEAL) ================= -->
-        <section id="screen-guess" class="hidden-screen flex flex-col h-full fade-in overflow-hidden">
-            <div class="flex justify-start px-4 pt-[max(2rem,env(safe-area-inset-top))] z-50 w-full shrink-0 absolute top-0 left-0">
-                <button type="button" class="w-10 h-10 rounded-full bg-black/30 border border-white/20 flex items-center justify-center shadow-lg active:bg-black/50 pointer-events-auto" onclick="resetGame()">
+        <section id="screen-guess" class="absolute inset-0 flex flex-col fade-in hidden-screen">
+            <div class="flex justify-start px-4 pt-[max(1.5rem,env(safe-area-inset-top))] z-50 w-full shrink-0 absolute top-0 left-0">
+                <button type="button" class="w-10 h-10 rounded-full bg-black/30 border border-white/20 flex items-center justify-center shadow-lg active:bg-black/50 transition-colors backdrop-blur-sm pointer-events-auto" onclick="resetGame()">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
                 </button>
             </div>
-            <div class="w-full text-center shrink-0 mb-4 z-20 pt-[calc(env(safe-area-inset-top,0px)+4.5rem)]">
+            <div class="w-full text-center shrink-0 mb-4 z-20 pt-[calc(env(safe-area-inset-top,0px)+4rem)]">
                 <h2 class="font-logo text-3xl font-black akinator-logo-text tracking-wide uppercase">Saya berpikir tentang...</h2>
             </div>
             <div class="flex-grow flex flex-col items-center justify-center relative z-10 px-6 min-h-0">
@@ -289,9 +333,9 @@
         </section>
 
         <!-- ================= END SCREEN ================= -->
-        <section id="screen-end" class="hidden-screen flex flex-col h-full fade-in justify-center items-center relative z-20 pt-8 overflow-hidden">
+        <section id="screen-end" class="absolute inset-0 flex flex-col fade-in hidden-screen justify-center items-center z-20">
             <h1 id="end-title" class="font-logo text-4xl font-black akinator-logo-text tracking-wide mb-8 drop-shadow-xl mt-12 uppercase">Saya Hebat!</h1>
-            <img id="end-image" src="https://en.akinator.com/assets/img/akitudes_520x650/triomphe.png" alt="End Game" class="h-[40vh] max-h-[350px] object-contain drop-shadow-2xl mb-12">
+            <img id="end-image" src="https://en.akinator.com/assets/img/akitudes_520x650/triomphe.png" alt="End Game" class="h-full max-h-[35vh] object-contain drop-shadow-2xl mb-12">
             <button type="button" class="btn-gold-3d w-[80%] max-w-[280px] py-4 rounded-xl flex items-center justify-center shadow-xl" onclick="resetGame()">
                 <span class="font-logo font-black text-xl tracking-wide uppercase">Main Lagi</span>
             </button>
@@ -330,14 +374,14 @@
         let fetchedMagicName = "";
         
         let t9InputString = "";
-        let forcedTargetIndex = -1; // -1 = Random
+        let forcedTargetIndex = -1; 
         
         let glitchTimeout = null;
         let glitchEndTimeout = null;
+        let scrambleInterval = null;
 
-        // --- SISTEM PENGATURAN ---
         function loadSettings() {
-            const saved = localStorage.getItem('akinatorSettingsProV2');
+            const saved = localStorage.getItem('akinatorSettingsProV3');
             if (saved) {
                 const parsed = JSON.parse(saved);
                 config = { ...config, ...parsed };
@@ -349,43 +393,64 @@
             document.getElementById('input-glitch-duration').value = config.glitchDuration || "1.5";
         }
 
-        function openSettings() { 
-            document.getElementById('settings-modal').classList.remove('hidden-screen'); 
-        }
-        function closeSettings() { 
-            document.getElementById('settings-modal').classList.add('hidden-screen'); 
-            loadSettings(); 
-        }
+        function openSettings() { document.getElementById('settings-modal').classList.remove('hidden-screen'); }
+        function closeSettings() { document.getElementById('settings-modal').classList.add('hidden-screen'); loadSettings(); }
 
         function saveSettings() {
             config.characterList = document.getElementById('input-character-list').value.trim();
-            if (!config.characterList) config.characterList = default50List; // Fallback kalau dikosongin
+            if (!config.characterList) config.characterList = default50List;
             
             config.customApiKey = document.getElementById('input-api-key').value.trim();
             config.aiModel = document.getElementById('input-ai-model').value.trim() || "gemini-2.5-flash";
             config.glitchDelay = document.getElementById('input-glitch-delay').value.trim() || "0";
             config.glitchDuration = document.getElementById('input-glitch-duration').value.trim() || "1.5";
             
-            localStorage.setItem('akinatorSettingsProV2', JSON.stringify(config));
+            localStorage.setItem('akinatorSettingsProV3', JSON.stringify(config));
             showErrorDot(false);
             closeSettings();
         }
 
-        // --- T9 KEYPAD LOGIC ---
+        // --- T9 KEYPAD LOGIC (AUTO SUBMIT 2 DIGIT + REVEAL PEEK) ---
         function openT9() {
             t9InputString = "";
             document.getElementById('t9-display').innerText = "";
+            document.getElementById('t9-target-name').innerText = "";
+            document.getElementById('t9-target-name').classList.remove('opacity-100');
+            document.getElementById('t9-target-name').classList.add('opacity-0');
             document.getElementById('t9-modal').classList.remove('hidden-screen');
         }
 
-        function closeT9() {
-            document.getElementById('t9-modal').classList.add('hidden-screen');
-        }
+        function closeT9() { document.getElementById('t9-modal').classList.add('hidden-screen'); }
 
         function t9Press(num) {
+            if (t9InputString.length >= 2) return; 
             t9InputString += num;
             document.getElementById('t9-display').innerText = t9InputString;
             if (navigator.vibrate) navigator.vibrate(15);
+            
+            // Auto Submit pas digit ke-2 masuk
+            if (t9InputString.length === 2) {
+                forcedTargetIndex = parseInt(t9InputString, 10) - 1;
+                if (forcedTargetIndex < 0) forcedTargetIndex = 0; 
+                
+                // Cari nama buat dipamerin bentar
+                const listArray = config.characterList.split('\n').map(item => item.trim()).filter(item => item.length > 0);
+                const safeIndex = forcedTargetIndex % listArray.length;
+                const peekName = listArray[safeIndex] || "Misterius";
+
+                // Munculin nama
+                const nameDisplay = document.getElementById('t9-target-name');
+                nameDisplay.innerText = peekName;
+                nameDisplay.classList.remove('opacity-0');
+                nameDisplay.classList.add('opacity-100');
+
+                // Delay bentar biar sempet dibaca, trus tutup
+                setTimeout(() => {
+                    t9Submit();
+                    nameDisplay.classList.remove('opacity-100');
+                    nameDisplay.classList.add('opacity-0');
+                }, 1200);
+            }
         }
 
         function t9Clear() {
@@ -396,10 +461,10 @@
 
         function t9Submit() {
             if (t9InputString !== "") {
-                // Set target, index starts from 0 in array, user inputs 1-based.
                 forcedTargetIndex = parseInt(t9InputString, 10) - 1;
+                if (forcedTargetIndex < 0) forcedTargetIndex = 0; 
             } else {
-                forcedTargetIndex = -1; // Balik ke random kalau kosong
+                forcedTargetIndex = -1;
             }
             if (navigator.vibrate) navigator.vibrate([30, 30]);
             closeT9();
@@ -408,18 +473,12 @@
         // --- GAME ENGINE ---
         function assignTarget() {
             const listArray = config.characterList.split('\n').map(item => item.trim()).filter(item => item.length > 0);
-            
-            if (listArray.length === 0) {
-                fetchedMagicName = "Karakter Misterius";
-                return;
-            }
+            if (listArray.length === 0) { fetchedMagicName = "Karakter Misterius"; return; }
 
             if (forcedTargetIndex >= 0) {
-                // Kalau angka yg dimasukin kegedean, kita modulo biar muter (aman gak error)
                 const safeIndex = forcedTargetIndex % listArray.length;
                 fetchedMagicName = listArray[safeIndex];
             } else {
-                // Random fallback
                 const randIndex = Math.floor(Math.random() * listArray.length);
                 fetchedMagicName = listArray[randIndex];
             }
@@ -452,21 +511,23 @@
         }
 
         function showScreen(screenId) {
-            ['screen-start', 'screen-game', 'screen-guess', 'screen-end'].forEach(id => document.getElementById(id).classList.add('hidden-screen'));
-            document.getElementById(screenId).classList.remove('hidden-screen');
+            ['screen-start', 'screen-game', 'screen-guess', 'screen-end'].forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.add('hidden-screen');
+                el.classList.remove('flex');
+            });
+            const targetEl = document.getElementById(screenId);
+            targetEl.classList.remove('hidden-screen');
+            targetEl.classList.add('flex');
         }
 
-        function showLoading(show) {
-            document.getElementById('loading-overlay').classList.toggle('hidden-screen', !show);
-        }
+        function showLoading(show) { document.getElementById('loading-overlay').classList.toggle('hidden-screen', !show); }
 
         async function startGame() {
             if (!config.customApiKey) { showErrorDot(true); return; }
             showLoading(true);
             
-            // Assign target dari T9 input / Random
             assignTarget();
-            
             preloadedData = await pregenerateGameData();
             showLoading(false);
             
@@ -474,10 +535,11 @@
             
             currentQuestionIndex = 0; 
             isGameOver = false;
+            document.getElementById('question-text').classList.remove('text-glitch-fx');
+            document.getElementById('answer-buttons-container').classList.remove('opacity-50', 'pointer-events-none');
             showScreen('screen-game');
             updateQuestionUI();
             
-            // Reset T9 memory for next game
             forcedTargetIndex = -1;
             t9InputString = "";
         }
@@ -485,17 +547,66 @@
         function updateQuestionUI() {
             document.getElementById('question-number').innerText = `Question ${currentQuestionIndex + 1}`;
             document.getElementById('question-text').innerText = preloadedData.questions[currentQuestionIndex];
+            
+            // Jin image ubah dikit biar dinamis
+            const jinImage = document.getElementById('jin-image');
+            jinImage.src = currentQuestionIndex % 2 === 0 
+                ? "https://en.akinator.com/assets/img/akitudes_520x650/inspiration_forte.png" 
+                : "https://en.akinator.com/assets/img/akitudes_520x650/serein_2.png";
+        }
+
+        function startScrambleAndReveal() {
+            const el = document.getElementById('question-text');
+            const originalText = preloadedData.questions[2]; // Target Q3
+            const chars = "!@#$%^&*()_+{}[]|:;<>,.?/~0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            
+            let iterations = 0;
+            const maxIterations = 45; // Makin gede makin lama
+            let speed = 25; // Makin kecil makin cepet ngacaknya
+
+            function doScramble() {
+                let scrambled = originalText.split('').map(c => {
+                    if (c === ' ') return ' ';
+                    return chars[Math.floor(Math.random() * chars.length)];
+                }).join('');
+                el.innerText = scrambled;
+
+                iterations++;
+                if (iterations < maxIterations) {
+                    // Makin lama makin melambat efek scramble-nya
+                    if (iterations > 30) speed += 15;
+                    scrambleInterval = setTimeout(doScramble, speed);
+                } else {
+                    // Pas udah selesai ngacak, langsung transisi ke reveal
+                    showReveal();
+                }
+            }
+            doScramble();
         }
 
         async function submitAnswer(answer) {
             if (isGameOver || isProcessing) return;
             isProcessing = true;
             document.getElementById('screen-game').style.opacity = '0.7';
+            
             setTimeout(() => { 
                 document.getElementById('screen-game').style.opacity = '1'; 
                 currentQuestionIndex++;
-                if (currentQuestionIndex < 3) { updateQuestionUI(); isProcessing = false; } 
-                else { showReveal(); }
+                
+                if (currentQuestionIndex === 1) {
+                    // Ini Q2 -> Tambahin subtle glitch
+                    updateQuestionUI(); 
+                    document.getElementById('question-text').classList.add('text-glitch-fx');
+                    isProcessing = false; 
+                } 
+                else if (currentQuestionIndex === 2) {
+                    // Ini Q3 -> Matiin tombol, biarin scramble jalan sendiri terus auto-reveal
+                    updateQuestionUI();
+                    document.getElementById('question-text').classList.add('text-glitch-fx');
+                    document.getElementById('answer-buttons-container').classList.add('opacity-50', 'pointer-events-none');
+                    
+                    startScrambleAndReveal();
+                }
             }, 150);
         }
 
@@ -517,16 +628,21 @@
             showScreen('screen-end');
         }
 
-        function resetGame() {
-            showErrorDot(false); isProcessing = false; showScreen('screen-start');
+        function resetGame() { 
+            if (scrambleInterval) clearTimeout(scrambleInterval);
+            document.body.classList.remove('glitch-active');
+            document.getElementById('question-text').classList.remove('text-glitch-fx');
+            document.getElementById('answer-buttons-container').classList.remove('opacity-50', 'pointer-events-none');
+            showErrorDot(false); 
+            isProcessing = false; 
+            showScreen('screen-start'); 
         }
 
         function showErrorDot(show) { document.getElementById('error-dot').classList.toggle('hidden', !show); }
 
         function triggerGlitch() {
-            const container = document.getElementById('main-app-container');
-            container.classList.add('glitch-active');
-            setTimeout(() => container.classList.remove('glitch-active'), (parseFloat(config.glitchDuration) || 1.5) * 1000);
+            document.body.classList.add('glitch-active');
+            setTimeout(() => document.body.classList.remove('glitch-active'), (parseFloat(config.glitchDuration) || 1.5) * 1000);
         }
 
         window.onload = () => { loadSettings(); showScreen('screen-start'); };

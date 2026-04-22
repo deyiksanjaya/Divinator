@@ -114,7 +114,6 @@
         textarea::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); }
         textarea::-webkit-scrollbar-thumb { background: rgba(247, 183, 51, 0.5); border-radius: 4px; }
 
-        /* Untuk elemen scrollable seperti text q&a */
         .custom-scroll::-webkit-scrollbar { width: 4px; }
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 4px; }
@@ -125,9 +124,7 @@
             user-select: text;
         }
 
-        /* =========================================================
-           GLOBAL HORROR GLITCH EFFECTS
-           ========================================================= */
+        /* GLITCH EFFECTS */
         .glitch-extreme {
             animation: extremeGlitch 0.25s infinite steps(2) !important;
             pointer-events: none;
@@ -191,23 +188,20 @@
         }
     </style>
 </head>
-<body class="overflow-hidden h-[100dvh] w-screen m-0 flex flex-col bg-[var(--bg-bottom)] relative">
+<!-- Ditambahkan class h-screen sebagai fallback jika unit 100dvh bermasalah -->
+<body class="overflow-hidden h-screen h-[100dvh] w-screen m-0 flex flex-col bg-[var(--bg-bottom)] relative">
 
-    <!-- Indicator Error Merah -->
     <div id="error-dot" class="hidden fixed top-[max(1rem,env(safe-area-inset-top))] right-4 w-3 h-3 bg-red-600 rounded-full shadow-[0_0_10px_rgba(255,0,0,0.8)] z-[9999]"></div>
 
-    <!-- Latar Belakang -->
     <img src="https://raw.githubusercontent.com/deyiksanjaya/akeynator/refs/heads/main/IMG_0854.jpeg" 
          alt="Background" 
          class="fixed inset-0 w-full h-full object-cover z-0 pointer-events-none">
 
-    <!-- Loading Overlay Global -->
     <div id="loading-overlay" class="fixed inset-0 z-[100] flex flex-col items-center justify-center hidden-screen">
         <div class="spinner mb-4"></div>
         <p class="font-logo text-xl font-bold text-[#f7b733] tracking-wider drop-shadow-md text-center px-6 uppercase tracking-widest">Loading...</p>
     </div>
 
-    <!-- Secret T9 Keypad Modal -->
     <div id="t9-modal" class="fixed inset-0 z-[300] flex items-center justify-center hidden-screen fade-in">
         <div class="bg-black/90 border border-[#f7b733]/40 p-5 rounded-2xl shadow-2xl w-64 backdrop-blur-md flex flex-col">
             <div id="t9-display" class="text-[#f7b733] text-right h-8 mb-2 tracking-widest text-2xl font-mono border-b border-white/20 pb-1 transition-colors"></div>
@@ -232,7 +226,6 @@
         </div>
     </div>
 
-    <!-- Tetapan Modal -->
     <div id="settings-modal" class="fixed inset-0 z-[200] flex items-center justify-center hidden-screen p-4 fade-in">
         <div class="bg-[#2d1331] w-full max-w-sm rounded-xl border-2 border-[#f7b733] shadow-2xl flex flex-col max-h-[90dvh]">
             <div class="p-5 overflow-y-auto overscroll-contain allow-scroll" style="touch-action: pan-y;">
@@ -285,7 +278,6 @@
         </div>
     </div>
 
-    <!-- Kontena Utama Flexbox -->
     <div id="main-app-container" class="flex-grow w-full max-w-md mx-auto flex flex-col relative z-10 transition-all duration-75">
 
         <!-- ================= START SCREEN ================= -->
@@ -299,11 +291,11 @@
             </header>
 
             <div class="flex-grow flex justify-center items-center relative px-4 z-10 min-h-0">
-                <!-- Gak ada trigger manual. Murni nungguin Timer T9 -->
                 <img src="https://en.akinator.com/assets/img/akinator.png" alt="Akinator" class="w-full h-full max-h-[40vh] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.5)] z-10">
             </div>
 
-            <div class="w-full flex flex-col items-center z-30 pt-4 pb-[max(2rem,env(safe-area-inset-bottom))] shrink-0">
+            <!-- Diubah: pb-[max(2rem,...)] menjadi pb-[max(0.5rem,...)] biar lebih rapat dengan ujung layar bawah -->
+            <div class="w-full flex flex-col items-center z-30 pt-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] shrink-0">
                 <div class="ribbon-dark w-[110%] py-4 px-6 text-center shadow-2xl relative z-20 mb-8 cursor-pointer" onclick="openT9()">
                     <p class="font-logo text-[17px] text-white/90 drop-shadow-md tracking-wide">
                         Pikirkan tokoh nyata atau fiksi
@@ -331,13 +323,13 @@
                 <img id="jin-image" src="https://en.akinator.com/assets/img/akitudes_520x650/serein_2.png" alt="Akinator Game" class="h-full max-h-[40vh] min-h-[200px] object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)] transition-all duration-300">
             </div>
 
-            <div class="w-full flex flex-col z-20 shrink-0 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+            <!-- Diubah juga agar seragam kerapatannya -->
+            <div class="w-full flex flex-col z-20 shrink-0 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
                 <div class="speech-bubble w-full min-h-[140px] rounded-t-[4px] flex flex-col justify-center relative shadow-2xl">
                     <div class="flex items-center justify-center pt-5">
                         <h2 id="question-number" class="font-logo font-bold text-[20px] text-gray-900 drop-shadow-sm tracking-wide uppercase">Question 1</h2>
                     </div>
                     <div class="flex-grow flex items-center justify-center px-6 text-left pb-6 mt-2 w-full max-w-[90%] mx-auto">
-                        <!-- Custom scroll dikasih ke tag p ini -->
                         <p id="question-text" class="custom-scroll font-logo font-bold text-[18px] leading-snug text-[#1a1a1a] overflow-y-auto max-h-[120px] w-full text-center">...</p>
                     </div>
                 </div>
@@ -377,7 +369,8 @@
                 <h3 id="guess-name" class="font-logo font-black text-3xl text-center text-white drop-shadow-md mb-2 uppercase">...</h3>
                 <p id="guess-desc" class="font-sans font-medium text-xs leading-snug text-center text-white/80 max-w-[85%] uppercase tracking-widest overflow-y-auto max-h-[80px]">...</p>
             </div>
-            <div class="w-full flex flex-col z-20 shrink-0 pb-[max(1.5rem,env(safe-area-inset-bottom))] px-4">
+            <!-- Diubah juga agar seragam kerapatannya -->
+            <div class="w-full flex flex-col z-20 shrink-0 pb-[max(0.5rem,env(safe-area-inset-bottom))] px-4">
                 <div class="w-full flex justify-center py-2 mb-2 text-white/80 text-sm font-bold tracking-widest uppercase">Apakah saya benar?</div>
                 <div class="flex w-full h-[70px] gap-2">
                     <button type="button" class="btn-gold-3d flex-[1] rounded-xl flex items-center justify-center text-xl shadow-lg" onclick="handleGuessResult('yes')">Ya</button>
@@ -439,7 +432,6 @@
         let magicIntervals = [];
         let streamReader = null;
 
-        // REAL-TIME TYPEWRITER QUEUE SYSTEM
         let typeQueue = "";
         let streamFinished = false;
 
@@ -484,7 +476,6 @@
             closeSettings();
         }
 
-        // --- T9 KEYPAD LOGIC & AUTO TRIGGER SEQUENCE ---
         function openT9() {
             t9InputString = "";
             document.getElementById('t9-display').innerText = "";
@@ -529,11 +520,10 @@
                     
                     isMagicMode = true; 
                     
-                    // Delay 1 detik biat namanya kebaca, terus tutup dan Timer Glitch jalan
                     setTimeout(() => {
                         closeT9();
                         nameDisplay.classList.replace('opacity-100', 'opacity-0');
-                        startMagicSequence(); // AUTO TRIGGER
+                        startMagicSequence(); 
                     }, 1000);
                 }
             }
@@ -550,7 +540,6 @@
             const delay = (parseFloat(config.glitchDelay) || 0) * 1000;
             const duration = (parseFloat(config.glitchDuration) || 1.5) * 1000;
             
-            // Kunci tombol "Challenge me" biar nggak dipencet pas lagi ngitung mundur
             isProcessing = true;
             
             setTimeout(() => {
@@ -559,13 +548,12 @@
                 
                 setTimeout(() => {
                     document.body.classList.remove('glitch-extreme');
-                    isProcessing = false; // Buka kunci lagi
-                    startGame(); // Langsung terjun ke game screen setelah glitch kelar
+                    isProcessing = false; 
+                    startGame(); 
                 }, duration);
             }, delay);
         }
 
-        // --- NORMAL MODE DYNAMIC AI ENGINE ---
         async function fetchNormalQuestion(answer) {
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${config.aiModel}:generateContent?key=${config.customApiKey}`;
             
@@ -602,7 +590,6 @@
             } catch (e) { return null; }
         }
 
-        // --- GAME UTILS ---
         function assignTarget() {
             const listArray = config.characterList.split('\n').map(item => item.trim()).filter(item => item.length > 0);
             if (listArray.length === 0) { fetchedMagicName = "Karakter Misterius"; return; }
@@ -666,25 +653,19 @@
             document.getElementById('screen-game').style.opacity = '1';
         }
 
-        // --- GAME FLOW START ---
         async function startGame() {
-            // Blokir tombol klo sequence udah diproses / loading
             if (isProcessing) return;
 
             if (!config.customApiKey) { showErrorDot(true); return; }
             
             if (isMagicMode) {
-                // JALUR SULAP (GLITCH UDAH SELESAI, LANGSUNG EKSEKUSI)
                 assignTarget();
                 currentQuestionIndex = 0;
                 isGameOver = false;
                 resetGameUI();
                 showScreen('screen-game');
-                streamMagicClimax(); // Eksekusi real-time streaming
-                
-                // Jangan reset state T9 di sini biar kalau user reset pas lg ngetik tetep aman
+                streamMagicClimax(); 
             } else {
-                // JALUR NORMAL (TANYA JAWAB)
                 showLoading(true);
                 const firstQ = await fetchNormalQuestion(null);
                 showLoading(false);
@@ -702,7 +683,6 @@
             }
         }
 
-        // --- REAL-TIME TYPEWRITER STREAMING ENGINE ---
         async function processTypeQueue() {
             if (isMagicCancelled) return;
             
@@ -714,33 +694,27 @@
                 
                 if (char === '\n') {
                     qText.innerHTML += '<br>';
-                    qText.scrollTop = qText.scrollHeight; // Auto-scroll ke paling bawah
-                    // Jeda dramatis agak lama pas pergantian kalimat/baris
+                    qText.scrollTop = qText.scrollHeight; 
                     await new Promise(r => { let id = setTimeout(r, 600); magicTimeouts.push(id); }); 
                 } else {
-                    // Bypass markdown bawaan AI kalau ada
                     if (char !== '*') {
                         qText.innerHTML += char;
-                        qText.scrollTop = qText.scrollHeight; // Auto-scroll
+                        qText.scrollTop = qText.scrollHeight; 
                     }
                 }
                 
-                // Kecepatan ngetik bervariasi biar kayak manusia (cenayang)
                 const speed = Math.random() * 40 + 20; 
                 let tid = setTimeout(processTypeQueue, speed);
                 magicTimeouts.push(tid);
             } else {
                 if (streamFinished) {
-                    // Streaming dan ngetik udah selesai!
                     document.body.classList.remove('glitch-mild');
                     qText.classList.remove('typewriter-text');
                     
-                    // Jeda dramatis 1.5 detik sblm reveal
                     magicTimeouts.push(setTimeout(() => {
                         if (!isMagicCancelled) showReveal();
                     }, 1500));
                 } else {
-                    // Nungguin bongkahan teks dari API nyampe lagi
                     let tid = setTimeout(processTypeQueue, 50);
                     magicTimeouts.push(tid);
                 }
@@ -760,10 +734,9 @@
             qNum.style.display = 'none'; 
             qText.innerText = ""; 
             qText.classList.remove('text-center');
-            qText.classList.add('text-left'); // Biar ngetiknya dari kiri ke kanan rapi
+            qText.classList.add('text-left'); 
             document.getElementById('answer-buttons-container').classList.add('pointer-events-none');
 
-            // 1. Scramble Buttons
             let scrambleInt = setInterval(() => {
                 btns.forEach(btn => {
                     if (btn.dataset.locked !== "true") {
@@ -773,7 +746,6 @@
             }, 50);
             magicIntervals.push(scrambleInt);
 
-            // 2. Lock Buttons to YES satu per satu
             btns.forEach((btn, idx) => {
                 let tid = setTimeout(() => {
                     btn.dataset.locked = "true";
@@ -785,11 +757,9 @@
                 magicTimeouts.push(tid);
             });
 
-            // 3. Kickoff Typewriter Queue & Mild Glitch
             document.body.classList.add('glitch-mild'); 
             qText.classList.add('typewriter-text');
             
-            // Tunggu 1 detik biar audiens fokus ke layar dulu baru ngetik
             magicTimeouts.push(setTimeout(processTypeQueue, 1000));
 
             const prompt = `Bermain trik sulap membaca pikiran. Target: "${fetchedMagicName}". 
@@ -825,7 +795,7 @@ Tulis secara langsung sealami mungkin, tanpa JSON, tanpa format.`;
                     
                     buffer += decoder.decode(value, { stream: true });
                     let lines = buffer.split('\n');
-                    buffer = lines.pop(); // Sisa potongan yg blm komplit ditaruh di buffer lagi
+                    buffer = lines.pop(); 
                     
                     for (let line of lines) {
                         line = line.trim();
@@ -836,7 +806,6 @@ Tulis secara langsung sealami mungkin, tanpa JSON, tanpa format.`;
                                 const data = JSON.parse(dataStr);
                                 const textPart = data.candidates?.[0]?.content?.parts?.[0]?.text;
                                 if (textPart) {
-                                    // Tembak potongan teks ke antrean mesin tik
                                     typeQueue += textPart;
                                 }
                             } catch (e) {
@@ -853,13 +822,11 @@ Tulis secara langsung sealami mungkin, tanpa JSON, tanpa format.`;
             }
         }
 
-        // --- NORMAL MODE Q&A FLOW ---
         async function submitAnswer(answer) {
             if (isGameOver || isProcessing) return;
             isProcessing = true;
             document.getElementById('screen-game').style.opacity = '0.5';
             
-            // Tambah loading overlay pas mode normal lagi mikir pertanyaan
             showLoading(true);
             
             currentQuestionIndex++;
@@ -894,12 +861,10 @@ Tulis secara langsung sealami mungkin, tanpa JSON, tanpa format.`;
             }
         }
 
-        // --- REVEAL & ENDING ---
         async function showReveal() {
             document.body.classList.remove('glitch-mild'); 
             document.getElementById('guess-name').innerText = fetchedMagicName;
             
-            // Text deskripsi di reveal
             if(isMagicMode) {
                 document.getElementById('guess-desc').innerText = "Terbaca dari pikiranmu.";
             } else {
@@ -929,7 +894,6 @@ Tulis secara langsung sealami mungkin, tanpa JSON, tanpa format.`;
             isProcessing = false; 
             isGameOver = true; 
             
-            // Jamin 100% balik ke mode normal saat beres main / reset
             isMagicMode = false;
             forcedTargetIndex = -1;
             t9InputString = "";

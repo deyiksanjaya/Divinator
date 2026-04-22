@@ -86,69 +86,31 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        #loading-overlay, #settings-modal {
+        #loading-overlay, #settings-modal, #t9-modal {
             background: rgba(45, 19, 49, 0.85);
             backdrop-filter: blur(5px);
         }
 
-        /* =========================================================
-           SCARY FATAL GLITCH EFFECT
-           ========================================================= */
         .glitch-active {
             animation: fatalHorrorGlitch 0.25s infinite steps(2) !important;
             position: relative;
             pointer-events: none;
         }
 
-        .glitch-active::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 0, 0, 0.9),
-                rgba(0, 0, 0, 0.9) 2px,
-                transparent 2px,
-                transparent 5px
-            );
-            z-index: 9998;
-            pointer-events: none;
-            mix-blend-mode: overlay;
-        }
-
-        .glitch-active::after {
-            content: "";
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            pointer-events: none;
-            mix-blend-mode: color-burn;
-            animation: panicFlicker 0.1s infinite steps(1);
-        }
-
         @keyframes fatalHorrorGlitch {
-            0% { transform: translate(0, 0); filter: invert(0) drop-shadow(0 0 0 transparent); clip-path: inset(0 0 0 0); }
-            10% { transform: translate(-15px, 5px) scale(1.05); filter: invert(100%) drop-shadow(15px 0 0 red) drop-shadow(-15px 0 0 cyan); clip-path: inset(10% 0 60% 0); }
-            20% { transform: translate(15px, -10px) scale(0.95); filter: brightness(20%) contrast(500%); clip-path: inset(80% 0 5% 0); }
-            30% { transform: translate(-5px, 20px) skew(20deg); filter: invert(1) hue-rotate(90deg) saturate(500%); clip-path: inset(30% 0 30% 0); }
-            40% { transform: translate(25px, -5px) skew(-25deg); filter: contrast(1000%) drop-shadow(-20px 0 0 lime); clip-path: inset(50% 0 10% 0); }
-            50% { transform: translate(0, 15px); filter: brightness(5%) contrast(2000%); clip-path: inset(0 0 0 0); }
-            60% { transform: translate(-20px, -15px); filter: invert(1) brightness(60%) sepia(100%) hue-rotate(-50deg) saturate(1000%); clip-path: inset(20% 0 50% 0); }
-            70% { transform: translate(10px, 25px) scale(1.1); filter: invert(100%) drop-shadow(0 15px 0 blue); clip-path: inset(70% 0 20% 0); }
-            80% { transform: translate(-30px, -5px); filter: contrast(300%) brightness(150%); clip-path: inset(5% 0 85% 0); }
-            90% { transform: translate(15px, 15px) skew(10deg); filter: hue-rotate(180deg) saturate(400%); clip-path: inset(45% 0 45% 0); }
+            0% { transform: translate(0, 0); filter: invert(0); clip-path: inset(0 0 0 0); }
+            10% { transform: translate(-15px, 5px) scale(1.05); filter: invert(100%); clip-path: inset(10% 0 60% 0); }
+            50% { transform: translate(0, 15px); filter: brightness(5%); clip-path: inset(0 0 0 0); }
             100% { transform: translate(0, 0); filter: invert(0); clip-path: inset(0 0 0 0); }
         }
 
-        @keyframes panicFlicker {
-            0% { opacity: 0.1; background: #000; }
-            33% { opacity: 0.9; background: #2b0000; }
-            66% { opacity: 0.4; background: #fff; }
-            100% { opacity: 0.2; background: #000; }
-        }
+        /* Custom Scrollbar for Textarea */
+        textarea::-webkit-scrollbar { width: 4px; }
+        textarea::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); }
+        textarea::-webkit-scrollbar-thumb { background: rgba(247, 183, 51, 0.5); border-radius: 4px; }
     </style>
 </head>
-<body class="overflow-hidden h-screen w-screen m-0 relative">
+<body class="overflow-hidden h-[100dvh] w-screen m-0 relative">
 
     <!-- Indicator Error Merah -->
     <div id="error-dot" class="hidden fixed top-[max(1rem,env(safe-area-inset-top))] right-4 w-3 h-3 bg-red-600 rounded-full shadow-[0_0_10px_rgba(255,0,0,0.8)] z-[9999]"></div>
@@ -161,44 +123,60 @@
     <!-- Loading Overlay -->
     <div id="loading-overlay" class="fixed inset-0 z-[100] flex flex-col items-center justify-center hidden-screen">
         <div class="spinner mb-4"></div>
-        <p class="font-logo text-xl font-bold text-[#f7b733] tracking-wider drop-shadow-md text-center px-6">Loading...</p>
+        <p class="font-logo text-xl font-bold text-[#f7b733] tracking-wider drop-shadow-md text-center px-6 uppercase tracking-widest">Loading...</p>
+    </div>
+
+    <!-- Secret T9 Keypad Modal -->
+    <div id="t9-modal" class="fixed inset-0 z-[300] flex items-center justify-center hidden-screen fade-in">
+        <div class="bg-black/90 border border-[#f7b733]/40 p-5 rounded-2xl shadow-2xl w-64 backdrop-blur-md">
+            <div id="t9-display" class="text-[#f7b733] text-right h-8 mb-4 tracking-widest text-2xl font-mono border-b border-white/20 pb-1"></div>
+            <div class="grid grid-cols-3 gap-3">
+                <button onclick="t9Press('1')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">1</button>
+                <button onclick="t9Press('2')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">2</button>
+                <button onclick="t9Press('3')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">3</button>
+                <button onclick="t9Press('4')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">4</button>
+                <button onclick="t9Press('5')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">5</button>
+                <button onclick="t9Press('6')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">6</button>
+                <button onclick="t9Press('7')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">7</button>
+                <button onclick="t9Press('8')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">8</button>
+                <button onclick="t9Press('9')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">9</button>
+                <button onclick="t9Clear()" class="bg-red-500/20 py-4 rounded-xl active:bg-red-500/40 text-red-400 font-bold text-lg transition-colors">DEL</button>
+                <button onclick="t9Press('0')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">0</button>
+                <button onclick="t9Submit()" class="bg-green-500/20 py-4 rounded-xl active:bg-green-500/40 text-green-400 font-bold text-lg transition-colors">OK</button>
+            </div>
+            <button onclick="closeT9()" class="w-full mt-4 text-white/40 text-xs uppercase tracking-widest py-2 active:text-white transition-colors">Tutup</button>
+        </div>
     </div>
 
     <!-- Tetapan Modal -->
     <div id="settings-modal" class="fixed inset-0 z-[200] flex items-center justify-center hidden-screen p-4 fade-in">
         <div class="bg-[#2d1331] w-full max-w-sm rounded-xl border-2 border-[#f7b733] shadow-2xl flex flex-col max-h-[90dvh]">
-            <div class="p-5 overflow-y-auto overscroll-contain" style="touch-action: pan-y;">
+            <div class="p-5 overflow-y-auto overscroll-contain allow-scroll" style="touch-action: pan-y;">
                 <div class="flex items-center gap-2 border-b border-[#f7b733]/30 pb-2 mb-4">
                     <svg class="w-6 h-6 text-[#f7b733]" fill="currentColor" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
-                    <h2 class="text-[#f7b733] font-logo text-2xl font-bold">Settings</h2>
+                    <h2 class="text-[#f7b733] font-logo text-2xl font-bold tracking-tight">Settings</h2>
                 </div>
                 
                 <div class="mb-4 bg-black/20 p-3 rounded-lg border border-red-500/30">
-                    <label class="block text-white/80 text-xs mb-1 uppercase tracking-wider font-bold text-red-300">Gemini API Key (Wajib)</label>
-                    <input type="password" id="input-api-key" placeholder="Masukkan API Key" class="w-full p-2.5 rounded bg-white/90 text-black focus:outline-none focus:ring-2 focus:ring-[#f7b733] mb-2">
+                    <label class="block text-white/80 text-xs mb-1 uppercase tracking-wider font-bold text-red-300">Gemini API Key</label>
+                    <input type="password" id="input-api-key" placeholder="Masukkan API Key lo" class="w-full p-2.5 rounded bg-white/90 text-black focus:outline-none focus:ring-2 focus:ring-[#f7b733] mb-2">
                     
                     <label class="block text-white/80 text-xs mb-1 uppercase tracking-wider font-bold text-red-300">Model Gemini</label>
                     <input type="text" id="input-ai-model" placeholder="gemini-2.5-flash" class="w-full p-2.5 rounded bg-white/90 text-black text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
                 </div>
 
                 <div class="mb-4 bg-black/20 p-3 rounded-lg border border-white/10">
-                    <label class="block text-white/80 text-xs mb-1 uppercase tracking-wider">Karakter Target (Manual)</label>
-                    <input type="text" id="input-magic-manual" placeholder="Contoh: Reza Arap" class="w-full p-2.5 rounded bg-white/90 text-black text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
-                    <p class="text-[10px] text-[#f7b733] mt-1 mb-3 leading-tight">Ketik nama di sini kalau lagi nggak mau pakai API.</p>
-
-                    <label class="block text-white/80 text-xs mb-1 uppercase tracking-wider">Atau Pakai URL API</label>
-                    <input type="url" id="input-magic-api" placeholder="https://api.contoh.com/target" class="w-full p-2.5 rounded bg-white/90 text-black text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
-                    
-                    <label class="block text-white/80 text-xs mt-3 mb-1 uppercase tracking-wider">JSON Key (Untuk API)</label>
-                    <input type="text" id="input-magic-key" placeholder="Contoh: data.nama atau result" class="w-full p-2.5 rounded bg-white/90 text-black text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
+                    <label class="block text-white/80 text-xs mb-2 uppercase tracking-wider">List Karakter Target</label>
+                    <p class="text-[10px] text-[#f7b733] mb-2 leading-tight opacity-80">Pisahkan tiap nama dengan baris baru (Enter). Nomor akan otomatis di-assign sesuai urutan dari 1 sampai seterusnya.</p>
+                    <textarea id="input-character-list" rows="6" class="w-full p-2.5 rounded bg-white/90 text-black text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733] allow-scroll whitespace-pre" style="line-height: 1.5;"></textarea>
                 </div>
 
                 <div class="mb-2 bg-black/20 p-3 rounded-lg border border-white/10">
-                    <label class="block text-white/80 text-xs mb-1 uppercase tracking-wider">Delay Glitch (Detik)</label>
-                    <input type="number" id="input-glitch-delay" placeholder="0" min="0" step="0.5" class="w-full p-2.5 rounded bg-white/90 text-black text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733] mb-2">
-                    
-                    <label class="block text-white/80 text-xs mt-2 mb-1 uppercase tracking-wider">Durasi Glitch (Detik)</label>
-                    <input type="number" id="input-glitch-duration" placeholder="1.5" min="0.1" step="0.1" class="w-full p-2.5 rounded bg-white/90 text-black text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
+                    <label class="block text-white/80 text-xs mb-1 uppercase tracking-wider">Efek Glitch (Detik)</label>
+                    <div class="flex gap-2">
+                        <input type="number" id="input-glitch-delay" placeholder="Delay" min="0" step="0.5" class="w-1/2 p-2.5 rounded bg-white/90 text-black text-sm focus:outline-none">
+                        <input type="number" id="input-glitch-duration" placeholder="Durasi" min="0.1" step="0.1" class="w-1/2 p-2.5 rounded bg-white/90 text-black text-sm focus:outline-none">
+                    </div>
                 </div>
             </div>
             
@@ -209,13 +187,14 @@
         </div>
     </div>
 
-    <!-- Kontena Utama dengan absolute inset-0 (Kunci Fullscreen) -->
-    <div id="main-app-container" class="absolute inset-0 w-full max-w-md mx-auto overflow-hidden transition-all duration-75 z-10">
+    <!-- Kontena Utama -->
+    <div id="main-app-container" class="absolute inset-0 flex flex-col z-10 w-full max-w-md mx-auto overflow-hidden transition-all duration-75">
 
         <!-- ================= START SCREEN ================= -->
-        <section id="screen-start" class="absolute inset-0 flex flex-col fade-in">
-            <header class="flex justify-between items-center px-6 pt-[max(1.5rem,env(safe-area-inset-top))] pb-4 shrink-0">
+        <section id="screen-start" class="flex flex-col h-full fade-in overflow-hidden">
+            <header class="flex justify-between items-center px-6 pt-[max(2rem,env(safe-area-inset-top))] pb-4 shrink-0">
                 <button type="button" class="w-10 h-10 rounded-full flex items-center justify-center active:bg-white/10 transition-colors" onclick="openSettings()">
+                    <!-- Solid Gear Icon -->
                     <svg class="w-8 h-8 text-[#f7b733] drop-shadow-md" fill="currentColor" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
                 </button>
                 <h1 class="font-logo text-4xl font-black akinator-logo-text tracking-wide">akinator</h1>
@@ -223,30 +202,30 @@
             </header>
 
             <div class="flex-grow flex justify-center items-center relative px-4 z-10 min-h-0">
-                <img src="https://en.akinator.com/assets/img/akinator.png" alt="Akinator" class="w-full h-full max-h-[40vh] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.5)] z-10">
+                <img src="https://en.akinator.com/assets/img/akinator.png" alt="Akinator" class="h-full max-h-[40vh] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.5)] z-10">
             </div>
 
-            <div class="w-full flex flex-col items-center z-30 pt-4 pb-[max(2rem,env(safe-area-inset-bottom))] shrink-0">
-                <div class="ribbon-dark w-[110%] py-4 px-6 text-center shadow-2xl relative z-20 mb-8">
+            <div class="w-full flex flex-col items-center z-30 pb-12 pt-4 shrink-0">
+                <!-- Pita dengan Trigger Rahasia T9 -->
+                <div class="ribbon-dark w-[110%] py-4 px-6 text-center shadow-2xl relative z-20 mb-8 cursor-pointer" onclick="openT9()">
                     <p class="font-logo text-[17px] text-white/90 drop-shadow-md tracking-wide">
                         Pikirkan tokoh nyata atau fiksi
                     </p>
                 </div>
                 <button type="button" class="btn-gold-3d w-[85%] max-w-[320px] py-4 rounded-xl flex flex-col items-center justify-center shadow-[0_10px_20px_rgba(0,0,0,0.5)] relative z-30" onclick="startGame()">
-                    <span class="font-logo font-black text-2xl tracking-wide">Challenge me</span>
+                    <span class="font-logo font-black text-2xl tracking-wide uppercase">Challenge me</span>
                     <span class="font-sans text-[11px] font-bold text-[#4d320d] uppercase mt-1 tracking-wider">I will read your mind.</span>
                 </button>
             </div>
         </section>
 
         <!-- ================= GAME SCREEN ================= -->
-        <section id="screen-game" class="absolute inset-0 flex-col fade-in hidden-screen">
-            <div class="flex justify-between items-center px-4 pt-[max(1.5rem,env(safe-area-inset-top))] z-50 w-full shrink-0">
-                <button type="button" class="w-10 h-10 rounded-full bg-black/30 border border-white/20 flex items-center justify-center shadow-lg active:bg-black/50 transition-colors backdrop-blur-sm pointer-events-auto" onclick="resetGame()">
+        <section id="screen-game" class="hidden-screen flex flex-col h-full fade-in overflow-hidden">
+            <div class="flex justify-between items-center px-4 pt-[max(2rem,env(safe-area-inset-top))] z-50 w-full shrink-0">
+                <button type="button" class="w-10 h-10 rounded-full bg-black/30 border border-white/20 flex items-center justify-center shadow-lg active:bg-black/50 pointer-events-auto" onclick="resetGame()">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
                 </button>
-                
-                <button type="button" class="w-10 h-10 rounded-full bg-gradient-to-b from-[#fce484] to-[#d4a02d] flex items-center justify-center shadow-lg border border-[#fdf2b9] active:scale-95 transition-transform pointer-events-auto" onclick="resetGame()">
+                <button type="button" class="w-10 h-10 rounded-full bg-gradient-to-b from-[#fce484] to-[#d4a02d] flex items-center justify-center shadow-lg border border-[#fdf2b9] active:scale-95 pointer-events-auto" onclick="resetGame()">
                     <svg class="w-5 h-5 text-[#4a2e10] fill-current" viewBox="0 0 24 24"><path d="M12 3l10 9h-3v9H5v-9H2L12 3z"/></svg>
                 </button>
             </div>
@@ -255,21 +234,16 @@
                 <img id="jin-image" src="https://en.akinator.com/assets/img/akitudes_520x650/serein_2.png" alt="Akinator Game" onclick="triggerGlitch()" class="cursor-pointer h-full max-h-[40vh] min-h-[200px] object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)] transition-all duration-300">
             </div>
 
-            <div class="w-full flex flex-col z-20 shrink-0 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+            <div class="w-full flex flex-col z-20 shrink-0">
                 <div class="speech-bubble w-full min-h-[140px] rounded-t-[4px] flex flex-col justify-center relative shadow-2xl">
                     <div class="flex items-center justify-center pt-5">
-                        <h2 id="question-number" class="font-logo font-bold text-[20px] text-gray-900 drop-shadow-sm tracking-wide">
-                            Question 1
-                        </h2>
+                        <h2 id="question-number" class="font-logo font-bold text-[20px] text-gray-900 drop-shadow-sm tracking-wide uppercase">Question 1</h2>
                     </div>
                     <div class="flex-grow flex items-center justify-center px-8 text-center pb-6 mt-2">
-                        <p id="question-text" class="font-logo font-bold text-[20px] leading-snug text-[#1a1a1a] overflow-y-auto max-h-[80px]">
-                            ...
-                        </p>
+                        <p id="question-text" class="font-logo font-bold text-[20px] leading-snug text-[#1a1a1a] overflow-y-auto max-h-[80px]">...</p>
                     </div>
                 </div>
-
-                <div class="w-full font-sans text-[16px] font-bold text-[#351e02] pb-2">
+                <div class="w-full font-sans text-[16px] font-bold text-[#351e02] pb-6">
                     <div class="flex w-full h-[65px]">
                         <button type="button" class="btn-gold-3d flex-1 flex items-center justify-center" onclick="submitAnswer('Mungkin')">Probably</button>
                         <button type="button" class="btn-gold-3d flex-1 flex items-center justify-center" onclick="submitAnswer('Mungkin Tidak')">Probably not</button>
@@ -284,36 +258,27 @@
         </section>
 
         <!-- ================= GUESS SCREEN (REVEAL) ================= -->
-        <section id="screen-guess" class="absolute inset-0 flex-col fade-in hidden-screen">
-            <div class="flex justify-start px-4 pt-[max(1.5rem,env(safe-area-inset-top))] z-50 w-full shrink-0 absolute top-0 left-0">
-                <button type="button" class="w-10 h-10 rounded-full bg-black/30 border border-white/20 flex items-center justify-center shadow-lg active:bg-black/50 transition-colors backdrop-blur-sm pointer-events-auto" onclick="resetGame()">
+        <section id="screen-guess" class="hidden-screen flex flex-col h-full fade-in overflow-hidden">
+            <div class="flex justify-start px-4 pt-[max(2rem,env(safe-area-inset-top))] z-50 w-full shrink-0 absolute top-0 left-0">
+                <button type="button" class="w-10 h-10 rounded-full bg-black/30 border border-white/20 flex items-center justify-center shadow-lg active:bg-black/50 pointer-events-auto" onclick="resetGame()">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
                 </button>
             </div>
-
-            <div class="w-full text-center shrink-0 mb-4 z-20 pt-[calc(env(safe-area-inset-top,0px)+4rem)]">
-                <h2 class="font-logo text-3xl font-black akinator-logo-text tracking-wide">Saya berpikir tentang...</h2>
+            <div class="w-full text-center shrink-0 mb-4 z-20 pt-[calc(env(safe-area-inset-top,0px)+4.5rem)]">
+                <h2 class="font-logo text-3xl font-black akinator-logo-text tracking-wide uppercase">Saya berpikir tentang...</h2>
             </div>
-
             <div class="flex-grow flex flex-col items-center justify-center relative z-10 px-6 min-h-0">
                 <div class="relative w-48 h-64 bg-[#2d1331] rounded-lg border-4 border-[#ffdf6b] shadow-[0_10px_25px_rgba(0,0,0,0.8)] overflow-hidden flex items-center justify-center mb-6">
-                    
                     <img id="guess-image" src="" alt="Character Image" class="w-full h-full object-cover hidden">
-                    
                     <div id="no-image-fallback" class="hidden absolute inset-0 bg-gradient-to-b from-[#3d1d3f] to-[#1a0a1c] flex flex-col items-center justify-center">
-                        <svg class="w-20 h-20 text-white/20 drop-shadow-md" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                        <span class="text-white/40 text-[10px] font-sans font-bold uppercase tracking-widest mt-3">Image Not Found</span>
+                        <svg class="w-20 h-20 text-white/20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        <span class="text-white/40 text-[10px] font-sans font-bold uppercase tracking-widest mt-3">No Image</span>
                     </div>
-
-                    <div id="image-loading" class="absolute inset-0 flex items-center justify-center bg-[#2d1331]">
-                        <div class="spinner"></div>
-                    </div>
+                    <div id="image-loading" class="absolute inset-0 flex items-center justify-center bg-[#2d1331]"><div class="spinner"></div></div>
                 </div>
-                
-                <h3 id="guess-name" class="font-logo font-black text-3xl text-center text-white drop-shadow-md mb-2">[Nama Karakter]</h3>
-                <p id="guess-desc" class="font-sans font-medium text-sm text-center text-white/80 max-w-[80%] uppercase tracking-wider overflow-y-auto max-h-[80px]">[Deskripsi Karakter]</p>
+                <h3 id="guess-name" class="font-logo font-black text-3xl text-center text-white drop-shadow-md mb-2 uppercase">...</h3>
+                <p id="guess-desc" class="font-sans font-medium text-sm text-center text-white/80 max-w-[80%] uppercase tracking-wider overflow-y-auto max-h-[80px]">...</p>
             </div>
-
             <div class="w-full flex flex-col z-20 shrink-0 pb-[max(1.5rem,env(safe-area-inset-bottom))] px-4">
                 <div class="w-full flex justify-center py-2 mb-2 text-white/80 text-sm font-bold tracking-widest uppercase">Apakah saya benar?</div>
                 <div class="flex w-full h-[70px] gap-2">
@@ -324,18 +289,23 @@
         </section>
 
         <!-- ================= END SCREEN ================= -->
-        <section id="screen-end" class="absolute inset-0 flex-col fade-in hidden-screen justify-center items-center z-20">
-            <h1 id="end-title" class="font-logo text-4xl font-black akinator-logo-text tracking-wide mb-8 drop-shadow-xl mt-12">Saya Hebat!</h1>
-            <img id="end-image" src="https://en.akinator.com/assets/img/akitudes_520x650/triomphe.png" alt="End Game" class="h-full max-h-[35vh] object-contain drop-shadow-2xl mb-12">
+        <section id="screen-end" class="hidden-screen flex flex-col h-full fade-in justify-center items-center relative z-20 pt-8 overflow-hidden">
+            <h1 id="end-title" class="font-logo text-4xl font-black akinator-logo-text tracking-wide mb-8 drop-shadow-xl mt-12 uppercase">Saya Hebat!</h1>
+            <img id="end-image" src="https://en.akinator.com/assets/img/akitudes_520x650/triomphe.png" alt="End Game" class="h-[40vh] max-h-[350px] object-contain drop-shadow-2xl mb-12">
             <button type="button" class="btn-gold-3d w-[80%] max-w-[280px] py-4 rounded-xl flex items-center justify-center shadow-xl" onclick="resetGame()">
-                <span class="font-logo font-black text-xl tracking-wide">Main Lagi</span>
+                <span class="font-logo font-black text-xl tracking-wide uppercase">Main Lagi</span>
             </button>
         </section>
 
     </div>
 
     <script>
-        // Mencegah double tap to zoom secara native
+        document.addEventListener('touchmove', function(event) {
+            if (event.scale !== 1) { event.preventDefault(); return; }
+            const isScrollableArea = event.target.closest('.allow-scroll');
+            if (!isScrollableArea) { event.preventDefault(); }
+        }, { passive: false });
+
         let lastTouchEnd = 0;
         document.addEventListener('touchend', function(event) {
             const now = (new Date()).getTime();
@@ -343,10 +313,10 @@
             lastTouchEnd = now;
         }, false);
 
+        const default50List = "Taylor Swift\nTom Cruise\nLeonardo DiCaprio\nBrad Pitt\nScarlett Johansson\nRobert Downey Jr\nJohnny Depp\nWill Smith\nAngelina Jolie\nDwayne Johnson\nCristiano Ronaldo\nLionel Messi\nJustin Bieber\nSelena Gomez\nKaty Perry\nRihanna\nLady Gaga\nEminem\nChris Hemsworth\nVin Diesel\nKeanu Reeves\nChris Evans\nRyan Reynolds\nZendaya\nTom Holland\nMargot Robbie\nElon Musk\nMark Zuckerberg\nBill Gates\nSteve Jobs\nAriana Grande\nBillie Eilish\nBeyonce\nDrake\nSnoop Dogg\nKanye West\nJay-Z\nEd Sheeran\nBruno Mars\nShawn Mendes\nThe Weeknd\nPost Malone\nKylie Jenner\nKendall Jenner\nKim Kardashian\nEmma Watson\nJennifer Lawrence\nNatalie Portman\nAnne Hathaway\nGal Gadot";
+
         let config = {
-            magicManualName: "",
-            magicApiUrl: "",
-            magicApiKey: "",
+            characterList: default50List,
             customApiKey: "",
             aiModel: "gemini-2.5-flash",
             glitchDelay: "0",
@@ -357,330 +327,209 @@
         let preloadedData = null;
         let isGameOver = false;
         let isProcessing = false;
-        
         let fetchedMagicName = "";
-        let fetchedMagicImage = null;
+        
+        let t9InputString = "";
+        let forcedTargetIndex = -1; // -1 = Random
+        
         let glitchTimeout = null;
         let glitchEndTimeout = null;
 
+        // --- SISTEM PENGATURAN ---
         function loadSettings() {
-            const saved = localStorage.getItem('akinatorSettingsPro');
+            const saved = localStorage.getItem('akinatorSettingsProV2');
             if (saved) {
                 const parsed = JSON.parse(saved);
                 config = { ...config, ...parsed };
-                
-                document.getElementById('input-magic-manual').value = config.magicManualName;
-                document.getElementById('input-magic-api').value = config.magicApiUrl;
-                document.getElementById('input-magic-key').value = config.magicApiKey;
-                document.getElementById('input-api-key').value = config.customApiKey;
-                document.getElementById('input-ai-model').value = config.aiModel || "gemini-2.5-flash"; 
-                document.getElementById('input-glitch-delay').value = config.glitchDelay;
-                document.getElementById('input-glitch-duration').value = config.glitchDuration;
-            } else {
-                document.getElementById('input-ai-model').value = "gemini-2.5-flash";
             }
+            document.getElementById('input-character-list').value = config.characterList || default50List;
+            document.getElementById('input-api-key').value = config.customApiKey || "";
+            document.getElementById('input-ai-model').value = config.aiModel || "gemini-2.5-flash"; 
+            document.getElementById('input-glitch-delay').value = config.glitchDelay || "0";
+            document.getElementById('input-glitch-duration').value = config.glitchDuration || "1.5";
         }
 
-        function openSettings() { document.getElementById('settings-modal').classList.remove('hidden-screen'); }
-        
+        function openSettings() { 
+            document.getElementById('settings-modal').classList.remove('hidden-screen'); 
+        }
         function closeSettings() { 
             document.getElementById('settings-modal').classList.add('hidden-screen'); 
             loadSettings(); 
         }
 
         function saveSettings() {
-            config.magicManualName = document.getElementById('input-magic-manual').value.trim();
-            config.magicApiUrl = document.getElementById('input-magic-api').value.trim();
-            config.magicApiKey = document.getElementById('input-magic-key').value.trim();
+            config.characterList = document.getElementById('input-character-list').value.trim();
+            if (!config.characterList) config.characterList = default50List; // Fallback kalau dikosongin
+            
             config.customApiKey = document.getElementById('input-api-key').value.trim();
             config.aiModel = document.getElementById('input-ai-model').value.trim() || "gemini-2.5-flash";
             config.glitchDelay = document.getElementById('input-glitch-delay').value.trim() || "0";
             config.glitchDuration = document.getElementById('input-glitch-duration').value.trim() || "1.5";
             
-            localStorage.setItem('akinatorSettingsPro', JSON.stringify(config));
+            localStorage.setItem('akinatorSettingsProV2', JSON.stringify(config));
             showErrorDot(false);
             closeSettings();
         }
 
-        function triggerGlitch() {
-            if (glitchTimeout) clearTimeout(glitchTimeout);
-            if (glitchEndTimeout) clearTimeout(glitchEndTimeout);
+        // --- T9 KEYPAD LOGIC ---
+        function openT9() {
+            t9InputString = "";
+            document.getElementById('t9-display').innerText = "";
+            document.getElementById('t9-modal').classList.remove('hidden-screen');
+        }
 
-            const delayMs = (parseFloat(config.glitchDelay) || 0) * 1000;
-            const durationMs = (parseFloat(config.glitchDuration) || 1.5) * 1000;
-            const container = document.getElementById('main-app-container');
+        function closeT9() {
+            document.getElementById('t9-modal').classList.add('hidden-screen');
+        }
+
+        function t9Press(num) {
+            t9InputString += num;
+            document.getElementById('t9-display').innerText = t9InputString;
+            if (navigator.vibrate) navigator.vibrate(15);
+        }
+
+        function t9Clear() {
+            t9InputString = t9InputString.slice(0, -1);
+            document.getElementById('t9-display').innerText = t9InputString;
+            if (navigator.vibrate) navigator.vibrate(15);
+        }
+
+        function t9Submit() {
+            if (t9InputString !== "") {
+                // Set target, index starts from 0 in array, user inputs 1-based.
+                forcedTargetIndex = parseInt(t9InputString, 10) - 1;
+            } else {
+                forcedTargetIndex = -1; // Balik ke random kalau kosong
+            }
+            if (navigator.vibrate) navigator.vibrate([30, 30]);
+            closeT9();
+        }
+
+        // --- GAME ENGINE ---
+        function assignTarget() {
+            const listArray = config.characterList.split('\n').map(item => item.trim()).filter(item => item.length > 0);
             
-            glitchTimeout = setTimeout(() => {
-                container.classList.add('glitch-active');
-                glitchEndTimeout = setTimeout(() => {
-                    container.classList.remove('glitch-active');
-                }, durationMs);
-            }, delayMs);
-        }
+            if (listArray.length === 0) {
+                fetchedMagicName = "Karakter Misterius";
+                return;
+            }
 
-        function showErrorDot(show) {
-            const dot = document.getElementById('error-dot');
-            if(show) dot.classList.remove('hidden');
-            else dot.classList.add('hidden');
-        }
-
-        async function fetchTargetFromAPI() {
-            if (config.magicApiUrl) {
-                try {
-                    const res = await fetch(config.magicApiUrl);
-                    const contentType = res.headers.get("content-type");
-                    
-                    if (contentType && contentType.includes("application/json")) {
-                        const data = await res.json();
-                        if (config.magicApiKey) {
-                            const keys = config.magicApiKey.split('.');
-                            let current = data;
-                            for (let k of keys) {
-                                if (current && current[k] !== undefined) { current = current[k]; } 
-                                else { current = undefined; break; }
-                            }
-                            fetchedMagicName = current ? current : "Error";
-                        } else {
-                            fetchedMagicName = data.name || data.character || data.target || data.judul || Object.values(data)[0] || "Misterius";
-                        }
-                        fetchedMagicImage = data.image || data.img || data.url || data.foto || null; 
-                    } else {
-                        fetchedMagicName = await res.text();
-                        fetchedMagicImage = null;
-                    }
-                } catch (e) {
-                    fetchedMagicName = config.magicManualName ? config.magicManualName : "Error";
-                }
-            } else if (config.magicManualName) {
-                fetchedMagicName = config.magicManualName;
-                fetchedMagicImage = null;
+            if (forcedTargetIndex >= 0) {
+                // Kalau angka yg dimasukin kegedean, kita modulo biar muter (aman gak error)
+                const safeIndex = forcedTargetIndex % listArray.length;
+                fetchedMagicName = listArray[safeIndex];
+            } else {
+                // Random fallback
+                const randIndex = Math.floor(Math.random() * listArray.length);
+                fetchedMagicName = listArray[randIndex];
             }
         }
 
         async function pregenerateGameData() {
-            const prompt = `Target karakter yang ditebak: "${fetchedMagicName}".
-Tugasmu membuat tepat 3 pertanyaan Ya/Tidak/Mungkin ala Akinator yang SINGKAT, PADAT, dan UMUM tapi perlahan mengarah ke karakter ini.
-Aturan Wajib:
-1. Maksimal 10 kata per pertanyaan. JANGAN bertele-tele. (Contoh yg benar: "Apakah karaktermu seorang penyanyi?", "Apakah dia laki-laki?").
-2. DILARANG menyebutkan nama karakter atau judul karyanya secara eksplisit di dalam pertanyaan.
-3. Berikan deskripsi singkat tentang karakter ini.
-
-Balas HANYA dengan format JSON murni tanpa markdown:
-{
-  "questions": [
-    "Pertanyaan singkat 1?",
-    "Pertanyaan singkat 2?",
-    "Pertanyaan singkat 3?"
-  ],
-  "description": "Deskripsi singkat karakter"
-}`;
-            const payload = {
-                contents: [{ role: "user", parts: [{ text: prompt }] }],
-                generationConfig: { responseMimeType: "application/json" }
-            };
-
+            const prompt = `Target: "${fetchedMagicName}". Buat 3 pertanyaan Ya/Tidak singkat (max 10 kata) untuk menebak dia tanpa sebut namanya. Berikan JSON: {"questions": ["Q1", "Q2", "Q3"], "description": "siapa dia"}`;
             const targetModel = config.aiModel || "gemini-2.5-flash";
-            const fallbackModels = [targetModel, "gemini-2.5-flash", "gemini-2.0-flash"];
-            const uniqueModels = [...new Set(fallbackModels)];
-
-            for (let model of uniqueModels) {
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${config.customApiKey}`;
-                try {
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify(payload)
-                    });
-                    
-                    if (response.ok) {
-                        const responseData = await response.json();
-                        const candidateText = responseData?.candidates?.[0]?.content?.parts?.[0]?.text;
-                        if (!candidateText) continue;
-
-                        try {
-                            const cleanJson = candidateText.replace(/```json|```/gi, "").trim();
-                            return JSON.parse(cleanJson);
-                        } catch (parseErr) {
-                            continue;
-                        }
-                    } else {
-                        if (response.status === 400 || response.status === 403 || response.status === 429) {
-                            return null; 
-                        }
-                    }
-                } catch (e) {}
-            }
-            return null;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${config.customApiKey}`;
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
+                });
+                if (!response.ok) return null;
+                const responseData = await response.json();
+                const candidateText = responseData?.candidates?.[0]?.content?.parts?.[0]?.text;
+                return JSON.parse(candidateText.replace(/```json|```/gi, "").trim());
+            } catch (e) { return null; }
         }
 
         async function fetchCharacterImageFromInternet(characterName) {
-            if (fetchedMagicImage) return fetchedMagicImage;
             try {
                 let res = await fetch(`https://id.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(characterName)}&prop=pageimages&format=json&pithumbsize=400&origin=*`);
-                let data = await res.json();
-                let pages = data.query.pages;
-                let pageId = Object.keys(pages)[0];
+                let data = await res.json(), pages = data.query.pages, pageId = Object.keys(pages)[0];
                 if (pageId !== "-1" && pages[pageId].thumbnail) return pages[pageId].thumbnail.source;
-
-                res = await fetch(`https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(characterName)}&prop=pageimages&format=json&pithumbsize=400&origin=*`);
-                data = await res.json();
-                pages = data.query.pages;
-                pageId = Object.keys(pages)[0];
-                if (pageId !== "-1" && pages[pageId].thumbnail) return pages[pageId].thumbnail.source;
-                
                 return null;
             } catch (e) { return null; }
         }
 
         function showScreen(screenId) {
-            const screens = ['screen-start', 'screen-game', 'screen-guess', 'screen-end'];
-            screens.forEach(id => {
-                const el = document.getElementById(id);
-                el.classList.add('hidden-screen');
-                el.classList.remove('flex');
-            });
-            const targetEl = document.getElementById(screenId);
-            targetEl.classList.remove('hidden-screen');
-            targetEl.classList.add('flex');
+            ['screen-start', 'screen-game', 'screen-guess', 'screen-end'].forEach(id => document.getElementById(id).classList.add('hidden-screen'));
+            document.getElementById(screenId).classList.remove('hidden-screen');
         }
 
         function showLoading(show) {
-            if (show) document.getElementById('loading-overlay').classList.remove('hidden-screen');
-            else document.getElementById('loading-overlay').classList.add('hidden-screen');
-        }
-
-        function resetGame() {
-            if (glitchTimeout) clearTimeout(glitchTimeout);
-            if (glitchEndTimeout) clearTimeout(glitchEndTimeout);
-            document.getElementById('main-app-container').classList.remove('glitch-active');
-            showErrorDot(false);
-            
-            currentQuestionIndex = 0;
-            isGameOver = false;
-            isProcessing = false;
-            fetchedMagicName = "";
-            fetchedMagicImage = null;
-            preloadedData = null;
-            
-            showScreen('screen-start');
+            document.getElementById('loading-overlay').classList.toggle('hidden-screen', !show);
         }
 
         async function startGame() {
-            showErrorDot(false);
-            
-            if (!config.customApiKey || (!config.magicApiUrl && !config.magicManualName)) {
-                showErrorDot(true);
-                return;
-            }
-
-            currentQuestionIndex = 0;
-            isGameOver = false;
-            isProcessing = false;
-            fetchedMagicName = "";
-            fetchedMagicImage = null;
-            preloadedData = null;
-            
+            if (!config.customApiKey) { showErrorDot(true); return; }
             showLoading(true);
             
-            await fetchTargetFromAPI();
-            if (fetchedMagicName === "Error" || fetchedMagicName === "Key tidak ditemukan") {
-                showLoading(false);
-                showErrorDot(true);
-                return;
-            }
-
+            // Assign target dari T9 input / Random
+            assignTarget();
+            
             preloadedData = await pregenerateGameData();
             showLoading(false);
-
-            if (!preloadedData || !preloadedData.questions || preloadedData.questions.length < 3) {
-                showErrorDot(true);
-                return;
-            }
-
+            
+            if (!preloadedData) { showErrorDot(true); return; }
+            
+            currentQuestionIndex = 0; 
+            isGameOver = false;
             showScreen('screen-game');
             updateQuestionUI();
+            
+            // Reset T9 memory for next game
+            forcedTargetIndex = -1;
+            t9InputString = "";
         }
 
         function updateQuestionUI() {
             document.getElementById('question-number').innerText = `Question ${currentQuestionIndex + 1}`;
             document.getElementById('question-text').innerText = preloadedData.questions[currentQuestionIndex];
-            
-            const jinImage = document.getElementById('jin-image');
-            jinImage.src = currentQuestionIndex % 2 === 0 
-                ? "https://en.akinator.com/assets/img/akitudes_520x650/inspiration_forte.png" 
-                : "https://en.akinator.com/assets/img/akitudes_520x650/serein_2.png";
         }
 
         async function submitAnswer(answer) {
             if (isGameOver || isProcessing) return;
             isProcessing = true;
-
-            const gameScreen = document.getElementById('screen-game');
-            gameScreen.style.opacity = '0.7';
-            
+            document.getElementById('screen-game').style.opacity = '0.7';
             setTimeout(() => { 
-                gameScreen.style.opacity = '1'; 
+                document.getElementById('screen-game').style.opacity = '1'; 
                 currentQuestionIndex++;
-
-                if (currentQuestionIndex < 3) {
-                    updateQuestionUI();
-                    isProcessing = false; 
-                } else {
-                    showReveal();
-                }
-            }, 100);
+                if (currentQuestionIndex < 3) { updateQuestionUI(); isProcessing = false; } 
+                else { showReveal(); }
+            }, 150);
         }
 
         async function showReveal() {
             document.getElementById('guess-name').innerText = fetchedMagicName;
-            document.getElementById('guess-desc').innerText = preloadedData.description || "Karakter Misterius";
-            
-            const imgEl = document.getElementById('guess-image');
-            const fallbackEl = document.getElementById('no-image-fallback');
-            const loadingEl = document.getElementById('image-loading');
-            
-            imgEl.classList.add('hidden');
-            fallbackEl.classList.add('hidden');
-            loadingEl.style.display = 'flex';
-            
+            document.getElementById('guess-desc').innerText = preloadedData.description;
+            const imgEl = document.getElementById('guess-image'), fallbackEl = document.getElementById('no-image-fallback'), loadingEl = document.getElementById('image-loading');
+            imgEl.classList.add('hidden'); fallbackEl.classList.add('hidden'); loadingEl.style.display = 'flex';
             showScreen('screen-guess');
-
             const imgUrl = await fetchCharacterImageFromInternet(fetchedMagicName);
             loadingEl.style.display = 'none';
-
-            if (imgUrl) {
-                imgEl.src = imgUrl;
-                imgEl.onload = () => { imgEl.classList.remove('hidden'); };
-                imgEl.onerror = () => { fallbackEl.classList.remove('hidden'); };
-            } else {
-                fallbackEl.classList.remove('hidden');
-            }
+            if (imgUrl) { imgEl.src = imgUrl; imgEl.onload = () => imgEl.classList.remove('hidden'); imgEl.onerror = () => fallbackEl.classList.remove('hidden'); } 
+            else { fallbackEl.classList.remove('hidden'); }
         }
 
         function handleGuessResult(result) {
             isGameOver = true;
-            if (result === 'yes') {
-                document.getElementById('end-title').innerText = "Saya Memang Hebat!";
-                document.getElementById('end-title').style.color = "#f7b733";
-                document.getElementById('end-image').src = "https://en.akinator.com/assets/img/akitudes_520x650/triomphe.png";
-            } else {
-                document.getElementById('end-title').innerText = "Kamu Mengalahkanku!";
-                document.getElementById('end-title').style.color = "#ffdf6b";
-                document.getElementById('end-image').src = "https://en.akinator.com/assets/img/akitudes_520x650/deception.png";
-            }
+            document.getElementById('end-title').innerText = result === 'yes' ? "SAYA HEBAT!" : "KAMU MENANG!";
             showScreen('screen-end');
         }
 
-        window.onload = () => {
-            loadSettings();
-            showScreen('screen-start');
-        };
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js').catch(function(err) {});
-            });
+        function resetGame() {
+            showErrorDot(false); isProcessing = false; showScreen('screen-start');
         }
+
+        function showErrorDot(show) { document.getElementById('error-dot').classList.toggle('hidden', !show); }
+
+        function triggerGlitch() {
+            const container = document.getElementById('main-app-container');
+            container.classList.add('glitch-active');
+            setTimeout(() => container.classList.remove('glitch-active'), (parseFloat(config.glitchDuration) || 1.5) * 1000);
+        }
+
+        window.onload = () => { loadSettings(); showScreen('screen-start'); };
     </script>
 </body>
 </html>

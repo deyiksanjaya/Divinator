@@ -66,13 +66,6 @@
             text-shadow: 0px 1px 5px rgba(255,0,0,0.8) !important;
         }
 
-        .ribbon-dark {
-            background: linear-gradient(180deg, #3d1d3f 0%, #29102b 100%);
-            border-top: 1px solid #652c61;
-            border-bottom: 1px solid #1a0a1c;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-        }
-
         .speech-bubble {
             background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(240,230,239,0.9) 100%);
             box-shadow: 0 -10px 20px rgba(0,0,0,0.15);
@@ -290,16 +283,12 @@
             </header>
 
             <div class="flex-grow flex justify-center items-center relative px-4 z-10 min-h-0">
-                <!-- Tambah cursor-pointer dan fungsi onClick di gambar ini -->
-                <img src="Genie.PNG" alt="Akinator" class="w-full h-full max-h-[40vh] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.5)] z-10 cursor-pointer transition-transform active:scale-95" onclick="handleImageClick()">
+                <!-- Klik gambar ini memicu fungsi ganda: buka T9 ATAU eksekusi Magic -->
+                <img src="genie.PNG" alt="Akinator" class="w-full h-full max-h-[40vh] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.5)] z-10 cursor-pointer transition-transform active:scale-95" onclick="handleImageClick()">
             </div>
 
             <div class="w-full flex flex-col items-center z-30 pt-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] shrink-0">
-                <div class="ribbon-dark w-[110%] py-4 px-6 text-center shadow-2xl relative z-20 mb-8 cursor-pointer" onclick="openT9()">
-                    <p class="font-logo text-[17px] text-white/90 drop-shadow-md tracking-wide">
-                        Pikirkan tokoh nyata atau fiksi
-                    </p>
-                </div>
+                <!-- Elemen ribbon dibuang dari sini -->
                 <button type="button" class="btn-gold-3d w-[85%] max-w-[320px] py-4 rounded-xl flex flex-col items-center justify-center shadow-[0_10px_20px_rgba(0,0,0,0.5)] relative z-30" onclick="startGame()">
                     <span class="font-logo font-black text-2xl tracking-wide uppercase">Challenge me</span>
                     <span class="font-sans text-[11px] font-bold text-[#4d320d] uppercase mt-1 tracking-wider">I will read your mind.</span>
@@ -424,7 +413,6 @@
         let t9InputString = "";
         let forcedTargetIndex = -1; 
         
-        // Status baru untuk nungguin sentuhan pada gambar (Akinator di homescreen)
         let waitingForMagicTrigger = false;
         
         let normalChatHistory = [];
@@ -523,7 +511,6 @@
                     setTimeout(() => {
                         closeT9();
                         nameDisplay.classList.replace('opacity-100', 'opacity-0');
-                        // Buka blokiran buat nunggu klik gambar, nggak otomatis jalan lagi
                         waitingForMagicTrigger = true; 
                     }, 1000);
                 }
@@ -537,11 +524,13 @@
             if (navigator.vibrate) navigator.vibrate(15);
         }
 
-        // Fungsi baru dipanggil saat gambar homescreen di klik
+        // FUNGSI GANDA: Buka T9 atau Eksekusi Magic
         function handleImageClick() {
             if (waitingForMagicTrigger) {
                 waitingForMagicTrigger = false;
                 startMagicSequence();
+            } else {
+                openT9();
             }
         }
 
@@ -922,4 +911,4 @@ Tulis secara langsung sealami mungkin, tanpa JSON, tanpa format.`;
         window.onload = () => { loadSettings(); showScreen('screen-start'); };
     </script>
 </body>
-</html>.
+</html>

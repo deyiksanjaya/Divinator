@@ -114,6 +114,11 @@
         textarea::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); }
         textarea::-webkit-scrollbar-thumb { background: rgba(247, 183, 51, 0.5); border-radius: 4px; }
 
+        /* Untuk elemen scrollable seperti text q&a */
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 4px; }
+
         input, textarea, select {
             touch-action: auto;
             -webkit-user-select: text;
@@ -175,11 +180,6 @@
             66% { opacity: 0.4; background: #fff; }
             100% { opacity: 0.2; background: #000; }
         }
-        @keyframes mildFlicker {
-            0% { opacity: 0.5; }
-            50% { opacity: 0.8; }
-            100% { opacity: 0.5; }
-        }
         
         .typewriter-text {
             border-right: 2px solid rgba(0,0,0,0.5);
@@ -192,645 +192,760 @@
     </style>
 </head>
 <body class="overflow-hidden h-[100dvh] w-screen m-0 flex flex-col bg-[var(--bg-bottom)] relative">
-<!-- Indicator Error Merah -->
-<div id="error-dot" class="hidden fixed top-[max(1rem,env(safe-area-inset-top))] right-4 w-3 h-3 bg-red-600 rounded-full shadow-[0_0_10px_rgba(255,0,0,0.8)] z-[9999]"></div>
 
-<!-- Latar Belakang -->
-<img src="https://raw.githubusercontent.com/deyiksanjaya/akeynator/refs/heads/main/IMG_0854.jpeg" 
-     alt="Background" 
-     class="fixed inset-0 w-full h-full object-cover z-0 pointer-events-none">
+    <!-- Indicator Error Merah -->
+    <div id="error-dot" class="hidden fixed top-[max(1rem,env(safe-area-inset-top))] right-4 w-3 h-3 bg-red-600 rounded-full shadow-[0_0_10px_rgba(255,0,0,0.8)] z-[9999]"></div>
 
-<!-- Loading Overlay -->
-<div id="loading-overlay" class="fixed inset-0 z-[100] flex flex-col items-center justify-center hidden-screen">
-    <div class="spinner mb-4"></div>
-    <p class="font-logo text-xl font-bold text-[#f7b733] tracking-wider drop-shadow-md text-center px-6 uppercase tracking-widest">Loading...</p>
-</div>
+    <!-- Latar Belakang -->
+    <img src="https://raw.githubusercontent.com/deyiksanjaya/akeynator/refs/heads/main/IMG_0854.jpeg" 
+         alt="Background" 
+         class="fixed inset-0 w-full h-full object-cover z-0 pointer-events-none">
 
-<!-- Secret T9 Keypad Modal -->
-<div id="t9-modal" class="fixed inset-0 z-[300] flex items-center justify-center hidden-screen fade-in">
-    <div class="bg-black/90 border border-[#f7b733]/40 p-5 rounded-2xl shadow-2xl w-64 backdrop-blur-md flex flex-col">
-        <div id="t9-display" class="text-[#f7b733] text-right h-8 mb-2 tracking-widest text-2xl font-mono border-b border-white/20 pb-1 transition-colors"></div>
-        
-        <div id="t9-target-name" class="text-green-400 font-bold text-center text-[10px] tracking-widest uppercase mb-4 h-4 opacity-0 transition-opacity"></div>
-        
-        <div class="grid grid-cols-3 gap-3">
-            <button onclick="t9Press('1')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">1</button>
-            <button onclick="t9Press('2')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">2</button>
-            <button onclick="t9Press('3')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">3</button>
-            <button onclick="t9Press('4')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">4</button>
-            <button onclick="t9Press('5')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">5</button>
-            <button onclick="t9Press('6')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">6</button>
-            <button onclick="t9Press('7')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">7</button>
-            <button onclick="t9Press('8')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">8</button>
-            <button onclick="t9Press('9')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">9</button>
-            <button onclick="t9Clear()" class="bg-red-500/20 py-4 rounded-xl active:bg-red-500/40 text-red-400 font-bold text-lg transition-colors">DEL</button>
-            <button onclick="t9Press('0')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">0</button>
-            <div class="py-4"></div>
-        </div>
-        <button onclick="closeT9()" class="w-full mt-4 text-white/40 text-xs uppercase tracking-widest py-2 active:text-white transition-colors">Tutup</button>
+    <!-- Loading Overlay Global -->
+    <div id="loading-overlay" class="fixed inset-0 z-[100] flex flex-col items-center justify-center hidden-screen">
+        <div class="spinner mb-4"></div>
+        <p class="font-logo text-xl font-bold text-[#f7b733] tracking-wider drop-shadow-md text-center px-6 uppercase tracking-widest">Loading...</p>
     </div>
-</div>
 
-<!-- Tetapan Modal -->
-<div id="settings-modal" class="fixed inset-0 z-[200] flex items-center justify-center hidden-screen p-4 fade-in">
-    <div class="bg-[#2d1331] w-full max-w-sm rounded-xl border-2 border-[#f7b733] shadow-2xl flex flex-col max-h-[90dvh]">
-        <div class="p-5 overflow-y-auto overscroll-contain allow-scroll" style="touch-action: pan-y;">
-            <div class="flex items-center gap-2 border-b border-[#f7b733]/30 pb-2 mb-4">
-                <svg class="w-6 h-6 text-[#f7b733]" fill="currentColor" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
-                <h2 class="text-[#f7b733] font-logo text-2xl font-bold tracking-tight">Settings</h2>
+    <!-- Secret T9 Keypad Modal -->
+    <div id="t9-modal" class="fixed inset-0 z-[300] flex items-center justify-center hidden-screen fade-in">
+        <div class="bg-black/90 border border-[#f7b733]/40 p-5 rounded-2xl shadow-2xl w-64 backdrop-blur-md flex flex-col">
+            <div id="t9-display" class="text-[#f7b733] text-right h-8 mb-2 tracking-widest text-2xl font-mono border-b border-white/20 pb-1 transition-colors"></div>
+            
+            <div id="t9-target-name" class="text-green-400 font-bold text-center text-[10px] tracking-widest uppercase mb-4 h-4 opacity-0 transition-opacity"></div>
+            
+            <div class="grid grid-cols-3 gap-3">
+                <button onclick="t9Press('1')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">1</button>
+                <button onclick="t9Press('2')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">2</button>
+                <button onclick="t9Press('3')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">3</button>
+                <button onclick="t9Press('4')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">4</button>
+                <button onclick="t9Press('5')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">5</button>
+                <button onclick="t9Press('6')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">6</button>
+                <button onclick="t9Press('7')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">7</button>
+                <button onclick="t9Press('8')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">8</button>
+                <button onclick="t9Press('9')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">9</button>
+                <button onclick="t9Clear()" class="bg-red-500/20 py-4 rounded-xl active:bg-red-500/40 text-red-400 font-bold text-lg transition-colors">DEL</button>
+                <button onclick="t9Press('0')" class="bg-white/10 py-4 rounded-xl active:bg-white/30 text-white font-bold text-xl transition-colors">0</button>
+                <div class="py-4"></div>
+            </div>
+            <button onclick="closeT9()" class="w-full mt-4 text-white/40 text-xs uppercase tracking-widest py-2 active:text-white transition-colors">Tutup</button>
+        </div>
+    </div>
+
+    <!-- Tetapan Modal -->
+    <div id="settings-modal" class="fixed inset-0 z-[200] flex items-center justify-center hidden-screen p-4 fade-in">
+        <div class="bg-[#2d1331] w-full max-w-sm rounded-xl border-2 border-[#f7b733] shadow-2xl flex flex-col max-h-[90dvh]">
+            <div class="p-5 overflow-y-auto overscroll-contain allow-scroll" style="touch-action: pan-y;">
+                <div class="flex items-center gap-2 border-b border-[#f7b733]/30 pb-2 mb-4">
+                    <svg class="w-6 h-6 text-[#f7b733]" fill="currentColor" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+                    <h2 class="text-[#f7b733] font-logo text-2xl font-bold tracking-tight">Settings</h2>
+                </div>
+                
+                <div class="mb-4 bg-black/20 p-3 rounded-lg border border-red-500/30">
+                    <label class="block text-white/80 text-xs mb-1 uppercase tracking-wider font-bold text-red-300">Gemini API Key (Wajib)</label>
+                    <input type="password" id="input-api-key" placeholder="Masukkan API Key" class="w-full p-2.5 rounded bg-white/90 text-black focus:outline-none focus:ring-2 focus:ring-[#f7b733] mb-2">
+                    
+                    <label class="block text-white/80 text-xs mb-1 uppercase tracking-wider font-bold text-red-300">Model Gemini</label>
+                    <input type="text" id="input-ai-model" placeholder="gemini-2.5-flash" class="w-full p-2.5 rounded bg-white/90 text-black text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
+                </div>
+
+                <div class="mb-4 bg-black/20 p-3 rounded-lg border border-white/10">
+                    <label class="block text-white/80 text-xs mb-2 uppercase tracking-wider">List Karakter Target</label>
+                    <p class="text-[10px] text-[#f7b733] mb-2 leading-tight opacity-80">Pisahkan tiap nama dengan baris baru (Enter). Baris 1 akan dipanggil dengan angka 01, baris 100 dengan angka 00.</p>
+                    <textarea id="input-character-list" rows="8" class="w-full p-2.5 rounded bg-white/90 text-black text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733] allow-scroll whitespace-pre" style="line-height: 1.5;"></textarea>
+                </div>
+
+                <div class="mb-2 bg-black/20 p-3 rounded-lg border border-white/10">
+                    <label class="block text-white/80 text-xs mb-3 uppercase tracking-wider">Glitch Transfer (Detik)</label>
+                    <div class="flex gap-3">
+                        <div class="flex-1 flex flex-col items-center gap-1">
+                            <span class="text-white/50 text-[10px] uppercase tracking-widest">Delay</span>
+                            <div class="flex items-center w-full bg-white/10 rounded-lg overflow-hidden border border-white/20">
+                                <button type="button" onclick="stepperChange('glitch-delay', -0.5)" class="w-10 h-10 flex items-center justify-center text-[#f7b733] text-xl font-bold active:bg-white/20 transition-colors shrink-0">&#8722;</button>
+                                <span id="input-glitch-delay" class="flex-1 text-center text-white font-bold text-base">0</span>
+                                <button type="button" onclick="stepperChange('glitch-delay', 0.5)" class="w-10 h-10 flex items-center justify-center text-[#f7b733] text-xl font-bold active:bg-white/20 transition-colors shrink-0">+</button>
+                            </div>
+                        </div>
+                        <div class="flex-1 flex flex-col items-center gap-1">
+                            <span class="text-white/50 text-[10px] uppercase tracking-widest">Durasi</span>
+                            <div class="flex items-center w-full bg-white/10 rounded-lg overflow-hidden border border-white/20">
+                                <button type="button" onclick="stepperChange('glitch-duration', -0.5)" class="w-10 h-10 flex items-center justify-center text-[#f7b733] text-xl font-bold active:bg-white/20 transition-colors shrink-0">&#8722;</button>
+                                <span id="input-glitch-duration" class="flex-1 text-center text-white font-bold text-base">1.5</span>
+                                <button type="button" onclick="stepperChange('glitch-duration', 0.5)" class="w-10 h-10 flex items-center justify-center text-[#f7b733] text-xl font-bold active:bg-white/20 transition-colors shrink-0">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
-            <div class="mb-4 bg-black/20 p-3 rounded-lg border border-red-500/30">
-                <label class="block text-white/80 text-xs mb-1 uppercase tracking-wider font-bold text-red-300">Gemini API Key (Wajib)</label>
-                <input type="password" id="input-api-key" placeholder="Masukkan API Key" class="w-full p-2.5 rounded bg-white/90 text-black focus:outline-none focus:ring-2 focus:ring-[#f7b733] mb-2">
-                
-                <label class="block text-white/80 text-xs mb-1 uppercase tracking-wider font-bold text-red-300">Model Gemini</label>
-                <input type="text" id="input-ai-model" placeholder="gemini-2.5-flash" class="w-full p-2.5 rounded bg-white/90 text-black text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
+            <div class="p-4 border-t border-[#f7b733]/30 flex justify-end gap-3 shrink-0">
+                <button type="button" class="px-5 py-2 bg-white/10 rounded-lg text-white font-bold" onclick="closeSettings()">Tutup</button>
+                <button type="button" class="px-5 py-2 bg-gradient-to-r from-[#f7b733] to-[#d87c00] text-[#2d1331] font-black rounded-lg shadow-lg active:scale-95 transition-transform" onclick="saveSettings()">Simpan</button>
             </div>
-
-            <div class="mb-4 bg-black/20 p-3 rounded-lg border border-white/10">
-                <label class="block text-white/80 text-xs mb-2 uppercase tracking-wider">List Karakter Target</label>
-                <p class="text-[10px] text-[#f7b733] mb-2 leading-tight opacity-80">Pisahkan tiap nama dengan baris baru (Enter). Baris 1 akan dipanggil dengan angka 01, baris 100 dengan angka 00.</p>
-                <textarea id="input-character-list" rows="8" class="w-full p-2.5 rounded bg-white/90 text-black text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733] allow-scroll whitespace-pre" style="line-height: 1.5;"></textarea>
-            </div>
-
-            <div class="mb-2 bg-black/20 p-3 rounded-lg border border-white/10">
-                <label class="block text-white/80 text-xs mb-3 uppercase tracking-wider">Glitch Transfer (Detik)</label>
-                <div class="flex gap-3">
-                    <div class="flex-1 flex flex-col items-center gap-1">
-                        <span class="text-white/50 text-[10px] uppercase tracking-widest">Delay</span>
-                        <div class="flex items-center w-full bg-white/10 rounded-lg overflow-hidden border border-white/20">
-                            <button type="button" onclick="stepperChange('glitch-delay', -0.5)" class="w-10 h-10 flex items-center justify-center text-[#f7b733] text-xl font-bold active:bg-white/20 transition-colors shrink-0">&#8722;</button>
-                            <span id="input-glitch-delay" class="flex-1 text-center text-white font-bold text-base">0</span>
-                            <button type="button" onclick="stepperChange('glitch-delay', 0.5)" class="w-10 h-10 flex items-center justify-center text-[#f7b733] text-xl font-bold active:bg-white/20 transition-colors shrink-0">+</button>
-                        </div>
-                    </div>
-                    <div class="flex-1 flex flex-col items-center gap-1">
-                        <span class="text-white/50 text-[10px] uppercase tracking-widest">Durasi</span>
-                        <div class="flex items-center w-full bg-white/10 rounded-lg overflow-hidden border border-white/20">
-                            <button type="button" onclick="stepperChange('glitch-duration', -0.5)" class="w-10 h-10 flex items-center justify-center text-[#f7b733] text-xl font-bold active:bg-white/20 transition-colors shrink-0">&#8722;</button>
-                            <span id="input-glitch-duration" class="flex-1 text-center text-white font-bold text-base">1.5</span>
-                            <button type="button" onclick="stepperChange('glitch-duration', 0.5)" class="w-10 h-10 flex items-center justify-center text-[#f7b733] text-xl font-bold active:bg-white/20 transition-colors shrink-0">+</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="p-4 border-t border-[#f7b733]/30 flex justify-end gap-3 shrink-0">
-            <button type="button" class="px-5 py-2 bg-white/10 rounded-lg text-white font-bold" onclick="closeSettings()">Tutup</button>
-            <button type="button" class="px-5 py-2 bg-gradient-to-r from-[#f7b733] to-[#d87c00] text-[#2d1331] font-black rounded-lg shadow-lg active:scale-95 transition-transform" onclick="saveSettings()">Simpan</button>
         </div>
     </div>
-</div>
 
-<!-- Kontena Utama Flexbox -->
-<div id="main-app-container" class="flex-grow w-full max-w-md mx-auto flex flex-col relative z-10 transition-all duration-75">
+    <!-- Kontena Utama Flexbox -->
+    <div id="main-app-container" class="flex-grow w-full max-w-md mx-auto flex flex-col relative z-10 transition-all duration-75">
 
-    <!-- ================= START SCREEN ================= -->
-    <section id="screen-start" class="flex flex-col flex-grow fade-in w-full">
-        <header class="flex justify-between items-center px-6 pt-[max(1.5rem,env(safe-area-inset-top))] pb-4 shrink-0">
-            <button type="button" class="w-10 h-10 rounded-full flex items-center justify-center active:bg-white/10 transition-colors" onclick="openSettings()">
-                <svg class="w-8 h-8 text-[#f7b733] drop-shadow-md" fill="currentColor" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
-            </button>
-            <h1 class="font-logo text-4xl font-black akinator-logo-text tracking-wide">akinator</h1>
-            <div class="w-10 h-10"></div> 
-        </header>
+        <!-- ================= START SCREEN ================= -->
+        <section id="screen-start" class="flex flex-col flex-grow fade-in w-full">
+            <header class="flex justify-between items-center px-6 pt-[max(1.5rem,env(safe-area-inset-top))] pb-4 shrink-0">
+                <button type="button" class="w-10 h-10 rounded-full flex items-center justify-center active:bg-white/10 transition-colors" onclick="openSettings()">
+                    <svg class="w-8 h-8 text-[#f7b733] drop-shadow-md" fill="currentColor" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
+                </button>
+                <h1 class="font-logo text-4xl font-black akinator-logo-text tracking-wide">akinator</h1>
+                <div class="w-10 h-10"></div> 
+            </header>
 
-        <div class="flex-grow flex justify-center items-center relative px-4 z-10 min-h-0">
-            <img src="https://en.akinator.com/assets/img/akinator.png" alt="Akinator" class="w-full h-full max-h-[40vh] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.5)] z-10">
-        </div>
-
-        <div class="w-full flex flex-col items-center z-30 pt-4 pb-[max(2rem,env(safe-area-inset-bottom))] shrink-0">
-            <div class="ribbon-dark w-[110%] py-4 px-6 text-center shadow-2xl relative z-20 mb-8 cursor-pointer" onclick="openT9()">
-                <p class="font-logo text-[17px] text-white/90 drop-shadow-md tracking-wide">
-                    Pikirkan tokoh nyata atau fiksi
-                </p>
+            <div class="flex-grow flex justify-center items-center relative px-4 z-10 min-h-0">
+                <!-- Gak ada trigger manual. Murni nungguin Timer T9 -->
+                <img src="https://en.akinator.com/assets/img/akinator.png" alt="Akinator" class="w-full h-full max-h-[40vh] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.5)] z-10">
             </div>
-            <button type="button" class="btn-gold-3d w-[85%] max-w-[320px] py-4 rounded-xl flex flex-col items-center justify-center shadow-[0_10px_20px_rgba(0,0,0,0.5)] relative z-30" onclick="startGame()">
-                <span class="font-logo font-black text-2xl tracking-wide uppercase">Challenge me</span>
-                <span class="font-sans text-[11px] font-bold text-[#4d320d] uppercase mt-1 tracking-wider">I will read your mind.</span>
-            </button>
-        </div>
-    </section>
 
-    <!-- ================= GAME SCREEN ================= -->
-    <section id="screen-game" class="hidden-screen flex flex-col flex-grow fade-in w-full">
-        <div class="flex justify-between items-center px-4 pt-[max(1.5rem,env(safe-area-inset-top))] z-50 w-full shrink-0">
-            <button type="button" class="w-10 h-10 rounded-full bg-black/30 border border-white/20 flex items-center justify-center shadow-lg active:bg-black/50 transition-colors backdrop-blur-sm pointer-events-auto" onclick="resetGame()">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
-            </button>
-            <button type="button" class="w-10 h-10 rounded-full bg-gradient-to-b from-[#fce484] to-[#d4a02d] flex items-center justify-center shadow-lg border border-[#fdf2b9] active:scale-95 transition-transform pointer-events-auto" onclick="resetGame()">
-                <svg class="w-5 h-5 text-[#4a2e10] fill-current" viewBox="0 0 24 24"><path d="M12 3l10 9h-3v9H5v-9H2L12 3z"/></svg>
-            </button>
-        </div>
-
-        <div class="flex-grow flex justify-center items-end relative z-10 mb-[-15px] min-h-0">
-            <img id="jin-image" src="https://en.akinator.com/assets/img/akitudes_520x650/serein_2.png" alt="Akinator Game" class="h-full max-h-[40vh] min-h-[200px] object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)] transition-all duration-300">
-        </div>
-
-        <div class="w-full flex flex-col z-20 shrink-0 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
-            <div class="speech-bubble w-full min-h-[140px] rounded-t-[4px] flex flex-col justify-center relative shadow-2xl">
-                <div class="flex items-center justify-center pt-5">
-                    <h2 id="question-number" class="font-logo font-bold text-[20px] text-gray-900 drop-shadow-sm tracking-wide uppercase">Question 1</h2>
+            <div class="w-full flex flex-col items-center z-30 pt-4 pb-[max(2rem,env(safe-area-inset-bottom))] shrink-0">
+                <div class="ribbon-dark w-[110%] py-4 px-6 text-center shadow-2xl relative z-20 mb-8 cursor-pointer" onclick="openT9()">
+                    <p class="font-logo text-[17px] text-white/90 drop-shadow-md tracking-wide">
+                        Pikirkan tokoh nyata atau fiksi
+                    </p>
                 </div>
-                <div class="flex-grow flex items-center justify-center px-8 text-center pb-6 mt-2">
-                    <p id="question-text" class="font-logo font-bold text-[18px] leading-snug text-[#1a1a1a] overflow-y-auto max-h-[120px]">...</p>
+                <button type="button" class="btn-gold-3d w-[85%] max-w-[320px] py-4 rounded-xl flex flex-col items-center justify-center shadow-[0_10px_20px_rgba(0,0,0,0.5)] relative z-30" onclick="startGame()">
+                    <span class="font-logo font-black text-2xl tracking-wide uppercase">Challenge me</span>
+                    <span class="font-sans text-[11px] font-bold text-[#4d320d] uppercase mt-1 tracking-wider">I will read your mind.</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ================= GAME SCREEN ================= -->
+        <section id="screen-game" class="hidden-screen flex flex-col flex-grow fade-in w-full">
+            <div class="flex justify-between items-center px-4 pt-[max(1.5rem,env(safe-area-inset-top))] z-50 w-full shrink-0">
+                <button type="button" class="w-10 h-10 rounded-full bg-black/30 border border-white/20 flex items-center justify-center shadow-lg active:bg-black/50 transition-colors backdrop-blur-sm pointer-events-auto" onclick="resetGame()">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+                <button type="button" class="w-10 h-10 rounded-full bg-gradient-to-b from-[#fce484] to-[#d4a02d] flex items-center justify-center shadow-lg border border-[#fdf2b9] active:scale-95 transition-transform pointer-events-auto" onclick="resetGame()">
+                    <svg class="w-5 h-5 text-[#4a2e10] fill-current" viewBox="0 0 24 24"><path d="M12 3l10 9h-3v9H5v-9H2L12 3z"/></svg>
+                </button>
+            </div>
+
+            <div class="flex-grow flex justify-center items-end relative z-10 mb-[-15px] min-h-0">
+                <img id="jin-image" src="https://en.akinator.com/assets/img/akitudes_520x650/serein_2.png" alt="Akinator Game" class="h-full max-h-[40vh] min-h-[200px] object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)] transition-all duration-300">
+            </div>
+
+            <div class="w-full flex flex-col z-20 shrink-0 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+                <div class="speech-bubble w-full min-h-[140px] rounded-t-[4px] flex flex-col justify-center relative shadow-2xl">
+                    <div class="flex items-center justify-center pt-5">
+                        <h2 id="question-number" class="font-logo font-bold text-[20px] text-gray-900 drop-shadow-sm tracking-wide uppercase">Question 1</h2>
+                    </div>
+                    <div class="flex-grow flex items-center justify-center px-6 text-left pb-6 mt-2 w-full max-w-[90%] mx-auto">
+                        <!-- Custom scroll dikasih ke tag p ini -->
+                        <p id="question-text" class="custom-scroll font-logo font-bold text-[18px] leading-snug text-[#1a1a1a] overflow-y-auto max-h-[120px] w-full text-center">...</p>
+                    </div>
+                </div>
+                <div id="answer-buttons-container" class="w-full font-sans text-[16px] font-bold text-[#351e02] pb-2 transition-opacity duration-300">
+                    <div class="flex w-full h-[65px]">
+                        <button type="button" class="btn-gold-3d flex-1 flex items-center justify-center" onclick="submitAnswer('Mungkin')">Probably</button>
+                        <button type="button" class="btn-gold-3d flex-1 flex items-center justify-center" onclick="submitAnswer('Mungkin Tidak')">Probably not</button>
+                    </div>
+                    <div class="flex w-full h-[65px]">
+                        <button type="button" class="btn-gold-3d flex-[1] flex items-center justify-center" onclick="submitAnswer('Ya')">Yes</button>
+                        <button type="button" class="btn-gold-3d flex-[1.2] flex items-center justify-center leading-tight" onclick="submitAnswer('Tidak Tahu')">Don't know</button>
+                        <button type="button" class="btn-gold-3d flex-[1] flex items-center justify-center" onclick="submitAnswer('Tidak')">No</button>
+                    </div>
                 </div>
             </div>
-            <div id="answer-buttons-container" class="w-full font-sans text-[16px] font-bold text-[#351e02] pb-2 transition-opacity duration-300">
-                <div class="flex w-full h-[65px]">
-                    <button type="button" class="btn-gold-3d flex-1 flex items-center justify-center" onclick="submitAnswer('Mungkin')">Probably</button>
-                    <button type="button" class="btn-gold-3d flex-1 flex items-center justify-center" onclick="submitAnswer('Mungkin Tidak')">Probably not</button>
+        </section>
+
+        <!-- ================= GUESS SCREEN (REVEAL) ================= -->
+        <section id="screen-guess" class="hidden-screen flex flex-col flex-grow fade-in w-full">
+            <div class="flex justify-start px-4 pt-[max(1.5rem,env(safe-area-inset-top))] z-50 w-full shrink-0 absolute top-0 left-0">
+                <button type="button" class="w-10 h-10 rounded-full bg-black/30 border border-white/20 flex items-center justify-center shadow-lg active:bg-black/50 transition-colors backdrop-blur-sm pointer-events-auto" onclick="resetGame()">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+            </div>
+            <div class="w-full text-center shrink-0 mb-4 z-20 pt-[calc(env(safe-area-inset-top,0px)+4rem)]">
+                <h2 class="font-logo text-3xl font-black akinator-logo-text tracking-wide uppercase">Saya berpikir tentang...</h2>
+            </div>
+            <div class="flex-grow flex flex-col items-center justify-center relative z-10 px-6 min-h-0">
+                <div class="relative w-48 h-64 bg-[#2d1331] rounded-lg border-4 border-[#ffdf6b] shadow-[0_10px_25px_rgba(0,0,0,0.8)] overflow-hidden flex items-center justify-center mb-6">
+                    <img id="guess-image" src="" alt="Character Image" class="w-full h-full object-cover hidden">
+                    <div id="no-image-fallback" class="hidden absolute inset-0 bg-gradient-to-b from-[#3d1d3f] to-[#1a0a1c] flex flex-col items-center justify-center">
+                        <svg class="w-20 h-20 text-white/20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        <span class="text-white/40 text-[10px] font-sans font-bold uppercase tracking-widest mt-3">No Image</span>
+                    </div>
+                    <div id="image-loading" class="absolute inset-0 flex items-center justify-center bg-[#2d1331]"><div class="spinner"></div></div>
                 </div>
-                <div class="flex w-full h-[65px]">
-                    <button type="button" class="btn-gold-3d flex-[1] flex items-center justify-center" onclick="submitAnswer('Ya')">Yes</button>
-                    <button type="button" class="btn-gold-3d flex-[1.2] flex items-center justify-center leading-tight" onclick="submitAnswer('Tidak Tahu')">Don't know</button>
-                    <button type="button" class="btn-gold-3d flex-[1] flex items-center justify-center" onclick="submitAnswer('Tidak')">No</button>
+                <h3 id="guess-name" class="font-logo font-black text-3xl text-center text-white drop-shadow-md mb-2 uppercase">...</h3>
+                <p id="guess-desc" class="font-sans font-medium text-xs leading-snug text-center text-white/80 max-w-[85%] uppercase tracking-widest overflow-y-auto max-h-[80px]">...</p>
+            </div>
+            <div class="w-full flex flex-col z-20 shrink-0 pb-[max(1.5rem,env(safe-area-inset-bottom))] px-4">
+                <div class="w-full flex justify-center py-2 mb-2 text-white/80 text-sm font-bold tracking-widest uppercase">Apakah saya benar?</div>
+                <div class="flex w-full h-[70px] gap-2">
+                    <button type="button" class="btn-gold-3d flex-[1] rounded-xl flex items-center justify-center text-xl shadow-lg" onclick="handleGuessResult('yes')">Ya</button>
+                    <button type="button" class="btn-gold-3d flex-[1] rounded-xl flex items-center justify-center text-xl shadow-lg" onclick="handleGuessResult('no')">Tidak</button>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- ================= GUESS SCREEN (REVEAL) ================= -->
-    <section id="screen-guess" class="hidden-screen flex flex-col flex-grow fade-in w-full">
-        <div class="flex justify-start px-4 pt-[max(1.5rem,env(safe-area-inset-top))] z-50 w-full shrink-0 absolute top-0 left-0">
-            <button type="button" class="w-10 h-10 rounded-full bg-black/30 border border-white/20 flex items-center justify-center shadow-lg active:bg-black/50 transition-colors backdrop-blur-sm pointer-events-auto" onclick="resetGame()">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
+        <!-- ================= END SCREEN ================= -->
+        <section id="screen-end" class="hidden-screen flex flex-col flex-grow fade-in justify-center items-center relative z-20 overflow-hidden">
+            <h1 id="end-title" class="font-logo text-4xl font-black akinator-logo-text tracking-wide mb-8 drop-shadow-xl mt-12 uppercase">Saya Hebat!</h1>
+            <img id="end-image" src="https://en.akinator.com/assets/img/akitudes_520x650/triomphe.png" alt="End Game" class="h-full max-h-[35vh] object-contain drop-shadow-2xl mb-12">
+            <button type="button" class="btn-gold-3d w-[80%] max-w-[280px] py-4 rounded-xl flex items-center justify-center shadow-xl" onclick="resetGame()">
+                <span class="font-logo font-black text-xl tracking-wide uppercase">Main Lagi</span>
             </button>
-        </div>
-        <div class="w-full text-center shrink-0 mb-4 z-20 pt-[calc(env(safe-area-inset-top,0px)+4rem)]">
-            <h2 class="font-logo text-3xl font-black akinator-logo-text tracking-wide uppercase">Saya berpikir tentang...</h2>
-        </div>
-        <div class="flex-grow flex flex-col items-center justify-center relative z-10 px-6 min-h-0">
-            <div class="relative w-48 h-64 bg-[#2d1331] rounded-lg border-4 border-[#ffdf6b] shadow-[0_10px_25px_rgba(0,0,0,0.8)] overflow-hidden flex items-center justify-center mb-6">
-                <img id="guess-image" src="" alt="Character Image" class="w-full h-full object-cover hidden">
-                <div id="no-image-fallback" class="hidden absolute inset-0 bg-gradient-to-b from-[#3d1d3f] to-[#1a0a1c] flex flex-col items-center justify-center">
-                    <svg class="w-20 h-20 text-white/20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                    <span class="text-white/40 text-[10px] font-sans font-bold uppercase tracking-widest mt-3">No Image</span>
-                </div>
-                <div id="image-loading" class="absolute inset-0 flex items-center justify-center bg-[#2d1331]"><div class="spinner"></div></div>
-            </div>
-            <h3 id="guess-name" class="font-logo font-black text-3xl text-center text-white drop-shadow-md mb-2 uppercase">...</h3>
-            <p id="guess-desc" class="font-sans font-medium text-xs leading-snug text-center text-white/80 max-w-[85%] uppercase tracking-widest overflow-y-auto max-h-[80px]">...</p>
-        </div>
-        <div class="w-full flex flex-col z-20 shrink-0 pb-[max(1.5rem,env(safe-area-inset-bottom))] px-4">
-            <div class="w-full flex justify-center py-2 mb-2 text-white/80 text-sm font-bold tracking-widest uppercase">Apakah saya benar?</div>
-            <div class="flex w-full h-[70px] gap-2">
-                <button type="button" class="btn-gold-3d flex-[1] rounded-xl flex items-center justify-center text-xl shadow-lg" onclick="handleGuessResult('yes')">Ya</button>
-                <button type="button" class="btn-gold-3d flex-[1] rounded-xl flex items-center justify-center text-xl shadow-lg" onclick="handleGuessResult('no')">Tidak</button>
-            </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- ================= END SCREEN ================= -->
-    <section id="screen-end" class="hidden-screen flex flex-col flex-grow fade-in justify-center items-center relative z-20 overflow-hidden">
-        <h1 id="end-title" class="font-logo text-4xl font-black akinator-logo-text tracking-wide mb-8 drop-shadow-xl mt-12 uppercase">Saya Hebat!</h1>
-        <img id="end-image" src="https://en.akinator.com/assets/img/akitudes_520x650/triomphe.png" alt="End Game" class="h-full max-h-[35vh] object-contain drop-shadow-2xl mb-12">
-        <button type="button" class="btn-gold-3d w-[80%] max-w-[280px] py-4 rounded-xl flex items-center justify-center shadow-xl" onclick="resetGame()">
-            <span class="font-logo font-black text-xl tracking-wide uppercase">Main Lagi</span>
-        </button>
-    </section>
+    </div>
 
-</div>
+    <script>
+        document.addEventListener('touchmove', function(event) {
+            if (event.scale !== 1) { event.preventDefault(); return; }
+            const isScrollableArea = event.target.closest('.allow-scroll') || event.target.closest('.custom-scroll');
+            const isInputField = event.target.closest('input, textarea, select');
+            if (!isScrollableArea && !isInputField) { event.preventDefault(); }
+        }, { passive: false });
 
-<script>
-    document.addEventListener('touchmove', function(event) {
-        if (event.scale !== 1) { event.preventDefault(); return; }
-        const isScrollableArea = event.target.closest('.allow-scroll');
-        const isInputField = event.target.closest('input, textarea, select');
-        if (!isScrollableArea && !isInputField) { event.preventDefault(); }
-    }, { passive: false });
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) { event.preventDefault(); }
+            lastTouchEnd = now;
+        }, false);
 
-    let lastTouchEnd = 0;
-    document.addEventListener('touchend', function(event) {
-        const now = (new Date()).getTime();
-        if (now - lastTouchEnd <= 300) { event.preventDefault(); }
-        lastTouchEnd = now;
-    }, false);
+        const default50List = "Taylor Swift\nTom Cruise\nLeonardo DiCaprio\nBrad Pitt\nScarlett Johansson\nRobert Downey Jr\nJohnny Depp\nWill Smith\nAngelina Jolie\nDwayne Johnson\nCristiano Ronaldo\nLionel Messi\nJustin Bieber\nSelena Gomez\nKaty Perry\nRihanna\nLady Gaga\nEminem\nChris Hemsworth\nVin Diesel\nKeanu Reeves\nChris Evans\nRyan Reynolds\nZendaya\nTom Holland\nMargot Robbie\nElon Musk\nMark Zuckerberg\nBill Gates\nSteve Jobs\nAriana Grande\nBillie Eilish\nBeyonce\nDrake\nSnoop Dogg\nKanye West\nJay-Z\nEd Sheeran\nBruno Mars\nShawn Mendes\nThe Weeknd\nPost Malone\nKylie Jenner\nKendall Jenner\nKim Kardashian\nEmma Watson\nJennifer Lawrence\nNatalie Portman\nAnne Hathaway\nGal Gadot";
 
-    const default50List = "Taylor Swift\nTom Cruise\nLeonardo DiCaprio\nBrad Pitt\nScarlett Johansson\nRobert Downey Jr\nJohnny Depp\nWill Smith\nAngelina Jolie\nDwayne Johnson\nCristiano Ronaldo\nLionel Messi\nJustin Bieber\nSelena Gomez\nKaty Perry\nRihanna\nLady Gaga\nEminem\nChris Hemsworth\nVin Diesel\nKeanu Reeves\nChris Evans\nRyan Reynolds\nZendaya\nTom Holland\nMargot Robbie\nElon Musk\nMark Zuckerberg\nBill Gates\nSteve Jobs\nAriana Grande\nBillie Eilish\nBeyonce\nDrake\nSnoop Dogg\nKanye West\nJay-Z\nEd Sheeran\nBruno Mars\nShawn Mendes\nThe Weeknd\nPost Malone\nKylie Jenner\nKendall Jenner\nKim Kardashian\nEmma Watson\nJennifer Lawrence\nNatalie Portman\nAnne Hathaway\nGal Gadot";
+        let config = {
+            characterList: default50List,
+            customApiKey: "",
+            aiModel: "gemini-2.5-flash",
+            glitchDelay: "0",
+            glitchDuration: "1.5"
+        };
 
-    let config = {
-        characterList: default50List,
-        customApiKey: "",
-        aiModel: "gemini-2.5-flash",
-        glitchDelay: "0",
-        glitchDuration: "1.5"
-    };
+        let currentQuestionIndex = 0;
+        let isGameOver = false;
+        let isProcessing = false;
+        let isMagicMode = false;
+        let isMagicCancelled = false; 
+        
+        let fetchedMagicName = "";
+        let magicDescriptionsString = "Terbaca dari pikiranmu."; 
+        
+        let t9InputString = "";
+        let forcedTargetIndex = -1; 
+        
+        let normalChatHistory = [];
+        let magicTimeouts = [];
+        let magicIntervals = [];
+        let streamReader = null;
 
-    let currentQuestionIndex = 0;
-    let isGameOver = false;
-    let isProcessing = false;
-    let isMagicMode = false;
-    
-    let fetchedMagicName = "";
-    let magicDescription = "";
-    
-    let t9InputString = "";
-    let forcedTargetIndex = -1; 
-    
-    let normalChatHistory = [];
-    let magicTimeouts = [];
-    let magicIntervals = [];
+        // REAL-TIME TYPEWRITER QUEUE SYSTEM
+        let typeQueue = "";
+        let streamFinished = false;
 
-    function clearMagicTimeouts() {
-        magicTimeouts.forEach(clearTimeout);
-        magicIntervals.forEach(clearInterval);
-        magicTimeouts = [];
-        magicIntervals = [];
-    }
-
-    function loadSettings() {
-        const saved = localStorage.getItem('akinatorSettingsProV4');
-        if (saved) {
-            const parsed = JSON.parse(saved);
-            config = { ...config, ...parsed };
+        function clearMagicTimeouts() {
+            isMagicCancelled = true;
+            if (streamReader) {
+                try { streamReader.cancel(); } catch(e){}
+                streamReader = null;
+            }
+            magicTimeouts.forEach(clearTimeout);
+            magicIntervals.forEach(clearInterval);
+            magicTimeouts = [];
+            magicIntervals = [];
+            typeQueue = "";
         }
-        document.getElementById('input-character-list').value = config.characterList || default50List;
-        document.getElementById('input-api-key').value = config.customApiKey || "";
-        document.getElementById('input-ai-model').value = config.aiModel || "gemini-2.5-flash"; 
-        document.getElementById('input-glitch-delay').innerText = config.glitchDelay || "0";
-        document.getElementById('input-glitch-duration').innerText = config.glitchDuration || "1.5";
-    }
 
-    function openSettings() { document.getElementById('settings-modal').classList.remove('hidden-screen'); }
-    function closeSettings() { document.getElementById('settings-modal').classList.add('hidden-screen'); loadSettings(); }
+        function loadSettings() {
+            const saved = localStorage.getItem('akinatorSettingsProV6');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                config = { ...config, ...parsed };
+            }
+            document.getElementById('input-character-list').value = config.characterList || default50List;
+            document.getElementById('input-api-key').value = config.customApiKey || "";
+            document.getElementById('input-ai-model').value = config.aiModel || "gemini-2.5-flash"; 
+            document.getElementById('input-glitch-delay').innerText = config.glitchDelay || "0";
+            document.getElementById('input-glitch-duration').innerText = config.glitchDuration || "1.5";
+        }
 
-    function saveSettings() {
-        config.characterList = document.getElementById('input-character-list').value.trim() || default50List;
-        config.customApiKey = document.getElementById('input-api-key').value.trim();
-        config.aiModel = document.getElementById('input-ai-model').value.trim() || "gemini-2.5-flash";
-        config.glitchDelay = document.getElementById('input-glitch-delay').innerText.trim() || "0";
-        config.glitchDuration = document.getElementById('input-glitch-duration').innerText.trim() || "1.5";
-        
-        localStorage.setItem('akinatorSettingsProV4', JSON.stringify(config));
-        showErrorDot(false);
-        closeSettings();
-    }
+        function openSettings() { document.getElementById('settings-modal').classList.remove('hidden-screen'); }
+        function closeSettings() { document.getElementById('settings-modal').classList.add('hidden-screen'); loadSettings(); }
 
-    // --- T9 KEYPAD LOGIC ---
-    function openT9() {
-        t9InputString = "";
-        document.getElementById('t9-display').innerText = "";
-        document.getElementById('t9-display').classList.remove('text-red-500', 'animate-shake');
-        document.getElementById('t9-target-name').innerText = "";
-        document.getElementById('t9-target-name').classList.remove('opacity-100');
-        document.getElementById('t9-target-name').classList.add('opacity-0');
-        document.getElementById('t9-modal').classList.remove('hidden-screen');
-    }
-
-    function closeT9() { document.getElementById('t9-modal').classList.add('hidden-screen'); }
-
-    function t9Press(num) {
-        if (t9InputString.length >= 2) return; 
-        t9InputString += num;
-        const displayEl = document.getElementById('t9-display');
-        displayEl.innerText = t9InputString;
-        displayEl.classList.remove('text-red-500', 'animate-shake');
-        
-        if (navigator.vibrate) navigator.vibrate(15);
-        
-        if (t9InputString.length === 2) {
-            const listArray = config.characterList.split('\n').map(item => item.trim()).filter(item => item.length > 0);
+        function saveSettings() {
+            config.characterList = document.getElementById('input-character-list').value.trim() || default50List;
+            config.customApiKey = document.getElementById('input-api-key').value.trim();
+            config.aiModel = document.getElementById('input-ai-model').value.trim() || "gemini-2.5-flash";
+            config.glitchDelay = document.getElementById('input-glitch-delay').innerText.trim() || "0";
+            config.glitchDuration = document.getElementById('input-glitch-duration').innerText.trim() || "1.5";
             
-            let targetNum = parseInt(t9InputString, 10);
-            if (t9InputString === "00") targetNum = 100;
+            localStorage.setItem('akinatorSettingsProV6', JSON.stringify(config));
+            showErrorDot(false);
+            closeSettings();
+        }
+
+        // --- T9 KEYPAD LOGIC & AUTO TRIGGER SEQUENCE ---
+        function openT9() {
+            t9InputString = "";
+            document.getElementById('t9-display').innerText = "";
+            document.getElementById('t9-display').classList.remove('text-red-500', 'animate-shake');
+            document.getElementById('t9-target-name').innerText = "";
+            document.getElementById('t9-target-name').classList.remove('opacity-100');
+            document.getElementById('t9-target-name').classList.add('opacity-0');
+            document.getElementById('t9-modal').classList.remove('hidden-screen');
+        }
+
+        function closeT9() { document.getElementById('t9-modal').classList.add('hidden-screen'); }
+
+        function t9Press(num) {
+            if (t9InputString.length >= 2) return; 
+            t9InputString += num;
+            const displayEl = document.getElementById('t9-display');
+            displayEl.innerText = t9InputString;
+            displayEl.classList.remove('text-red-500', 'animate-shake');
             
-            if (targetNum > listArray.length || targetNum === 0) {
-                displayEl.classList.add('text-red-500', 'animate-shake');
-                if (navigator.vibrate) navigator.vibrate([40, 40, 40]);
-                setTimeout(() => {
-                    t9InputString = "";
-                    displayEl.innerText = "";
-                    displayEl.classList.remove('text-red-500', 'animate-shake');
-                }, 500);
-            } else {
-                forcedTargetIndex = targetNum - 1;
-                const peekName = listArray[forcedTargetIndex] || "Misterius";
-                const nameDisplay = document.getElementById('t9-target-name');
-                nameDisplay.innerText = peekName;
-                nameDisplay.classList.replace('opacity-0', 'opacity-100');
+            if (navigator.vibrate) navigator.vibrate(15);
+            
+            if (t9InputString.length === 2) {
+                const listArray = config.characterList.split('\n').map(item => item.trim()).filter(item => item.length > 0);
                 
-                isMagicMode = true; 
+                let targetNum = parseInt(t9InputString, 10);
+                if (t9InputString === "00") targetNum = 100;
                 
-                setTimeout(() => {
-                    closeT9();
-                    nameDisplay.classList.replace('opacity-100', 'opacity-0');
-                }, 1000);
+                if (targetNum > listArray.length || targetNum === 0) {
+                    displayEl.classList.add('text-red-500', 'animate-shake');
+                    if (navigator.vibrate) navigator.vibrate([40, 40, 40]);
+                    setTimeout(() => {
+                        t9InputString = "";
+                        displayEl.innerText = "";
+                        displayEl.classList.remove('text-red-500', 'animate-shake');
+                    }, 500);
+                } else {
+                    forcedTargetIndex = targetNum - 1;
+                    const peekName = listArray[forcedTargetIndex] || "Misterius";
+                    const nameDisplay = document.getElementById('t9-target-name');
+                    nameDisplay.innerText = peekName;
+                    nameDisplay.classList.replace('opacity-0', 'opacity-100');
+                    
+                    isMagicMode = true; 
+                    
+                    // Delay 1 detik biat namanya kebaca, terus tutup dan Timer Glitch jalan
+                    setTimeout(() => {
+                        closeT9();
+                        nameDisplay.classList.replace('opacity-100', 'opacity-0');
+                        startMagicSequence(); // AUTO TRIGGER
+                    }, 1000);
+                }
             }
         }
-    }
 
-    function t9Clear() {
-        t9InputString = t9InputString.slice(0, -1);
-        document.getElementById('t9-display').innerText = t9InputString;
-        document.getElementById('t9-display').classList.remove('text-red-500', 'animate-shake');
-        if (navigator.vibrate) navigator.vibrate(15);
-    }
+        function t9Clear() {
+            t9InputString = t9InputString.slice(0, -1);
+            document.getElementById('t9-display').innerText = t9InputString;
+            document.getElementById('t9-display').classList.remove('text-red-500', 'animate-shake');
+            if (navigator.vibrate) navigator.vibrate(15);
+        }
 
-    // --- NORMAL MODE DYNAMIC AI ENGINE ---
-    async function fetchNormalQuestion(answer) {
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${config.aiModel}:generateContent?key=${config.customApiKey}`;
-        
-        if (!answer) {
-            normalChatHistory = [{ 
-                role: "user", 
-                parts: [{ text: "Kita bermain Akinator. Saya sedang memikirkan sebuah tokoh fiksi/nyata. Berikan pertanyaan ke-1 (Maksimal 10 kata, jawabannya Ya/Tidak/Mungkin). Jangan membalas dengan format JSON atau basa-basi, langsung berikan pertanyaannya saja." }] 
-            }];
-        } else {
+        function startMagicSequence() {
+            const delay = (parseFloat(config.glitchDelay) || 0) * 1000;
+            const duration = (parseFloat(config.glitchDuration) || 1.5) * 1000;
+            
+            // Kunci tombol "Challenge me" biar nggak dipencet pas lagi ngitung mundur
+            isProcessing = true;
+            
+            setTimeout(() => {
+                document.body.classList.add('glitch-extreme');
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                
+                setTimeout(() => {
+                    document.body.classList.remove('glitch-extreme');
+                    isProcessing = false; // Buka kunci lagi
+                    startGame(); // Langsung terjun ke game screen setelah glitch kelar
+                }, duration);
+            }, delay);
+        }
+
+        // --- NORMAL MODE DYNAMIC AI ENGINE ---
+        async function fetchNormalQuestion(answer) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${config.aiModel}:generateContent?key=${config.customApiKey}`;
+            
+            if (!answer) {
+                normalChatHistory = [{ 
+                    role: "user", 
+                    parts: [{ text: "Kita bermain Akinator. Saya memikirkan tokoh fiksi/nyata. Berikan pertanyaan ke-1 (Maks 10 kata, jawabannya Ya/Tidak/Mungkin). Jangan balas pakai format JSON, langsung teks pertanyaannya saja." }] 
+                }];
+            } else {
+                normalChatHistory.push({ role: "model", parts: [{ text: document.getElementById('question-text').innerText }] });
+                normalChatHistory.push({ role: "user", parts: [{ text: `Jawaban saya: ${answer}. Berikan pertanyaan selanjutnya (Maksimal 10 kata, langsung pertanyaannya saja tanpa basa-basi).` }] });
+            }
+
+            try {
+                const res = await fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: normalChatHistory }) });
+                if (!res.ok) return null;
+                const data = await res.json();
+                return data.candidates[0].content.parts[0].text.trim().replace(/\*/g, '');
+            } catch (e) { return null; }
+        }
+
+        async function fetchNormalGuess(answer) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${config.aiModel}:generateContent?key=${config.customApiKey}`;
             normalChatHistory.push({ role: "model", parts: [{ text: document.getElementById('question-text').innerText }] });
-            normalChatHistory.push({ role: "user", parts: [{ text: `Jawaban saya: ${answer}. Berikan pertanyaan selanjutnya (Maksimal 10 kata, langsung pertanyaannya saja tanpa basa-basi).` }] });
+            normalChatHistory.push({ role: "user", parts: [{ text: `Jawaban saya: ${answer}. Permainan selesai. Tebak siapa karakternya. Balas HANYA dengan JSON murni: {"guess": "Nama Karakter", "description": "1 kalimat deskripsi karakter"}` }] });
+
+            try {
+                const res = await fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: normalChatHistory, generationConfig: { responseMimeType: "application/json" } }) });
+                if (!res.ok) return null;
+                const data = await res.json();
+                const text = data.candidates[0].content.parts[0].text;
+                const cleanJson = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+                return JSON.parse(cleanJson);
+            } catch (e) { return null; }
         }
 
-        try {
-            const res = await fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: normalChatHistory }) });
-            if (!res.ok) return null;
-            const data = await res.json();
-            return data.candidates[0].content.parts[0].text.trim();
-        } catch (e) { return null; }
-    }
+        // --- GAME UTILS ---
+        function assignTarget() {
+            const listArray = config.characterList.split('\n').map(item => item.trim()).filter(item => item.length > 0);
+            if (listArray.length === 0) { fetchedMagicName = "Karakter Misterius"; return; }
 
-    async function fetchNormalGuess(answer) {
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${config.aiModel}:generateContent?key=${config.customApiKey}`;
-        normalChatHistory.push({ role: "model", parts: [{ text: document.getElementById('question-text').innerText }] });
-        normalChatHistory.push({ role: "user", parts: [{ text: `Jawaban saya: ${answer}. Permainan selesai. Tebak siapa karakternya. Balas HANYA dengan JSON murni: {"guess": "Nama Karakter", "description": "1 kalimat deskripsi karakter"}` }] });
-
-        try {
-            const res = await fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: normalChatHistory, generationConfig: { responseMimeType: "application/json" } }) });
-            if (!res.ok) return null;
-            const data = await res.json();
-            const text = data.candidates[0].content.parts[0].text;
-            return JSON.parse(text.replace(/```json|```/gi, "").trim());
-        } catch (e) { return null; }
-    }
-
-    // --- MAGIC MODE AI ENGINE ---
-    function assignTarget() {
-        const listArray = config.characterList.split('\n').map(item => item.trim()).filter(item => item.length > 0);
-        if (listArray.length === 0) { fetchedMagicName = "Karakter Misterius"; return; }
-        if (forcedTargetIndex >= 0) {
-            fetchedMagicName = listArray[forcedTargetIndex];
-        } else {
-            fetchedMagicName = listArray[Math.floor(Math.random() * listArray.length)];
+            if (forcedTargetIndex >= 0) {
+                fetchedMagicName = listArray[forcedTargetIndex];
+            } else {
+                fetchedMagicName = listArray[Math.floor(Math.random() * listArray.length)];
+            }
         }
-    }
 
-    async function fetchMagicDescription() {
-        const prompt = `Target: "${fetchedMagicName}". Buat 3 kalimat mendeskripsikan ciri-ciri spesifik tokoh ini seolah kamu sedang membaca pikiran saya. JANGAN SEBUTKAN NAMANYA. Pisahkan antar kalimat dengan karakter '|'. Balas teksnya saja. Contoh: adalah penyanyi pop legendaris|dia pernah membintangi film superhero|dia sangat lekat dengan warna merah.`;
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${config.aiModel}:generateContent?key=${config.customApiKey}`;
-        try {
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }] })
+        async function fetchCharacterImageFromInternet(characterName) {
+            try {
+                let res = await fetch(`https://id.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(characterName)}&prop=pageimages&format=json&pithumbsize=400&origin=*`);
+                let data = await res.json();
+                let pages = data.query.pages;
+                let pageId = Object.keys(pages)[0];
+                if (pageId !== "-1" && pages[pageId].thumbnail) {
+                    return pages[pageId].thumbnail.source;
+                }
+
+                res = await fetch(`https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(characterName)}&prop=pageimages&format=json&pithumbsize=400&origin=*`);
+                data = await res.json();
+                pages = data.query.pages;
+                pageId = Object.keys(pages)[0];
+                if (pageId !== "-1" && pages[pageId].thumbnail) {
+                    return pages[pageId].thumbnail.source;
+                }
+
+                return null;
+            } catch (e) { return null; }
+        }
+
+        function showScreen(screenId) {
+            ['screen-start', 'screen-game', 'screen-guess', 'screen-end'].forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.add('hidden-screen');
+                el.classList.remove('flex');
             });
-            if (!response.ok) return "sulit dibaca|sangat misterius";
-            const data = await response.json();
-            return data.candidates[0].content.parts[0].text.trim();
-        } catch (e) { return "sulit dibaca|sangat misterius"; }
-    }
+            const targetEl = document.getElementById(screenId);
+            targetEl.classList.remove('hidden-screen');
+            targetEl.classList.add('flex');
+        }
 
-    // --- UTILS ---
-    async function fetchCharacterImageFromInternet(characterName) {
-        try {
-            let res = await fetch(`https://id.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(characterName)}&prop=pageimages&format=json&pithumbsize=400&origin=*`);
-            let data = await res.json(), pages = data.query.pages, pageId = Object.keys(pages)[0];
-            if (pageId !== "-1" && pages[pageId].thumbnail) return pages[pageId].thumbnail.source;
+        function showLoading(show) { document.getElementById('loading-overlay').classList.toggle('hidden-screen', !show); }
+        function showErrorDot(show) { document.getElementById('error-dot').classList.toggle('hidden', !show); }
 
-            res = await fetch(`https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(characterName)}&prop=pageimages&format=json&pithumbsize=400&origin=*`);
-            data = await res.json(); pages = data.query.pages; pageId = Object.keys(pages)[0];
-            if (pageId !== "-1" && pages[pageId].thumbnail) return pages[pageId].thumbnail.source;
-            return null;
-        } catch (e) { return null; }
-    }
+        function resetGameUI() {
+            const buttons = document.querySelectorAll('#answer-buttons-container button');
+            const defaultLabels = ["Probably", "Probably not", "Yes", "Don't know", "No"];
+            buttons.forEach((btn, index) => {
+                btn.classList.remove('btn-locked-horror');
+                btn.innerText = defaultLabels[index];
+                delete btn.dataset.locked;
+            });
+            document.getElementById('answer-buttons-container').classList.remove('pointer-events-none', 'opacity-50');
+            document.getElementById('question-number').style.display = 'block';
+            document.getElementById('question-text').classList.remove('typewriter-text');
+            document.getElementById('question-text').classList.remove('text-left');
+            document.getElementById('question-text').classList.add('text-center');
+            document.getElementById('screen-game').style.opacity = '1';
+        }
 
-    function showScreen(screenId) {
-        ['screen-start', 'screen-game', 'screen-guess', 'screen-end'].forEach(id => {
-            document.getElementById(id).classList.add('hidden-screen');
-            document.getElementById(id).classList.remove('flex');
-        });
-        document.getElementById(screenId).classList.remove('hidden-screen');
-        document.getElementById(screenId).classList.add('flex');
-    }
+        // --- GAME FLOW START ---
+        async function startGame() {
+            // Blokir tombol klo sequence udah diproses / loading
+            if (isProcessing) return;
 
-    function showLoading(show) { document.getElementById('loading-overlay').classList.toggle('hidden-screen', !show); }
-    function showErrorDot(show) { document.getElementById('error-dot').classList.toggle('hidden', !show); }
-
-    function resetGameUI() {
-        const buttons = document.querySelectorAll('#answer-buttons-container button');
-        const defaultLabels = ["Probably", "Probably not", "Yes", "Don't know", "No"];
-        buttons.forEach((btn, index) => {
-            btn.classList.remove('btn-locked-horror');
-            btn.innerText = defaultLabels[index];
-            delete btn.dataset.locked;
-        });
-        document.getElementById('answer-buttons-container').classList.remove('pointer-events-none', 'opacity-50');
-        document.getElementById('question-number').style.display = 'block';
-        document.getElementById('question-text').classList.remove('typewriter-text');
-        document.getElementById('screen-game').style.opacity = '1';
-    }
-
-    // --- GAME FLOW START ---
-    async function startGame() {
-        if (!config.customApiKey) { showErrorDot(true); return; }
-        
-        if (isMagicMode) {
-            // JALUR SULAP (GLITCH BRUTAL -> KLIMAKS)
-            const delayMs = (parseFloat(config.glitchDelay) || 0) * 1000;
-            const durationMs = (parseFloat(config.glitchDuration) || 1.5) * 1000;
+            if (!config.customApiKey) { showErrorDot(true); return; }
             
-            setTimeout(() => { document.body.classList.add('glitch-extreme'); }, delayMs);
+            if (isMagicMode) {
+                // JALUR SULAP (GLITCH UDAH SELESAI, LANGSUNG EKSEKUSI)
+                assignTarget();
+                currentQuestionIndex = 0;
+                isGameOver = false;
+                resetGameUI();
+                showScreen('screen-game');
+                streamMagicClimax(); // Eksekusi real-time streaming
+                
+                // Jangan reset state T9 di sini biar kalau user reset pas lg ngetik tetep aman
+            } else {
+                // JALUR NORMAL (TANYA JAWAB)
+                showLoading(true);
+                const firstQ = await fetchNormalQuestion(null);
+                showLoading(false);
+
+                if (!firstQ) { showErrorDot(true); return; }
+                
+                currentQuestionIndex = 0; 
+                isGameOver = false;
+                isProcessing = false;
+                
+                resetGameUI();
+                document.getElementById('question-text').innerText = firstQ;
+                document.getElementById('question-number').innerText = "Question 1";
+                showScreen('screen-game');
+            }
+        }
+
+        // --- REAL-TIME TYPEWRITER STREAMING ENGINE ---
+        async function processTypeQueue() {
+            if (isMagicCancelled) return;
             
+            const qText = document.getElementById('question-text');
+            
+            if (typeQueue.length > 0) {
+                const char = typeQueue[0];
+                typeQueue = typeQueue.substring(1);
+                
+                if (char === '\n') {
+                    qText.innerHTML += '<br>';
+                    qText.scrollTop = qText.scrollHeight; // Auto-scroll ke paling bawah
+                    // Jeda dramatis agak lama pas pergantian kalimat/baris
+                    await new Promise(r => { let id = setTimeout(r, 600); magicTimeouts.push(id); }); 
+                } else {
+                    // Bypass markdown bawaan AI kalau ada
+                    if (char !== '*') {
+                        qText.innerHTML += char;
+                        qText.scrollTop = qText.scrollHeight; // Auto-scroll
+                    }
+                }
+                
+                // Kecepatan ngetik bervariasi biar kayak manusia (cenayang)
+                const speed = Math.random() * 40 + 20; 
+                let tid = setTimeout(processTypeQueue, speed);
+                magicTimeouts.push(tid);
+            } else {
+                if (streamFinished) {
+                    // Streaming dan ngetik udah selesai!
+                    document.body.classList.remove('glitch-mild');
+                    qText.classList.remove('typewriter-text');
+                    
+                    // Jeda dramatis 1.5 detik sblm reveal
+                    magicTimeouts.push(setTimeout(() => {
+                        if (!isMagicCancelled) showReveal();
+                    }, 1500));
+                } else {
+                    // Nungguin bongkahan teks dari API nyampe lagi
+                    let tid = setTimeout(processTypeQueue, 50);
+                    magicTimeouts.push(tid);
+                }
+            }
+        }
+
+        async function streamMagicClimax() {
+            isMagicCancelled = false;
+            streamFinished = false;
+            typeQueue = "";
+            
+            const btns = document.querySelectorAll('#answer-buttons-container button');
+            const qNum = document.getElementById('question-number');
+            const qText = document.getElementById('question-text');
+            const chars = "!@#$%^&*()_+{}[]|:;<>,.?/~0123456789";
+
+            qNum.style.display = 'none'; 
+            qText.innerText = ""; 
+            qText.classList.remove('text-center');
+            qText.classList.add('text-left'); // Biar ngetiknya dari kiri ke kanan rapi
+            document.getElementById('answer-buttons-container').classList.add('pointer-events-none');
+
+            // 1. Scramble Buttons
+            let scrambleInt = setInterval(() => {
+                btns.forEach(btn => {
+                    if (btn.dataset.locked !== "true") {
+                        btn.innerText = Array(5).fill(0).map(() => chars[Math.floor(Math.random() * chars.length)]).join('');
+                    }
+                });
+            }, 50);
+            magicIntervals.push(scrambleInt);
+
+            // 2. Lock Buttons to YES satu per satu
+            btns.forEach((btn, idx) => {
+                let tid = setTimeout(() => {
+                    btn.dataset.locked = "true";
+                    btn.innerText = "YES";
+                    btn.classList.add('btn-locked-horror');
+                    if (navigator.vibrate) navigator.vibrate(50);
+                    if (idx === btns.length - 1) clearInterval(scrambleInt);
+                }, 600 + (idx * 400));
+                magicTimeouts.push(tid);
+            });
+
+            // 3. Kickoff Typewriter Queue & Mild Glitch
+            document.body.classList.add('glitch-mild'); 
+            qText.classList.add('typewriter-text');
+            
+            // Tunggu 1 detik biar audiens fokus ke layar dulu baru ngetik
+            magicTimeouts.push(setTimeout(processTypeQueue, 1000));
+
+            const prompt = `Bermain trik sulap membaca pikiran. Target: "${fetchedMagicName}". 
+Berperanlah sebagai entitas mistis yang merasuk ke aplikasi ini.
+Katakan tepat kalimat ini di awal: "Entah kenapa saya kali ini sangat yakin, jadi saya akan langsung mengakses pikiran anda..."
+Beri baris baru, lalu deskripsikan ciri-ciri fisik atau fakta sangat spesifik dari tokoh ini seolah kamu sedang menerawang (maksimal 3 kalimat singkat, pisahkan dengan baris baru).
+JANGAN PERNAH SEBUTKAN NAMANYA.
+Diakhiri dengan baris baru dan kalimat persis ini: "Saya sudah tau.. kamu sedang memikirkan.."
+Tulis secara langsung sealami mungkin, tanpa JSON, tanpa format.`;
+
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${config.aiModel}:streamGenerateContent?alt=sse&key=${config.customApiKey}`;
+            
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }] })
+                });
+
+                if (!response.ok) throw new Error("API failed");
+
+                streamReader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    if (isMagicCancelled) { 
+                        streamReader.cancel(); 
+                        break; 
+                    }
+                    const { done, value } = await streamReader.read();
+                    if (done) break;
+                    
+                    buffer += decoder.decode(value, { stream: true });
+                    let lines = buffer.split('\n');
+                    buffer = lines.pop(); // Sisa potongan yg blm komplit ditaruh di buffer lagi
+                    
+                    for (let line of lines) {
+                        line = line.trim();
+                        if (line.startsWith('data: ')) {
+                            const dataStr = line.slice(6).trim();
+                            if (dataStr === '[DONE]') continue; 
+                            try {
+                                const data = JSON.parse(dataStr);
+                                const textPart = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                                if (textPart) {
+                                    // Tembak potongan teks ke antrean mesin tik
+                                    typeQueue += textPart;
+                                }
+                            } catch (e) {
+                                console.error("Parse error:", e);
+                            }
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("Stream Error", e);
+                typeQueue += "\n\n(Aura terlalu gelap... koneksi terputus...)\n\nSaya sudah tau.. kamu sedang memikirkan..";
+            } finally {
+                streamFinished = true;
+            }
+        }
+
+        // --- NORMAL MODE Q&A FLOW ---
+        async function submitAnswer(answer) {
+            if (isGameOver || isProcessing) return;
+            isProcessing = true;
+            document.getElementById('screen-game').style.opacity = '0.5';
+            
+            // Tambah loading overlay pas mode normal lagi mikir pertanyaan
             showLoading(true);
-            assignTarget();
-            magicDescription = await fetchMagicDescription();
-            showLoading(false);
-
-            await new Promise(r => setTimeout(r, Math.max(0, (delayMs + durationMs) - 500)));
-            document.body.classList.remove('glitch-extreme');
-
-            currentQuestionIndex = 0;
-            isGameOver = false;
-            resetGameUI();
-            showScreen('screen-game');
-            executeMagicClimax();
             
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < 10) { 
+                const nextQ = await fetchNormalQuestion(answer);
+                document.getElementById('screen-game').style.opacity = '1';
+                showLoading(false);
+                
+                if (nextQ) {
+                    document.getElementById('question-number').innerText = `Question ${currentQuestionIndex + 1}`;
+                    document.getElementById('question-text').innerText = nextQ;
+                    const jinImage = document.getElementById('jin-image');
+                    jinImage.src = currentQuestionIndex % 2 === 0 ? "https://en.akinator.com/assets/img/akitudes_520x650/inspiration_forte.png" : "https://en.akinator.com/assets/img/akitudes_520x650/serein_2.png";
+                } else {
+                    showErrorDot(true);
+                }
+                isProcessing = false; 
+            } else { 
+                const guessData = await fetchNormalGuess(answer);
+                document.getElementById('screen-game').style.opacity = '1';
+                showLoading(false);
+                
+                if (guessData) {
+                    fetchedMagicName = guessData.guess || "Misterius";
+                    magicDescriptionsString = guessData.description || "Akinator lelah menebak.";
+                    showReveal();
+                } else {
+                    showErrorDot(true);
+                    isProcessing = false;
+                }
+            }
+        }
+
+        // --- REVEAL & ENDING ---
+        async function showReveal() {
+            document.body.classList.remove('glitch-mild'); 
+            document.getElementById('guess-name').innerText = fetchedMagicName;
+            
+            // Text deskripsi di reveal
+            if(isMagicMode) {
+                document.getElementById('guess-desc').innerText = "Terbaca dari pikiranmu.";
+            } else {
+                document.getElementById('guess-desc').innerText = magicDescriptionsString;
+            }
+            
+            const imgEl = document.getElementById('guess-image'), fallbackEl = document.getElementById('no-image-fallback'), loadingEl = document.getElementById('image-loading');
+            imgEl.classList.add('hidden'); fallbackEl.classList.add('hidden'); loadingEl.style.display = 'flex';
+            showScreen('screen-guess');
+            
+            const imgUrl = await fetchCharacterImageFromInternet(fetchedMagicName);
+            loadingEl.style.display = 'none';
+            if (imgUrl) { imgEl.src = imgUrl; imgEl.onload = () => imgEl.classList.remove('hidden'); imgEl.onerror = () => fallbackEl.classList.remove('hidden'); } 
+            else { fallbackEl.classList.remove('hidden'); }
+        }
+
+        function handleGuessResult(result) {
+            isGameOver = true;
+            document.getElementById('end-title').innerText = result === 'yes' ? "SAYA HEBAT!" : "KAMU MENANG!";
+            showScreen('screen-end');
+        }
+
+        function resetGame() { 
+            clearMagicTimeouts();
+            document.body.classList.remove('glitch-mild', 'glitch-extreme');
+            showErrorDot(false); 
+            isProcessing = false; 
+            isGameOver = true; 
+            
+            // Jamin 100% balik ke mode normal saat beres main / reset
+            isMagicMode = false;
             forcedTargetIndex = -1;
             t9InputString = "";
-        } else {
-            // JALUR NORMAL (AKINATOR DINAMIS)
-            showLoading(true);
-            const firstQ = await fetchNormalQuestion(null);
-            showLoading(false);
-
-            if (!firstQ) { showErrorDot(true); return; }
             
-            currentQuestionIndex = 0; 
-            isGameOver = false;
-            isProcessing = false;
-            
-            resetGameUI();
-            document.getElementById('question-text').innerText = firstQ;
-            document.getElementById('question-number').innerText = "Question 1";
-            showScreen('screen-game');
+            showScreen('screen-start'); 
         }
-    }
 
-    // --- MAGIC CLIMAX (NO QUESTIONS, POSSESSION) ---
-    function executeMagicClimax() {
-        const btns = document.querySelectorAll('#answer-buttons-container button');
-        const qNum = document.getElementById('question-number');
-        const qText = document.getElementById('question-text');
-        const chars = "!@#$%^&*()_+{}[]|:;<>,.?/~0123456789";
-
-        qNum.style.display = 'none'; 
-        qText.innerText = ""; 
-        document.getElementById('answer-buttons-container').classList.add('pointer-events-none');
-
-        // Scramble Buttons
-        let scrambleInt = setInterval(() => {
-            btns.forEach(btn => {
-                if (btn.dataset.locked !== "true") {
-                    btn.innerText = Array(5).fill(0).map(() => chars[Math.floor(Math.random() * chars.length)]).join('');
-                }
-            });
-        }, 50);
-        magicIntervals.push(scrambleInt);
-
-        // Lock Buttons to YES
-        btns.forEach((btn, idx) => {
-            let tid = setTimeout(() => {
-                btn.dataset.locked = "true";
-                btn.innerText = "YES";
-                btn.classList.add('btn-locked-horror');
-                if (navigator.vibrate) navigator.vibrate(50);
-                if (idx === btns.length - 1) clearInterval(scrambleInt);
-            }, 600 + (idx * 400));
-            magicTimeouts.push(tid);
-        });
-
-        // Typewriter Mistis (Async)
-        document.body.classList.add('glitch-mild'); 
-        qText.classList.add('typewriter-text');
-        
-        const typeChar = async (char, speed) => {
-            if (isGameOver) return;
-            qText.innerHTML += char;
-            await new Promise(r => setTimeout(r, speed));
-        };
-
-        const typeString = async (str, speed) => {
-            for (let i = 0; i < str.length; i++) {
-                if (isGameOver) return;
-                await typeChar(str[i], speed);
-            }
-        };
-
-        const runTypewriter = async () => {
-            await new Promise(r => setTimeout(r, 1000)); // Nunggu bentar pas masuk
-            await typeString("Entah kenapa saya kali ini sangat yakin, jadi saya akan langsung mengakses fikiran anda", 45);
-            await new Promise(r => setTimeout(r, 1000)); // Jeda dramatis
-            qText.innerHTML += "<br><br>";
-            await typeString("Saya merasakan kalau orang ini ", 50);
-
-            const sentences = magicDescription.split('|');
-            for (let i = 0; i < sentences.length; i++) {
-                let s = sentences[i].trim();
-                if (!s) continue;
-                await typeString(s, 50);
-                await new Promise(r => setTimeout(r, 800)); // Jeda tiap baris deskripsi
-                qText.innerHTML += "<br><br>";
-            }
-
-            document.body.classList.remove('glitch-mild');
-            qText.classList.remove('typewriter-text');
-            
-            await new Promise(r => setTimeout(r, 1500)); // Jeda 1.5 detik sblm reveal
-            if (!isGameOver) showReveal();
-        };
-
-        runTypewriter();
-    }
-
-    // --- NORMAL MODE Q&A FLOW ---
-    async function submitAnswer(answer) {
-        if (isGameOver || isProcessing) return;
-        isProcessing = true;
-        document.getElementById('screen-game').style.opacity = '0.5';
-        
-        currentQuestionIndex++;
-        
-        if (currentQuestionIndex < 10) { 
-            const nextQ = await fetchNormalQuestion(answer);
-            document.getElementById('screen-game').style.opacity = '1';
-            
-            if (nextQ) {
-                document.getElementById('question-number').innerText = `Question ${currentQuestionIndex + 1}`;
-                document.getElementById('question-text').innerText = nextQ;
-                const jinImage = document.getElementById('jin-image');
-                jinImage.src = currentQuestionIndex % 2 === 0 ? "https://en.akinator.com/assets/img/akitudes_520x650/inspiration_forte.png" : "https://en.akinator.com/assets/img/akitudes_520x650/serein_2.png";
-            } else {
-                showErrorDot(true);
-            }
-            isProcessing = false; 
-        } else { 
-            const guessData = await fetchNormalGuess(answer);
-            document.getElementById('screen-game').style.opacity = '1';
-            
-            if (guessData) {
-                fetchedMagicName = guessData.guess || "Misterius";
-                magicDescription = guessData.description || "Akinator lelah menebak.";
-                showReveal();
-            } else {
-                showErrorDot(true);
-                isProcessing = false;
-            }
+        function stepperChange(id, delta) {
+            const el = document.getElementById('input-' + id);
+            let val = parseFloat(el.innerText) || 0;
+            val = Math.max(0, Math.round((val + delta) * 10) / 10);
+            el.innerText = val;
+            if (navigator.vibrate) navigator.vibrate(15);
         }
-    }
 
-    // --- REVEAL & ENDING ---
-    async function showReveal() {
-        document.body.classList.remove('glitch-mild'); 
-        document.getElementById('guess-name').innerText = fetchedMagicName;
-        // Pake magicDescription (entah dari Sulap atau Normal)
-        document.getElementById('guess-desc').innerText = magicDescription.replace(/\|/g, '. '); 
-        
-        const imgEl = document.getElementById('guess-image'), fallbackEl = document.getElementById('no-image-fallback'), loadingEl = document.getElementById('image-loading');
-        imgEl.classList.add('hidden'); fallbackEl.classList.add('hidden'); loadingEl.style.display = 'flex';
-        showScreen('screen-guess');
-        
-        const imgUrl = await fetchCharacterImageFromInternet(fetchedMagicName);
-        loadingEl.style.display = 'none';
-        if (imgUrl) { imgEl.src = imgUrl; imgEl.onload = () => imgEl.classList.remove('hidden'); imgEl.onerror = () => fallbackEl.classList.remove('hidden'); } 
-        else { fallbackEl.classList.remove('hidden'); }
-    }
-
-    function handleGuessResult(result) {
-        isGameOver = true;
-        document.getElementById('end-title').innerText = result === 'yes' ? "SAYA HEBAT!" : "KAMU MENANG!";
-        showScreen('screen-end');
-    }
-
-    function resetGame() { 
-        clearMagicTimeouts();
-        document.body.classList.remove('glitch-mild', 'glitch-extreme');
-        showErrorDot(false); 
-        isProcessing = false; 
-        isGameOver = true; 
-        isMagicMode = false;
-        showScreen('screen-start'); 
-    }
-
-    function stepperChange(id, delta) {
-        const el = document.getElementById('input-' + id);
-        let val = parseFloat(el.innerText) || 0;
-        val = Math.max(0, Math.round((val + delta) * 10) / 10);
-        el.innerText = val;
-        if (navigator.vibrate) navigator.vibrate(15);
-    }
-
-    window.onload = () => { loadSettings(); showScreen('screen-start'); };
-</script>
+        window.onload = () => { loadSettings(); showScreen('screen-start'); };
+    </script>
 </body>
 </html>

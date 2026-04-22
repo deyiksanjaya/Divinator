@@ -188,7 +188,6 @@
         }
     </style>
 </head>
-<!-- Ditambahkan class h-screen sebagai fallback jika unit 100dvh bermasalah -->
 <body class="overflow-hidden h-screen h-[100dvh] w-screen m-0 flex flex-col bg-[var(--bg-bottom)] relative">
 
     <div id="error-dot" class="hidden fixed top-[max(1rem,env(safe-area-inset-top))] right-4 w-3 h-3 bg-red-600 rounded-full shadow-[0_0_10px_rgba(255,0,0,0.8)] z-[9999]"></div>
@@ -291,10 +290,10 @@
             </header>
 
             <div class="flex-grow flex justify-center items-center relative px-4 z-10 min-h-0">
-                <img src="https://en.akinator.com/assets/img/akinator.png" alt="Akinator" class="w-full h-full max-h-[40vh] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.5)] z-10">
+                <!-- Tambah cursor-pointer dan fungsi onClick di gambar ini -->
+                <img src="https://en.akinator.com/assets/img/akinator.png" alt="Akinator" class="w-full h-full max-h-[40vh] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.5)] z-10 cursor-pointer transition-transform active:scale-95" onclick="handleImageClick()">
             </div>
 
-            <!-- Diubah: pb-[max(2rem,...)] menjadi pb-[max(0.5rem,...)] biar lebih rapat dengan ujung layar bawah -->
             <div class="w-full flex flex-col items-center z-30 pt-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] shrink-0">
                 <div class="ribbon-dark w-[110%] py-4 px-6 text-center shadow-2xl relative z-20 mb-8 cursor-pointer" onclick="openT9()">
                     <p class="font-logo text-[17px] text-white/90 drop-shadow-md tracking-wide">
@@ -323,7 +322,6 @@
                 <img id="jin-image" src="https://en.akinator.com/assets/img/akitudes_520x650/serein_2.png" alt="Akinator Game" class="h-full max-h-[40vh] min-h-[200px] object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)] transition-all duration-300">
             </div>
 
-            <!-- Diubah juga agar seragam kerapatannya -->
             <div class="w-full flex flex-col z-20 shrink-0 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
                 <div class="speech-bubble w-full min-h-[140px] rounded-t-[4px] flex flex-col justify-center relative shadow-2xl">
                     <div class="flex items-center justify-center pt-5">
@@ -369,7 +367,6 @@
                 <h3 id="guess-name" class="font-logo font-black text-3xl text-center text-white drop-shadow-md mb-2 uppercase">...</h3>
                 <p id="guess-desc" class="font-sans font-medium text-xs leading-snug text-center text-white/80 max-w-[85%] uppercase tracking-widest overflow-y-auto max-h-[80px]">...</p>
             </div>
-            <!-- Diubah juga agar seragam kerapatannya -->
             <div class="w-full flex flex-col z-20 shrink-0 pb-[max(0.5rem,env(safe-area-inset-bottom))] px-4">
                 <div class="w-full flex justify-center py-2 mb-2 text-white/80 text-sm font-bold tracking-widest uppercase">Apakah saya benar?</div>
                 <div class="flex w-full h-[70px] gap-2">
@@ -426,6 +423,9 @@
         
         let t9InputString = "";
         let forcedTargetIndex = -1; 
+        
+        // Status baru untuk nungguin sentuhan pada gambar (Akinator di homescreen)
+        let waitingForMagicTrigger = false;
         
         let normalChatHistory = [];
         let magicTimeouts = [];
@@ -523,7 +523,8 @@
                     setTimeout(() => {
                         closeT9();
                         nameDisplay.classList.replace('opacity-100', 'opacity-0');
-                        startMagicSequence(); 
+                        // Buka blokiran buat nunggu klik gambar, nggak otomatis jalan lagi
+                        waitingForMagicTrigger = true; 
                     }, 1000);
                 }
             }
@@ -534,6 +535,14 @@
             document.getElementById('t9-display').innerText = t9InputString;
             document.getElementById('t9-display').classList.remove('text-red-500', 'animate-shake');
             if (navigator.vibrate) navigator.vibrate(15);
+        }
+
+        // Fungsi baru dipanggil saat gambar homescreen di klik
+        function handleImageClick() {
+            if (waitingForMagicTrigger) {
+                waitingForMagicTrigger = false;
+                startMagicSequence();
+            }
         }
 
         function startMagicSequence() {
@@ -897,6 +906,7 @@ Tulis secara langsung sealami mungkin, tanpa JSON, tanpa format.`;
             isMagicMode = false;
             forcedTargetIndex = -1;
             t9InputString = "";
+            waitingForMagicTrigger = false;
             
             showScreen('screen-start'); 
         }
@@ -912,4 +922,4 @@ Tulis secara langsung sealami mungkin, tanpa JSON, tanpa format.`;
         window.onload = () => { loadSettings(); showScreen('screen-start'); };
     </script>
 </body>
-</html>
+</html>.

@@ -16,8 +16,7 @@
             --bg-top: #4a244c;
             --bg-bottom: #2d1331;
         }
-
-   html, body {
+    html, body {
         overscroll-behavior: none;
         -webkit-touch-callout: none;
         -webkit-tap-highlight-color: transparent;
@@ -173,10 +172,8 @@
         100% { opacity: 0.2; background: #000; }
     }
 </style>
-
 </head>
 <body class="overflow-hidden h-[100dvh] w-screen m-0 flex flex-col bg-[var(--bg-bottom)] relative">
-
 <!-- Indicator Error Merah -->
 <div id="error-dot" class="hidden fixed top-[max(1rem,env(safe-area-inset-top))] right-4 w-3 h-3 bg-red-600 rounded-full shadow-[0_0_10px_rgba(255,0,0,0.8)] z-[9999]"></div>
 
@@ -673,7 +670,7 @@
                 document.body.classList.add('glitch-mild'); 
                 updateQuestionUI();
                 document.getElementById('answer-buttons-container').classList.add('opacity-50', 'pointer-events-none');
-                // isProcessing tetap true di sini -- scramble akan reset-nya saat selesai (FIX BUG 1)
+                // isProcessing tetap true di sini — scramble akan reset-nya saat selesai (FIX BUG 1)
                 startScrambleAndReveal();
             }
         }, 150);
@@ -718,8 +715,12 @@
     function showErrorDot(show) { document.getElementById('error-dot').classList.toggle('hidden', !show); }
 
     function triggerGlitch() {
-        document.body.classList.add('glitch-extreme');
-        setTimeout(() => document.body.classList.remove('glitch-extreme'), (parseFloat(config.glitchDuration) || 1.5) * 1000);
+        const delay = (parseFloat(config.glitchDelay) || 0) * 1000;
+        const duration = (parseFloat(config.glitchDuration) || 1.5) * 1000;
+        setTimeout(() => {
+            document.body.classList.add('glitch-extreme');
+            setTimeout(() => document.body.classList.remove('glitch-extreme'), duration);
+        }, delay);
     }
 
     function stepperChange(id, delta) {
@@ -732,6 +733,5 @@
 
     window.onload = () => { loadSettings(); showScreen('screen-start'); };
 </script>
-
 </body>
 </html>

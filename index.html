@@ -120,7 +120,9 @@
             user-select: text;
         }
 
-        /* EXTREME GLITCH (Manual Trigger di Home Screen aja) */
+        /* =========================================================
+           GLOBAL HORROR GLITCH EFFECTS
+           ========================================================= */
         .glitch-extreme {
             animation: extremeGlitch 0.25s infinite steps(2) !important;
             pointer-events: none;
@@ -149,11 +151,34 @@
             100% { transform: translate(0, 0); filter: invert(0) contrast(100%); }
         }
 
+        .glitch-mild {
+            animation: mildGlitch 0.2s infinite;
+            filter: saturate(130%) contrast(110%);
+        }
+        .glitch-mild::after {
+            content: ""; position: fixed; inset: 0; z-index: 9999;
+            background: rgba(255,0,0,0.05); mix-blend-mode: color-burn; pointer-events: none;
+            animation: mildFlicker 0.1s infinite;
+        }
+
+        @keyframes mildGlitch {
+            0% { transform: translate(0, 0); filter: hue-rotate(0deg); }
+            25% { transform: translate(-2px, 1px); filter: hue-rotate(5deg); }
+            50% { transform: translate(1px, -1px); filter: hue-rotate(-2deg); }
+            75% { transform: translate(-1px, 2px); filter: hue-rotate(3deg); }
+            100% { transform: translate(0, 0); filter: hue-rotate(0deg); }
+        }
+
         @keyframes panicFlicker {
             0% { opacity: 0.1; background: #000; }
             33% { opacity: 0.9; background: #3b0000; }
             66% { opacity: 0.4; background: #fff; }
             100% { opacity: 0.2; background: #000; }
+        }
+        @keyframes mildFlicker {
+            0% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0.5; }
         }
         
         .typewriter-text {
@@ -216,7 +241,7 @@
             </div>
             
             <div class="mb-4 bg-black/20 p-3 rounded-lg border border-red-500/30">
-                <label class="block text-white/80 text-xs mb-1 uppercase tracking-wider font-bold text-red-300">Gemini API Key</label>
+                <label class="block text-white/80 text-xs mb-1 uppercase tracking-wider font-bold text-red-300">Gemini API Key (Wajib)</label>
                 <input type="password" id="input-api-key" placeholder="Masukkan API Key" class="w-full p-2.5 rounded bg-white/90 text-black focus:outline-none focus:ring-2 focus:ring-[#f7b733] mb-2">
                 
                 <label class="block text-white/80 text-xs mb-1 uppercase tracking-wider font-bold text-red-300">Model Gemini</label>
@@ -273,7 +298,7 @@
         </header>
 
         <div class="flex-grow flex justify-center items-center relative px-4 z-10 min-h-0">
-            <img src="https://en.akinator.com/assets/img/akinator.png" alt="Akinator" onclick="triggerHomeGlitch()" class="w-full h-full max-h-[40vh] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.5)] z-10 cursor-pointer">
+            <img src="https://en.akinator.com/assets/img/akinator.png" alt="Akinator" class="w-full h-full max-h-[40vh] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.5)] z-10">
         </div>
 
         <div class="w-full flex flex-col items-center z-30 pt-4 pb-[max(2rem,env(safe-area-inset-bottom))] shrink-0">
@@ -310,7 +335,7 @@
                     <h2 id="question-number" class="font-logo font-bold text-[20px] text-gray-900 drop-shadow-sm tracking-wide uppercase">Question 1</h2>
                 </div>
                 <div class="flex-grow flex items-center justify-center px-8 text-center pb-6 mt-2">
-                    <p id="question-text" class="font-logo font-bold text-[20px] leading-snug text-[#1a1a1a] overflow-y-auto max-h-[100px]">...</p>
+                    <p id="question-text" class="font-logo font-bold text-[18px] leading-snug text-[#1a1a1a] overflow-y-auto max-h-[120px]">...</p>
                 </div>
             </div>
             <div id="answer-buttons-container" class="w-full font-sans text-[16px] font-bold text-[#351e02] pb-2 transition-opacity duration-300">
@@ -395,15 +420,17 @@
     };
 
     let currentQuestionIndex = 0;
-    let preloadedData = null;
     let isGameOver = false;
     let isProcessing = false;
     let isMagicMode = false;
+    
     let fetchedMagicName = "";
+    let magicDescription = "";
     
     let t9InputString = "";
     let forcedTargetIndex = -1; 
     
+    let normalChatHistory = [];
     let magicTimeouts = [];
     let magicIntervals = [];
 
@@ -415,7 +442,7 @@
     }
 
     function loadSettings() {
-        const saved = localStorage.getItem('akinatorSettingsProV3');
+        const saved = localStorage.getItem('akinatorSettingsProV4');
         if (saved) {
             const parsed = JSON.parse(saved);
             config = { ...config, ...parsed };
@@ -431,15 +458,13 @@
     function closeSettings() { document.getElementById('settings-modal').classList.add('hidden-screen'); loadSettings(); }
 
     function saveSettings() {
-        config.characterList = document.getElementById('input-character-list').value.trim();
-        if (!config.characterList) config.characterList = default50List;
-        
+        config.characterList = document.getElementById('input-character-list').value.trim() || default50List;
         config.customApiKey = document.getElementById('input-api-key').value.trim();
         config.aiModel = document.getElementById('input-ai-model').value.trim() || "gemini-2.5-flash";
         config.glitchDelay = document.getElementById('input-glitch-delay').innerText.trim() || "0";
         config.glitchDuration = document.getElementById('input-glitch-duration').innerText.trim() || "1.5";
         
-        localStorage.setItem('akinatorSettingsProV3', JSON.stringify(config));
+        localStorage.setItem('akinatorSettingsProV4', JSON.stringify(config));
         showErrorDot(false);
         closeSettings();
     }
@@ -487,7 +512,7 @@
                 nameDisplay.innerText = peekName;
                 nameDisplay.classList.replace('opacity-0', 'opacity-100');
                 
-                isMagicMode = true; // Kunci mode Sulap aktif
+                isMagicMode = true; 
                 
                 setTimeout(() => {
                     closeT9();
@@ -504,89 +529,95 @@
         if (navigator.vibrate) navigator.vibrate(15);
     }
 
-    // --- GAME ENGINE ---
+    // --- NORMAL MODE DYNAMIC AI ENGINE ---
+    async function fetchNormalQuestion(answer) {
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${config.aiModel}:generateContent?key=${config.customApiKey}`;
+        
+        if (!answer) {
+            normalChatHistory = [{ 
+                role: "user", 
+                parts: [{ text: "Kita bermain Akinator. Saya sedang memikirkan sebuah tokoh fiksi/nyata. Berikan pertanyaan ke-1 (Maksimal 10 kata, jawabannya Ya/Tidak/Mungkin). Jangan membalas dengan format JSON atau basa-basi, langsung berikan pertanyaannya saja." }] 
+            }];
+        } else {
+            normalChatHistory.push({ role: "model", parts: [{ text: document.getElementById('question-text').innerText }] });
+            normalChatHistory.push({ role: "user", parts: [{ text: `Jawaban saya: ${answer}. Berikan pertanyaan selanjutnya (Maksimal 10 kata, langsung pertanyaannya saja tanpa basa-basi).` }] });
+        }
+
+        try {
+            const res = await fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: normalChatHistory }) });
+            if (!res.ok) return null;
+            const data = await res.json();
+            return data.candidates[0].content.parts[0].text.trim();
+        } catch (e) { return null; }
+    }
+
+    async function fetchNormalGuess(answer) {
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${config.aiModel}:generateContent?key=${config.customApiKey}`;
+        normalChatHistory.push({ role: "model", parts: [{ text: document.getElementById('question-text').innerText }] });
+        normalChatHistory.push({ role: "user", parts: [{ text: `Jawaban saya: ${answer}. Permainan selesai. Tebak siapa karakternya. Balas HANYA dengan JSON murni: {"guess": "Nama Karakter", "description": "1 kalimat deskripsi karakter"}` }] });
+
+        try {
+            const res = await fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: normalChatHistory, generationConfig: { responseMimeType: "application/json" } }) });
+            if (!res.ok) return null;
+            const data = await res.json();
+            const text = data.candidates[0].content.parts[0].text;
+            return JSON.parse(text.replace(/```json|```/gi, "").trim());
+        } catch (e) { return null; }
+    }
+
+    // --- MAGIC MODE AI ENGINE ---
     function assignTarget() {
         const listArray = config.characterList.split('\n').map(item => item.trim()).filter(item => item.length > 0);
         if (listArray.length === 0) { fetchedMagicName = "Karakter Misterius"; return; }
-
         if (forcedTargetIndex >= 0) {
             fetchedMagicName = listArray[forcedTargetIndex];
         } else {
-            const randIndex = Math.floor(Math.random() * listArray.length);
-            fetchedMagicName = listArray[randIndex];
+            fetchedMagicName = listArray[Math.floor(Math.random() * listArray.length)];
         }
     }
 
-    async function pregenerateGameData() {
-        const prompt = `Target: "${fetchedMagicName}". 
-Buat tepat 10 pertanyaan Ya/Tidak singkat (maks 10 kata) untuk menebak tokoh ini tanpa menyebutkan namanya.
-Lalu buat 'description' yang berisi SATU kalimat pendek mistis untuk melengkapi kalimat 'saya merasakan kalau orang ini...'. (Contoh: 'adalah seorang pesepakbola legendaris dengan nomor 7.')
-Berikan respon HANYA JSON murni (tanpa markdown):
-{
-  "questions": ["Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8", "Q9", "Q10"],
-  "description": "kalimat pelengkap"
-}`;
-        const targetModel = config.aiModel || "gemini-2.5-flash";
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${config.customApiKey}`;
+    async function fetchMagicDescription() {
+        const prompt = `Target: "${fetchedMagicName}". Buat 3 kalimat mendeskripsikan ciri-ciri spesifik tokoh ini seolah kamu sedang membaca pikiran saya. JANGAN SEBUTKAN NAMANYA. Pisahkan antar kalimat dengan karakter '|'. Balas teksnya saja. Contoh: adalah penyanyi pop legendaris|dia pernah membintangi film superhero|dia sangat lekat dengan warna merah.`;
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${config.aiModel}:generateContent?key=${config.customApiKey}`;
         try {
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } })
+                body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }] })
             });
-            if (!response.ok) return null;
-            const responseData = await response.json();
-            const candidateText = responseData?.candidates?.[0]?.content?.parts?.[0]?.text;
-            return JSON.parse(candidateText.replace(/```json|```/gi, "").trim());
-        } catch (e) { return null; }
+            if (!response.ok) return "sulit dibaca|sangat misterius";
+            const data = await response.json();
+            return data.candidates[0].content.parts[0].text.trim();
+        } catch (e) { return "sulit dibaca|sangat misterius"; }
     }
 
+    // --- UTILS ---
     async function fetchCharacterImageFromInternet(characterName) {
         try {
             let res = await fetch(`https://id.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(characterName)}&prop=pageimages&format=json&pithumbsize=400&origin=*`);
-            let data = await res.json();
-            let pages = data.query.pages;
-            let pageId = Object.keys(pages)[0];
+            let data = await res.json(), pages = data.query.pages, pageId = Object.keys(pages)[0];
             if (pageId !== "-1" && pages[pageId].thumbnail) return pages[pageId].thumbnail.source;
 
             res = await fetch(`https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(characterName)}&prop=pageimages&format=json&pithumbsize=400&origin=*`);
-            data = await res.json();
-            pages = data.query.pages;
-            pageId = Object.keys(pages)[0];
+            data = await res.json(); pages = data.query.pages; pageId = Object.keys(pages)[0];
             if (pageId !== "-1" && pages[pageId].thumbnail) return pages[pageId].thumbnail.source;
-
             return null;
         } catch (e) { return null; }
     }
 
     function showScreen(screenId) {
         ['screen-start', 'screen-game', 'screen-guess', 'screen-end'].forEach(id => {
-            const el = document.getElementById(id);
-            el.classList.add('hidden-screen');
-            el.classList.remove('flex');
+            document.getElementById(id).classList.add('hidden-screen');
+            document.getElementById(id).classList.remove('flex');
         });
-        const targetEl = document.getElementById(screenId);
-        targetEl.classList.remove('hidden-screen');
-        targetEl.classList.add('flex');
+        document.getElementById(screenId).classList.remove('hidden-screen');
+        document.getElementById(screenId).classList.add('flex');
     }
 
     function showLoading(show) { document.getElementById('loading-overlay').classList.toggle('hidden-screen', !show); }
+    function showErrorDot(show) { document.getElementById('error-dot').classList.toggle('hidden', !show); }
 
-    async function startGame() {
-        if (!config.customApiKey) { showErrorDot(true); return; }
-        showLoading(true);
-        
-        assignTarget();
-        preloadedData = await pregenerateGameData();
-        showLoading(false);
-        
-        if (!preloadedData) { showErrorDot(true); return; }
-        
-        currentQuestionIndex = 0; 
-        isGameOver = false;
-        isProcessing = false;
-
-        // Reset semua style tombol sebelum mulai
+    function resetGameUI() {
         const buttons = document.querySelectorAll('#answer-buttons-container button');
         const defaultLabels = ["Probably", "Probably not", "Yes", "Don't know", "No"];
         buttons.forEach((btn, index) => {
@@ -594,36 +625,70 @@ Berikan respon HANYA JSON murni (tanpa markdown):
             btn.innerText = defaultLabels[index];
             delete btn.dataset.locked;
         });
-        
-        document.getElementById('answer-buttons-container').classList.remove('pointer-events-none');
+        document.getElementById('answer-buttons-container').classList.remove('pointer-events-none', 'opacity-50');
         document.getElementById('question-number').style.display = 'block';
         document.getElementById('question-text').classList.remove('typewriter-text');
-        
-        showScreen('screen-game');
-
-        if (isMagicMode) {
-            executeMagicClimax();
-        } else {
-            updateQuestionUI();
-        }
-        
-        // Reset T9 State
-        forcedTargetIndex = -1;
-        t9InputString = "";
+        document.getElementById('screen-game').style.opacity = '1';
     }
 
-    // --- MAGIC CLIMAX MODE (NO QUESTIONS, DIRECT POSSESSION) ---
+    // --- GAME FLOW START ---
+    async function startGame() {
+        if (!config.customApiKey) { showErrorDot(true); return; }
+        
+        if (isMagicMode) {
+            // JALUR SULAP (GLITCH BRUTAL -> KLIMAKS)
+            const delayMs = (parseFloat(config.glitchDelay) || 0) * 1000;
+            const durationMs = (parseFloat(config.glitchDuration) || 1.5) * 1000;
+            
+            setTimeout(() => { document.body.classList.add('glitch-extreme'); }, delayMs);
+            
+            showLoading(true);
+            assignTarget();
+            magicDescription = await fetchMagicDescription();
+            showLoading(false);
+
+            await new Promise(r => setTimeout(r, Math.max(0, (delayMs + durationMs) - 500)));
+            document.body.classList.remove('glitch-extreme');
+
+            currentQuestionIndex = 0;
+            isGameOver = false;
+            resetGameUI();
+            showScreen('screen-game');
+            executeMagicClimax();
+            
+            forcedTargetIndex = -1;
+            t9InputString = "";
+        } else {
+            // JALUR NORMAL (AKINATOR DINAMIS)
+            showLoading(true);
+            const firstQ = await fetchNormalQuestion(null);
+            showLoading(false);
+
+            if (!firstQ) { showErrorDot(true); return; }
+            
+            currentQuestionIndex = 0; 
+            isGameOver = false;
+            isProcessing = false;
+            
+            resetGameUI();
+            document.getElementById('question-text').innerText = firstQ;
+            document.getElementById('question-number').innerText = "Question 1";
+            showScreen('screen-game');
+        }
+    }
+
+    // --- MAGIC CLIMAX (NO QUESTIONS, POSSESSION) ---
     function executeMagicClimax() {
         const btns = document.querySelectorAll('#answer-buttons-container button');
         const qNum = document.getElementById('question-number');
         const qText = document.getElementById('question-text');
         const chars = "!@#$%^&*()_+{}[]|:;<>,.?/~0123456789";
 
-        qNum.style.display = 'none'; // Ilangin tulisan "Question 1"
+        qNum.style.display = 'none'; 
         qText.innerText = ""; 
-        document.getElementById('answer-buttons-container').classList.add('pointer-events-none'); // Disable klik
+        document.getElementById('answer-buttons-container').classList.add('pointer-events-none');
 
-        // 1. Tombol ngacak
+        // Scramble Buttons
         let scrambleInt = setInterval(() => {
             btns.forEach(btn => {
                 if (btn.dataset.locked !== "true") {
@@ -633,7 +698,7 @@ Berikan respon HANYA JSON murni (tanpa markdown):
         }, 50);
         magicIntervals.push(scrambleInt);
 
-        // 2. Kunci Tombol ke "YES" satu per satu
+        // Lock Buttons to YES
         btns.forEach((btn, idx) => {
             let tid = setTimeout(() => {
                 btn.dataset.locked = "true";
@@ -645,95 +710,91 @@ Berikan respon HANYA JSON murni (tanpa markdown):
             magicTimeouts.push(tid);
         });
 
-        // 3. Efek Typewriter Mistis (Dimulai barengan)
-        qText.classList.add('typewriter-text'); // Kasi kursor kelap-kelip
+        // Typewriter Mistis (Async)
+        document.body.classList.add('glitch-mild'); 
+        qText.classList.add('typewriter-text');
         
-        const part1 = "Entah kenapa saya kali ini sangat yakin, jadi saya akan langsung mengakses pikiran anda...";
-        let descClean = preloadedData.description;
-        if (!descClean.startsWith(" ")) descClean = " " + descClean;
-        const part2 = "saya merasakan kalau orang ini" + descClean;
-        const part3 = "Saya sudah tau.. kamu sedang memikirkan..";
+        const typeChar = async (char, speed) => {
+            if (isGameOver) return;
+            qText.innerHTML += char;
+            await new Promise(r => setTimeout(r, speed));
+        };
 
-        let textIndex = 0;
-        
-        function typePart1() {
-            if (textIndex < part1.length) {
-                qText.innerHTML += part1.charAt(textIndex);
-                textIndex++;
-                magicTimeouts.push(setTimeout(typePart1, 40));
-            } else {
-                magicTimeouts.push(setTimeout(() => {
-                    qText.innerHTML += "<br><br>";
-                    textIndex = 0;
-                    typePart2();
-                }, 1200)); // Jeda dramatis sebelum part 2
+        const typeString = async (str, speed) => {
+            for (let i = 0; i < str.length; i++) {
+                if (isGameOver) return;
+                await typeChar(str[i], speed);
             }
-        }
+        };
 
-        function typePart2() {
-            if (textIndex < part2.length) {
-                qText.innerHTML += part2.charAt(textIndex);
-                textIndex++;
-                magicTimeouts.push(setTimeout(typePart2, 45));
-            } else {
-                magicTimeouts.push(setTimeout(() => {
-                    qText.innerHTML += "<br><br>";
-                    textIndex = 0;
-                    typePart3();
-                }, 1200)); // Jeda dramatis sebelum part 3
+        const runTypewriter = async () => {
+            await new Promise(r => setTimeout(r, 1000)); // Nunggu bentar pas masuk
+            await typeString("Entah kenapa saya kali ini sangat yakin, jadi saya akan langsung mengakses fikiran anda", 45);
+            await new Promise(r => setTimeout(r, 1000)); // Jeda dramatis
+            qText.innerHTML += "<br><br>";
+            await typeString("Saya merasakan kalau orang ini ", 50);
+
+            const sentences = magicDescription.split('|');
+            for (let i = 0; i < sentences.length; i++) {
+                let s = sentences[i].trim();
+                if (!s) continue;
+                await typeString(s, 50);
+                await new Promise(r => setTimeout(r, 800)); // Jeda tiap baris deskripsi
+                qText.innerHTML += "<br><br>";
             }
-        }
 
-        function typePart3() {
-            if (textIndex < part3.length) {
-                qText.innerHTML += part3.charAt(textIndex);
-                textIndex++;
-                magicTimeouts.push(setTimeout(typePart3, 50));
-            } else {
-                magicTimeouts.push(setTimeout(() => {
-                    qText.classList.remove('typewriter-text');
-                    showReveal();
-                }, 2000)); // Jeda sebelum Boom reveal
-            }
-        }
+            document.body.classList.remove('glitch-mild');
+            qText.classList.remove('typewriter-text');
+            
+            await new Promise(r => setTimeout(r, 1500)); // Jeda 1.5 detik sblm reveal
+            if (!isGameOver) showReveal();
+        };
 
-        magicTimeouts.push(setTimeout(typePart1, 1000)); // Mulai ngetik setelah 1 detik
+        runTypewriter();
     }
 
-    // --- NORMAL MODE (10 QUESTIONS) ---
-    function updateQuestionUI() {
-        document.getElementById('question-number').innerText = `Question ${currentQuestionIndex + 1}`;
-        document.getElementById('question-text').innerText = preloadedData.questions[currentQuestionIndex];
-        
-        const jinImage = document.getElementById('jin-image');
-        jinImage.src = currentQuestionIndex % 2 === 0 
-            ? "https://en.akinator.com/assets/img/akitudes_520x650/inspiration_forte.png" 
-            : "https://en.akinator.com/assets/img/akitudes_520x650/serein_2.png";
-    }
-
+    // --- NORMAL MODE Q&A FLOW ---
     async function submitAnswer(answer) {
         if (isGameOver || isProcessing) return;
         isProcessing = true;
-        document.getElementById('screen-game').style.opacity = '0.7';
+        document.getElementById('screen-game').style.opacity = '0.5';
         
-        setTimeout(() => { 
-            document.getElementById('screen-game').style.opacity = '1'; 
-            currentQuestionIndex++;
+        currentQuestionIndex++;
+        
+        if (currentQuestionIndex < 10) { 
+            const nextQ = await fetchNormalQuestion(answer);
+            document.getElementById('screen-game').style.opacity = '1';
             
-            // Di Normal Mode, jalan terus sampai mentok (10 pertanyaan / index 9)
-            if (currentQuestionIndex < preloadedData.questions.length) { 
-                updateQuestionUI();
-                isProcessing = false; 
-            } else { 
-                showReveal();
+            if (nextQ) {
+                document.getElementById('question-number').innerText = `Question ${currentQuestionIndex + 1}`;
+                document.getElementById('question-text').innerText = nextQ;
+                const jinImage = document.getElementById('jin-image');
+                jinImage.src = currentQuestionIndex % 2 === 0 ? "https://en.akinator.com/assets/img/akitudes_520x650/inspiration_forte.png" : "https://en.akinator.com/assets/img/akitudes_520x650/serein_2.png";
+            } else {
+                showErrorDot(true);
             }
-        }, 150);
+            isProcessing = false; 
+        } else { 
+            const guessData = await fetchNormalGuess(answer);
+            document.getElementById('screen-game').style.opacity = '1';
+            
+            if (guessData) {
+                fetchedMagicName = guessData.guess || "Misterius";
+                magicDescription = guessData.description || "Akinator lelah menebak.";
+                showReveal();
+            } else {
+                showErrorDot(true);
+                isProcessing = false;
+            }
+        }
     }
 
+    // --- REVEAL & ENDING ---
     async function showReveal() {
+        document.body.classList.remove('glitch-mild'); 
         document.getElementById('guess-name').innerText = fetchedMagicName;
-        // Di mode normal, kita pakai description mistis juga buat deskripsi karakternya
-        document.getElementById('guess-desc').innerText = preloadedData.description;
+        // Pake magicDescription (entah dari Sulap atau Normal)
+        document.getElementById('guess-desc').innerText = magicDescription.replace(/\|/g, '. '); 
         
         const imgEl = document.getElementById('guess-image'), fallbackEl = document.getElementById('no-image-fallback'), loadingEl = document.getElementById('image-loading');
         imgEl.classList.add('hidden'); fallbackEl.classList.add('hidden'); loadingEl.style.display = 'flex';
@@ -753,30 +814,12 @@ Berikan respon HANYA JSON murni (tanpa markdown):
 
     function resetGame() { 
         clearMagicTimeouts();
-        document.body.classList.remove('glitch-extreme');
-        document.getElementById('answer-buttons-container').classList.remove('pointer-events-none');
-        document.getElementById('question-text').classList.remove('typewriter-text');
-        
-        showErrorDot(false);
-        isProcessing = false;
-        isGameOver = false;
-        isMagicMode = false; // Matikan mode sulap pas game kelar
+        document.body.classList.remove('glitch-mild', 'glitch-extreme');
+        showErrorDot(false); 
+        isProcessing = false; 
+        isGameOver = true; 
+        isMagicMode = false;
         showScreen('screen-start'); 
-    }
-
-    function showErrorDot(show) { document.getElementById('error-dot').classList.toggle('hidden', !show); }
-
-    // Glitch Brutal cuma bisa di-trigger di Home Screen JIKA T9 udah dimasukin
-    function triggerHomeGlitch() {
-        if (!isMagicMode) return; 
-        
-        const delay = (parseFloat(config.glitchDelay) || 0) * 1000;
-        const duration = (parseFloat(config.glitchDuration) || 1.5) * 1000;
-        
-        setTimeout(() => {
-            document.body.classList.add('glitch-extreme');
-            setTimeout(() => document.body.classList.remove('glitch-extreme'), duration);
-        }, delay);
     }
 
     function stepperChange(id, delta) {

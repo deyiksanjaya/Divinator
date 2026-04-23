@@ -19,7 +19,7 @@
             overscroll-behavior: none;
             -webkit-touch-callout: none;
             -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation; /* Mematikan delay tap 300ms di mobile */
+            touch-action: manipulation;
         }
 
         body {
@@ -111,7 +111,9 @@
         .custom-scroll::-webkit-scrollbar-track { background: transparent; }
         .custom-scroll::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 4px; }
 
+        /* Wajib 16px agar HP tidak auto-zoom saat input di klik */
         input, textarea, select {
+            font-size: 16px !important; 
             touch-action: auto;
             -webkit-user-select: text;
             user-select: text;
@@ -180,7 +182,6 @@
             50% { border-color: rgba(0,0,0,0.8); }
         }
         
-        /* Utility for touch keys to avoid active state sticky on mobile */
         .t9-btn { touch-action: manipulation; }
     </style>
 </head>
@@ -197,14 +198,13 @@
         <p data-i18n="loading" class="font-logo text-xl font-bold text-[#f7b733] tracking-wider drop-shadow-md text-center px-6 uppercase tracking-widest">Loading...</p>
     </div>
 
-    <!-- T9 Modal (Absolute di pojok) -->
+    <!-- T9 Modal -->
     <div id="t9-modal" class="fixed inset-0 z-[300] hidden-screen fade-in">
         <div id="t9-box" class="absolute bottom-[max(1.5rem,env(safe-area-inset-bottom))] bg-black/90 border border-[#f7b733]/40 p-4 rounded-2xl shadow-2xl w-60 backdrop-blur-md flex flex-col transition-all duration-300 z-10">
             <div id="t9-display" class="text-[#f7b733] text-right h-8 mb-2 tracking-widest text-2xl font-mono border-b border-white/20 pb-1 transition-colors"></div>
             
             <div id="t9-target-name" class="text-green-400 font-bold text-center text-[10px] tracking-widest uppercase mb-4 h-4 opacity-0 transition-opacity"></div>
             
-            <!-- Menggunakan ontouchstart dan onmousedown untuk bypass delay click di browser -->
             <div class="grid grid-cols-3 gap-2">
                 <button onclick="t9Press('1')" class="t9-btn bg-white/10 py-3 rounded-xl active:bg-white/30 text-white font-bold text-lg transition-colors">1</button>
                 <button onclick="t9Press('2')" class="t9-btn bg-white/10 py-3 rounded-xl active:bg-white/30 text-white font-bold text-lg transition-colors">2</button>
@@ -226,8 +226,8 @@
     <!-- SETTINGS MODAL -->
     <div id="settings-modal" class="fixed inset-0 z-[200] flex items-center justify-center hidden-screen p-4 fade-in">
         <div class="bg-[#2d1331] w-full max-w-sm rounded-xl border-2 border-[#f7b733] shadow-2xl flex flex-col max-h-[90dvh]">
-            <div class="p-5 overflow-y-auto overscroll-contain allow-scroll" style="touch-action: pan-y;">
-                <div class="flex items-center gap-2 border-b border-[#f7b733]/30 pb-2 mb-4">
+            <div class="p-5 overflow-y-auto overscroll-contain allow-scroll custom-scroll" style="touch-action: pan-y;">
+                <div class="flex items-center gap-2 border-b border-[#f7b733]/30 pb-2 mb-4 shrink-0">
                     <svg class="w-6 h-6 text-[#f7b733]" fill="currentColor" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
                     <h2 data-i18n="settingsTitle" class="text-[#f7b733] font-logo text-2xl font-bold tracking-tight">Pengaturan</h2>
                 </div>
@@ -235,29 +235,77 @@
                 <!-- Bahasa -->
                 <div class="mb-4 bg-black/20 p-3 rounded-lg border border-[#f7b733]/50">
                     <label data-i18n="langLabel" class="block text-[#f7b733] text-xs mb-2 uppercase tracking-wider font-bold">Bahasa / Language</label>
-                    <select id="input-language" class="w-full p-2.5 rounded bg-white/90 text-black text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
+                    <select id="input-language" class="w-full p-2.5 rounded bg-white/90 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
                         <option value="id">Indonesian (ID)</option>
                         <option value="en">English (EN)</option>
                     </select>
                 </div>
 
+                <!-- API Key -->
                 <div class="mb-4 bg-black/20 p-3 rounded-lg border border-red-500/30">
                     <label data-i18n="apiKeyLabel" class="block text-white/80 text-xs mb-1 uppercase tracking-wider font-bold text-red-300">Gemini API Key (Wajib)</label>
                     <input type="password" id="input-api-key" placeholder="Masukkan API Key" class="w-full p-2.5 rounded bg-white/90 text-black focus:outline-none focus:ring-2 focus:ring-[#f7b733] mb-2">
                     
                     <label data-i18n="modelLabel" class="block text-white/80 text-xs mb-1 uppercase tracking-wider font-bold text-red-300">Model Gemini</label>
-                    <input type="text" id="input-ai-model" placeholder="gemini-2.5-flash" class="w-full p-2.5 rounded bg-white/90 text-black text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
+                    <input type="text" id="input-ai-model" placeholder="gemini-2.5-flash" class="w-full p-2.5 rounded bg-white/90 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
                 </div>
 
+                <!-- Template Prompt Magic CONTAINER BARU -->
+                <div class="mb-4 bg-black/20 p-3 rounded-lg border border-[#f7b733]/30 relative">
+                    <label data-i18n="promptSectionTitle" class="block text-white/80 text-xs mb-2 uppercase tracking-wider font-bold text-[#f7b733]">Kelola Templat Prompt</label>
+                    
+                    <!-- MODE TAMPIL & EDIT -->
+                    <div id="prompt-select-mode">
+                        <select id="input-prompt-select" onchange="changePromptSelection()" class="w-full p-2.5 mb-2 rounded bg-white/90 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]"></select>
+                        
+                        <textarea id="input-prompt-content" rows="6" class="w-full p-2.5 rounded bg-white/90 text-black font-mono focus:outline-none focus:ring-2 focus:ring-[#f7b733] allow-scroll whitespace-pre-wrap break-words resize-none transition-colors" style="line-height: 1.5;"></textarea>
+                        
+                        <div class="flex items-start justify-between gap-2 mt-2 mb-3">
+                            <p data-i18n="promptHelper" class="text-[10px] text-[#f7b733] leading-tight opacity-80">Gunakan tag <b>{TARGET}</b> untuk memasukkan teks dinamis.</p>
+                            <button type="button" id="btn-insert-target-view" onclick="insertTargetTag('input-prompt-content')" class="px-2 py-1 bg-[#f7b733]/20 border border-[#f7b733]/50 text-[#f7b733] font-bold rounded text-[10px] shrink-0 active:bg-[#f7b733]/40 transition-colors touch-manipulation">+ {TARGET}</button>
+                        </div>
+
+                        <!-- Tombol Tambah Baru selalu ada -->
+                        <div class="flex gap-2">
+                            <button type="button" data-i18n="btnCreateNew" onclick="showCreatePromptMode()" class="flex-1 py-2 bg-[#f7b733] text-[#2d1331] font-bold rounded text-[10px] uppercase tracking-wider touch-manipulation">Buat Template Baru</button>
+                        </div>
+
+                        <!-- Tombol Edit & Delete HANYA Muncul di Template Custom -->
+                        <div id="prompt-edit-actions" class="flex gap-2 mt-2 hidden">
+                            <button type="button" data-i18n="btnUpdate" onclick="updateCurrentPrompt()" class="flex-1 py-2 bg-blue-600/50 border border-blue-400 text-white font-bold rounded text-[10px] uppercase tracking-wider touch-manipulation">Perbarui</button>
+                            <button type="button" data-i18n="btnDelete" onclick="deleteCurrentPrompt()" class="flex-1 py-2 bg-red-600/50 border border-red-400 text-white font-bold rounded text-[10px] uppercase tracking-wider touch-manipulation">Hapus</button>
+                        </div>
+                    </div>
+
+                    <!-- MODE BUAT BARU (Hidden by default) -->
+                    <div id="prompt-create-mode" class="hidden">
+                        <input type="text" id="new-prompt-name" placeholder="Nama Template Baru" class="w-full p-2.5 mb-2 rounded bg-white/90 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
+                        
+                        <textarea id="new-prompt-content" rows="6" class="w-full p-2.5 rounded bg-white/90 text-black font-mono focus:outline-none focus:ring-2 focus:ring-[#f7b733] allow-scroll whitespace-pre-wrap break-words resize-none" style="line-height: 1.5;"></textarea>
+                        
+                        <div class="flex items-start justify-between gap-2 mt-2 mb-3">
+                            <p data-i18n="promptHelper" class="text-[10px] text-[#f7b733] leading-tight opacity-80">Gunakan tag <b>{TARGET}</b> untuk memasukkan teks dinamis.</p>
+                            <button type="button" onclick="insertTargetTag('new-prompt-content')" class="px-2 py-1 bg-[#f7b733]/20 border border-[#f7b733]/50 text-[#f7b733] font-bold rounded text-[10px] shrink-0 active:bg-[#f7b733]/40 transition-colors touch-manipulation">+ {TARGET}</button>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button type="button" data-i18n="btnCancel" onclick="cancelCreatePromptMode()" class="flex-1 py-2 bg-gray-600/50 border border-gray-400 text-white font-bold rounded text-[10px] uppercase tracking-wider touch-manipulation">Batal</button>
+                            <button type="button" data-i18n="btnSaveNew" onclick="saveNewPrompt()" class="flex-1 py-2 bg-[#f7b733] text-[#2d1331] font-bold rounded text-[10px] uppercase tracking-wider touch-manipulation">Simpan</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Karakter -->
                 <div class="mb-4 bg-black/20 p-3 rounded-lg border border-white/10">
                     <label data-i18n="charListLabel" class="block text-white/80 text-xs mb-2 uppercase tracking-wider">List Karakter Target</label>
                     <p data-i18n="charListDesc" class="text-[10px] text-[#f7b733] mb-2 leading-tight opacity-80">Pisahkan tiap nama dengan baris baru (Enter). Baris 1 akan dipanggil dengan angka 01, baris 100 dengan angka 00.</p>
-                    <textarea id="input-character-list" rows="8" class="w-full p-2.5 rounded bg-white/90 text-black text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733] allow-scroll whitespace-pre" style="line-height: 1.5;"></textarea>
+                    <textarea id="input-character-list" rows="6" class="w-full p-2.5 rounded bg-white/90 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733] allow-scroll whitespace-pre-wrap break-words resize-none" style="line-height: 1.5;"></textarea>
                 </div>
 
+                <!-- Posisi & Timing -->
                 <div class="mb-4 bg-black/20 p-3 rounded-lg border border-white/10">
                     <label data-i18n="t9PosLabel" class="block text-white/80 text-xs mb-2 uppercase tracking-wider">Posisi T9 Keypad</label>
-                    <select id="input-t9-position" class="w-full p-2.5 rounded bg-white/90 text-black text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
+                    <select id="input-t9-position" class="w-full p-2.5 rounded bg-white/90 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
                         <option value="right" data-i18n="posRight">Kanan Bawah</option>
                         <option value="left" data-i18n="posLeft">Kiri Bawah</option>
                     </select>
@@ -269,17 +317,17 @@
                         <div class="flex-1 flex flex-col items-center gap-1">
                             <span data-i18n="delayLabel" class="text-white/50 text-[10px] uppercase tracking-widest">Delay</span>
                             <div class="flex items-center w-full bg-white/10 rounded-lg overflow-hidden border border-white/20">
-                                <button type="button" onclick="stepperChange('glitch-delay', -0.5)" class="w-10 h-10 flex items-center justify-center text-[#f7b733] text-xl font-bold active:bg-white/20 transition-colors shrink-0">&#8722;</button>
+                                <button type="button" onclick="stepperChange('glitch-delay', -0.5)" class="w-10 h-10 flex items-center justify-center text-[#f7b733] text-xl font-bold active:bg-white/20 transition-colors shrink-0 touch-manipulation">&#8722;</button>
                                 <span id="input-glitch-delay" class="flex-1 text-center text-white font-bold text-base">0</span>
-                                <button type="button" onclick="stepperChange('glitch-delay', 0.5)" class="w-10 h-10 flex items-center justify-center text-[#f7b733] text-xl font-bold active:bg-white/20 transition-colors shrink-0">+</button>
+                                <button type="button" onclick="stepperChange('glitch-delay', 0.5)" class="w-10 h-10 flex items-center justify-center text-[#f7b733] text-xl font-bold active:bg-white/20 transition-colors shrink-0 touch-manipulation">+</button>
                             </div>
                         </div>
                         <div class="flex-1 flex flex-col items-center gap-1">
                             <span data-i18n="durationLabel" class="text-white/50 text-[10px] uppercase tracking-widest">Durasi</span>
                             <div class="flex items-center w-full bg-white/10 rounded-lg overflow-hidden border border-white/20">
-                                <button type="button" onclick="stepperChange('glitch-duration', -0.5)" class="w-10 h-10 flex items-center justify-center text-[#f7b733] text-xl font-bold active:bg-white/20 transition-colors shrink-0">&#8722;</button>
+                                <button type="button" onclick="stepperChange('glitch-duration', -0.5)" class="w-10 h-10 flex items-center justify-center text-[#f7b733] text-xl font-bold active:bg-white/20 transition-colors shrink-0 touch-manipulation">&#8722;</button>
                                 <span id="input-glitch-duration" class="flex-1 text-center text-white font-bold text-base">1.5</span>
-                                <button type="button" onclick="stepperChange('glitch-duration', 0.5)" class="w-10 h-10 flex items-center justify-center text-[#f7b733] text-xl font-bold active:bg-white/20 transition-colors shrink-0">+</button>
+                                <button type="button" onclick="stepperChange('glitch-duration', 0.5)" class="w-10 h-10 flex items-center justify-center text-[#f7b733] text-xl font-bold active:bg-white/20 transition-colors shrink-0 touch-manipulation">+</button>
                             </div>
                         </div>
                     </div>
@@ -287,8 +335,8 @@
             </div>
             
             <div class="p-4 border-t border-[#f7b733]/30 flex justify-end gap-3 shrink-0">
-                <button data-i18n="closeBtn" type="button" class="px-5 py-2 bg-white/10 rounded-lg text-white font-bold" onclick="closeSettings()">Tutup</button>
-                <button data-i18n="saveBtn" type="button" class="px-5 py-2 bg-gradient-to-r from-[#f7b733] to-[#d87c00] text-[#2d1331] font-black rounded-lg shadow-lg active:scale-95 transition-transform" onclick="saveSettings()">Simpan</button>
+                <button data-i18n="closeBtn" type="button" class="px-5 py-2 bg-white/10 rounded-lg text-white font-bold touch-manipulation" onclick="closeSettings()">Tutup</button>
+                <button data-i18n="saveBtn" type="button" class="px-5 py-2 bg-gradient-to-r from-[#f7b733] to-[#d87c00] text-[#2d1331] font-black rounded-lg shadow-lg active:scale-95 transition-transform touch-manipulation" onclick="saveSettingsApp()">Simpan</button>
             </div>
         </div>
     </div>
@@ -298,7 +346,7 @@
         <!-- ================= START SCREEN ================= -->
         <section id="screen-start" class="flex flex-col flex-grow fade-in w-full">
             <header class="flex justify-between items-center px-6 pt-[max(1.5rem,env(safe-area-inset-top))] pb-4 shrink-0">
-                <button type="button" class="w-10 h-10 rounded-full flex items-center justify-center active:bg-white/10 transition-colors" onclick="openSettings()">
+                <button type="button" class="w-10 h-10 rounded-full flex items-center justify-center active:bg-white/10 transition-colors touch-manipulation" onclick="openSettings()">
                     <svg class="w-8 h-8 text-[#f7b733] drop-shadow-md" fill="currentColor" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
                 </button>
                 <h1 class="font-logo text-4xl font-black akinator-logo-text tracking-wide">akinator</h1>
@@ -310,7 +358,7 @@
             </div>
 
             <div class="w-full flex flex-col items-center z-30 pt-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] shrink-0">
-                <button type="button" class="btn-gold-3d w-[85%] max-w-[320px] py-4 rounded-xl flex flex-col items-center justify-center shadow-[0_10px_20px_rgba(0,0,0,0.5)] relative z-30" onclick="startGame()">
+                <button type="button" class="btn-gold-3d w-[85%] max-w-[320px] py-4 rounded-xl flex flex-col items-center justify-center shadow-[0_10px_20px_rgba(0,0,0,0.5)] relative z-30 touch-manipulation" onclick="startGame()">
                     <span data-i18n="challengeBtn" class="font-logo font-black text-2xl tracking-wide uppercase">Challenge me</span>
                     <span data-i18n="readMindSub" class="font-sans text-[11px] font-bold text-[#4d320d] uppercase mt-1 tracking-wider">I will read your mind.</span>
                 </button>
@@ -320,10 +368,10 @@
         <!-- ================= GAME SCREEN ================= -->
         <section id="screen-game" class="hidden-screen flex flex-col flex-grow fade-in w-full">
             <div class="flex justify-between items-center px-4 pt-[max(1.5rem,env(safe-area-inset-top))] z-50 w-full shrink-0">
-                <button type="button" class="w-10 h-10 rounded-full bg-black/30 border border-white/20 flex items-center justify-center shadow-lg active:bg-black/50 transition-colors backdrop-blur-sm pointer-events-auto" onclick="resetGame()">
+                <button type="button" class="w-10 h-10 rounded-full bg-black/30 border border-white/20 flex items-center justify-center shadow-lg active:bg-black/50 transition-colors backdrop-blur-sm pointer-events-auto touch-manipulation" onclick="resetGame()">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
                 </button>
-                <button type="button" class="w-10 h-10 rounded-full bg-gradient-to-b from-[#fce484] to-[#d4a02d] flex items-center justify-center shadow-lg border border-[#fdf2b9] active:scale-95 transition-transform pointer-events-auto" onclick="resetGame()">
+                <button type="button" class="w-10 h-10 rounded-full bg-gradient-to-b from-[#fce484] to-[#d4a02d] flex items-center justify-center shadow-lg border border-[#fdf2b9] active:scale-95 transition-transform pointer-events-auto touch-manipulation" onclick="resetGame()">
                     <svg class="w-5 h-5 text-[#4a2e10] fill-current" viewBox="0 0 24 24"><path d="M12 3l10 9h-3v9H5v-9H2L12 3z"/></svg>
                 </button>
             </div>
@@ -358,7 +406,7 @@
         <!-- ================= GUESS SCREEN (REVEAL) ================= -->
         <section id="screen-guess" class="hidden-screen flex flex-col flex-grow fade-in w-full">
             <div class="flex justify-start px-4 pt-[max(1.5rem,env(safe-area-inset-top))] z-50 w-full shrink-0 absolute top-0 left-0">
-                <button type="button" class="w-10 h-10 rounded-full bg-black/30 border border-white/20 flex items-center justify-center shadow-lg active:bg-black/50 transition-colors backdrop-blur-sm pointer-events-auto" onclick="resetGame()">
+                <button type="button" class="w-10 h-10 rounded-full bg-black/30 border border-white/20 flex items-center justify-center shadow-lg active:bg-black/50 transition-colors backdrop-blur-sm pointer-events-auto touch-manipulation" onclick="resetGame()">
                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
                 </button>
             </div>
@@ -398,7 +446,7 @@
     </div>
 
     <script>
-        // Dictionary Bahasa (I18N)
+        // Dictionary Bahasa
         const i18n = {
             id: {
                 loading: "Memuat...", settingsTitle: "Pengaturan", langLabel: "Bahasa / Language", apiKeyLabel: "Gemini API Key (Wajib)", 
@@ -409,7 +457,12 @@
                 qProbably: "Mungkin", qProbablyNot: "Mungkin Tidak", qYes: "Ya", qDontKnow: "Tidak Tahu", qNo: "Tidak",
                 thinkingTitle: "Saya berpikir tentang...", noImage: "Tanpa Gambar", amIRight: "Apakah saya benar?",
                 btnYes: "Ya", btnNo: "Tidak", endWin: "SAYA HEBAT!", endLose: "KAMU MENANG!", playAgain: "Main Lagi",
-                magicDesc: "Terbaca dari pikiranmu.", question: "Pertanyaan"
+                magicDesc: "Terbaca dari pikiranmu.", question: "Pertanyaan",
+                promptSectionTitle: "Kelola Templat Prompt", promptHelper: "Gunakan tag <b>{TARGET}</b> untuk memasukkan teks dinamis.",
+                btnCreateNew: "Buat Template Baru", btnSaveNew: "Simpan", btnCancel: "Batal", btnUpdate: "Perbarui", btnDelete: "Hapus", newPromptName: "Nama Template Baru",
+                aiPromptInitial: "Kita bermain Akinator. Saya memikirkan tokoh fiksi/nyata. Berikan pertanyaan ke-1 (Maks 10 kata, jawabannya Ya/Tidak/Mungkin). Jangan balas pakai format JSON, langsung teks pertanyaannya saja.",
+                aiPromptNext: "Berikan pertanyaan selanjutnya (Maksimal 10 kata, langsung pertanyaannya saja tanpa basa-basi).",
+                aiPromptGuess: "Permainan selesai. Tebak siapa karakternya. Balas HANYA dengan JSON murni: {\"guess\": \"Nama Karakter\", \"description\": \"1 kalimat deskripsi karakter\"}"
             },
             en: {
                 loading: "Loading...", settingsTitle: "Settings", langLabel: "Language / Bahasa", apiKeyLabel: "Gemini API Key (Required)",
@@ -420,17 +473,25 @@
                 qProbably: "Probably", qProbablyNot: "Probably not", qYes: "Yes", qDontKnow: "Don't know", qNo: "No",
                 thinkingTitle: "I am thinking of...", noImage: "No Image", amIRight: "Am I right?",
                 btnYes: "Yes", btnNo: "No", endWin: "I'M THE BEST!", endLose: "YOU WIN!", playAgain: "Play Again",
-                magicDesc: "Read from your mind.", question: "Question"
+                magicDesc: "Read from your mind.", question: "Question",
+                promptSectionTitle: "Manage Prompt Templates", promptHelper: "Use the <b>{TARGET}</b> tag to insert dynamic text.",
+                btnCreateNew: "Create New Template", btnSaveNew: "Save", btnCancel: "Cancel", btnUpdate: "Update", btnDelete: "Delete", newPromptName: "New Template Name",
+                aiPromptInitial: "We are playing Akinator. I'm thinking of a fictional/real character. Give the 1st question (Max 10 words, answers can be Yes/No/Probably/Don't know). Reply directly with the question text, no JSON.",
+                aiPromptNext: "Give the next question (Max 10 words, straight to the point).",
+                aiPromptGuess: "Game over. Guess the character. Reply ONLY with pure JSON: {\"guess\": \"Character Name\", \"description\": \"1 sentence description\"}"
             }
         };
 
-        // Mematikan native swipe scale tapi tetap mengizinkan scroll
-        document.addEventListener('touchmove', function(event) {
-            if (event.scale !== 1) { event.preventDefault(); return; }
-            const isScrollableArea = event.target.closest('.allow-scroll') || event.target.closest('.custom-scroll');
-            const isInputField = event.target.closest('input, textarea, select');
-            if (!isScrollableArea && !isInputField) { event.preventDefault(); }
-        }, { passive: false });
+        const defaultMagicPrompts = {
+            "default_id": {
+                name: "Mistis (Indo - Default)",
+                content: `Bermain trik sulap membaca pikiran. Target: "{TARGET}".\nBerperanlah sebagai entitas mistis yang merasuk ke aplikasi ini.\nKatakan tepat kalimat ini di awal: "Entah kenapa saya kali ini sangat yakin, jadi saya akan langsung mengakses pikiran anda..."\nBeri baris baru, lalu deskripsikan ciri-ciri fisik atau fakta sangat spesifik dari tokoh ini seolah kamu sedang menerawang (maksimal 3 kalimat singkat, pisahkan dengan baris baru).\nJANGAN PERNAH SEBUTKAN NAMANYA.\nDiakhiri dengan baris baru dan kalimat persis ini: "Saya sudah tau.. kamu sedang memikirkan.."\nTulis secara langsung sealami mungkin, tanpa JSON, tanpa format.`
+            },
+            "default_en": {
+                name: "Mystical (English - Default)",
+                content: `Playing a mind reading magic trick. Target: "{TARGET}".\nAssume the role of a mystical entity possessing this app.\nSay EXACTLY this sentence at the beginning: "For some reason I'm very confident this time, so I will directly access your mind..."\nAdd a new line, then describe specific physical traits or highly specific facts about this character as if you are divining them (max 3 short sentences, separated by new lines).\nNEVER MENTION THE NAME.\nEnd with a new line and EXACTLY this sentence: "I already know.. you are thinking of.."\nWrite directly and naturally, no JSON, no formatting.`
+            }
+        };
 
         const default50List = "Taylor Swift\nTom Cruise\nLeonardo DiCaprio\nBrad Pitt\nScarlett Johansson\nRobert Downey Jr\nJohnny Depp\nWill Smith\nAngelina Jolie\nDwayne Johnson\nCristiano Ronaldo\nLionel Messi\nJustin Bieber\nSelena Gomez\nKaty Perry\nRihanna\nLady Gaga\nEminem\nChris Hemsworth\nVin Diesel\nKeanu Reeves\nChris Evans\nRyan Reynolds\nZendaya\nTom Holland\nMargot Robbie\nElon Musk\nMark Zuckerberg\nBill Gates\nSteve Jobs\nAriana Grande\nBillie Eilish\nBeyonce\nDrake\nSnoop Dogg\nKanye West\nJay-Z\nEd Sheeran\nBruno Mars\nShawn Mendes\nThe Weeknd\nPost Malone\nKylie Jenner\nKendall Jenner\nKim Kardashian\nEmma Watson\nJennifer Lawrence\nNatalie Portman\nAnne Hathaway\nGal Gadot";
 
@@ -441,72 +502,177 @@
             glitchDelay: "0",
             glitchDuration: "1.5",
             t9Position: "right",
-            language: "id"
+            language: "id",
+            activePromptId: "default_id",
+            customPrompts: {}
         };
 
-        let currentQuestionIndex = 0;
-        let isGameOver = false;
-        let isProcessing = false;
-        let isMagicMode = false;
-        let isMagicCancelled = false; 
-        
-        let fetchedMagicName = "";
-        let magicDescriptionsString = ""; 
-        
-        let t9InputString = "";
-        let forcedTargetIndex = -1; 
-        let waitingForMagicTrigger = false;
-        
-        let normalChatHistory = [];
-        let magicTimeouts = [];
-        let magicIntervals = [];
-        let streamReader = null;
+        let currentQuestionIndex = 0, isGameOver = false, isProcessing = false;
+        let isMagicMode = false, isMagicCancelled = false, waitingForMagicTrigger = false;
+        let fetchedMagicName = "", magicDescriptionsString = "", t9InputString = "", forcedTargetIndex = -1;
+        let normalChatHistory = [], magicTimeouts = [], magicIntervals = [];
+        let streamReader = null, typeQueue = "", streamFinished = false;
 
-        let typeQueue = "";
-        let streamFinished = false;
+        document.addEventListener('touchmove', function(event) {
+            const isScrollableArea = event.target.closest('.allow-scroll');
+            const isInputField = event.target.closest('input, textarea, select');
+            if (!isScrollableArea && !isInputField) { event.preventDefault(); }
+        }, { passive: false });
 
         function clearMagicTimeouts() {
             isMagicCancelled = true;
-            if (streamReader) {
-                try { streamReader.cancel(); } catch(e){}
-                streamReader = null;
-            }
-            magicTimeouts.forEach(clearTimeout);
-            magicIntervals.forEach(clearInterval);
-            magicTimeouts = [];
-            magicIntervals = [];
-            typeQueue = "";
+            if (streamReader) { try { streamReader.cancel(); } catch(e){} streamReader = null; }
+            magicTimeouts.forEach(clearTimeout); magicIntervals.forEach(clearInterval);
+            magicTimeouts = []; magicIntervals = []; typeQueue = "";
         }
 
-        // FUNGSI TRANSLASI UI
         function applyLanguage() {
             const lang = config.language || 'id';
             const dict = i18n[lang];
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (dict[key]) el.innerText = dict[key];
+                if (dict[key]) {
+                    if (el.tagName === 'INPUT' && el.hasAttribute('placeholder')) el.placeholder = dict[key];
+                    else el.innerHTML = dict[key]; 
+                }
             });
+            document.getElementById('new-prompt-name').placeholder = dict.newPromptName;
             magicDescriptionsString = dict.magicDesc;
             resetGameUI();
         }
 
         function applyT9Position() {
             const t9Box = document.getElementById('t9-box');
-            if (config.t9Position === 'left') {
-                t9Box.classList.remove('right-6');
-                t9Box.classList.add('left-6');
-            } else {
-                t9Box.classList.remove('left-6');
-                t9Box.classList.add('right-6');
-            }
+            if (config.t9Position === 'left') { t9Box.classList.remove('right-6'); t9Box.classList.add('left-6'); } 
+            else { t9Box.classList.remove('left-6'); t9Box.classList.add('right-6'); }
         }
 
+        // --- MANAJEMEN PROMPT TEMPLATE ---
+        function renderPromptDropdown() {
+            const select = document.getElementById('input-prompt-select');
+            select.innerHTML = '';
+            
+            for (let id in defaultMagicPrompts) {
+                let opt = document.createElement('option');
+                opt.value = id; opt.text = defaultMagicPrompts[id].name;
+                select.appendChild(opt);
+            }
+            
+            if (config.customPrompts) {
+                for (let id in config.customPrompts) {
+                    let opt = document.createElement('option');
+                    opt.value = id; opt.text = config.customPrompts[id].name;
+                    select.appendChild(opt);
+                }
+            }
+            
+            if (!document.querySelector(`#input-prompt-select option[value="${config.activePromptId}"]`)) {
+                config.activePromptId = "default_id";
+            }
+            select.value = config.activePromptId;
+            changePromptSelection();
+        }
+
+        function changePromptSelection() {
+            const select = document.getElementById('input-prompt-select');
+            const contentArea = document.getElementById('input-prompt-content');
+            const editActions = document.getElementById('prompt-edit-actions');
+            const btnInsertTarget = document.getElementById('btn-insert-target-view');
+            const activeId = select.value;
+            
+            config.activePromptId = activeId;
+            let activeData = config.customPrompts[activeId] || defaultMagicPrompts[activeId];
+            
+            if (activeData) {
+                contentArea.value = activeData.content;
+            }
+
+            if (activeId.startsWith('default_')) {
+                contentArea.readOnly = true;
+                contentArea.classList.add('bg-white/70');
+                contentArea.classList.remove('bg-white/90');
+                editActions.classList.add('hidden');
+                btnInsertTarget.classList.add('hidden');
+            } else {
+                contentArea.readOnly = false;
+                contentArea.classList.remove('bg-white/70');
+                contentArea.classList.add('bg-white/90');
+                editActions.classList.remove('hidden');
+                btnInsertTarget.classList.remove('hidden');
+            }
+        }
+        
+        function insertTargetTag(textareaId) {
+            const textarea = document.getElementById(textareaId);
+            const cursorPos = textarea.selectionStart;
+            const textBefore = textarea.value.substring(0, cursorPos);
+            const textAfter = textarea.value.substring(textarea.selectionEnd, textarea.value.length);
+            
+            textarea.value = textBefore + '{TARGET}' + textAfter;
+            textarea.selectionStart = textarea.selectionEnd = cursorPos + '{TARGET}'.length;
+            textarea.focus();
+        }
+
+        function showCreatePromptMode() {
+            document.getElementById('prompt-select-mode').classList.add('hidden');
+            document.getElementById('prompt-create-mode').classList.remove('hidden');
+            
+            // Kosongkan form saat buat template baru
+            document.getElementById('new-prompt-content').value = '';
+            document.getElementById('new-prompt-name').value = '';
+        }
+
+        function cancelCreatePromptMode() {
+            document.getElementById('prompt-create-mode').classList.add('hidden');
+            document.getElementById('prompt-select-mode').classList.remove('hidden');
+        }
+
+        function saveNewPrompt() {
+            const nameInput = document.getElementById('new-prompt-name');
+            const contentInput = document.getElementById('new-prompt-content');
+            const name = nameInput.value.trim();
+            const content = contentInput.value.trim();
+            
+            if (!name || !content) return;
+            
+            const newId = 'custom_' + Date.now();
+            if(!config.customPrompts) config.customPrompts = {};
+            
+            config.customPrompts[newId] = { name: name, content: content };
+            config.activePromptId = newId;
+            
+            renderPromptDropdown();
+            persistConfig();
+            cancelCreatePromptMode();
+        }
+
+        function updateCurrentPrompt() {
+            const activeId = config.activePromptId;
+            if (activeId.startsWith('default_')) return;
+            
+            const contentInput = document.getElementById('input-prompt-content');
+            config.customPrompts[activeId].content = contentInput.value.trim();
+            persistConfig();
+        }
+
+        function deleteCurrentPrompt() {
+            const activeId = config.activePromptId;
+            if (activeId.startsWith('default_')) return;
+            
+            delete config.customPrompts[activeId];
+            config.activePromptId = "default_id";
+            renderPromptDropdown();
+            persistConfig();
+        }
+
+        function persistConfig() { localStorage.setItem('akinatorSettingsProV6', JSON.stringify(config)); }
+
+        // --- SISTEM ---
         function loadSettings() {
             const saved = localStorage.getItem('akinatorSettingsProV6');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                config = { ...config, ...parsed };
-            }
+            if (saved) { const parsed = JSON.parse(saved); config = { ...config, ...parsed }; }
+            if(!config.customPrompts) config.customPrompts = {};
+            
             document.getElementById('input-character-list').value = config.characterList || default50List;
             document.getElementById('input-api-key').value = config.customApiKey || "";
             document.getElementById('input-ai-model').value = config.aiModel || "gemini-2.5-flash"; 
@@ -515,14 +681,14 @@
             document.getElementById('input-t9-position').value = config.t9Position || "right";
             document.getElementById('input-language').value = config.language || "id";
             
-            applyT9Position();
-            applyLanguage();
+            renderPromptDropdown();
+            applyT9Position(); applyLanguage();
         }
 
         function openSettings() { document.getElementById('settings-modal').classList.remove('hidden-screen'); }
         function closeSettings() { document.getElementById('settings-modal').classList.add('hidden-screen'); loadSettings(); }
 
-        function saveSettings() {
+        function saveSettingsApp() {
             config.characterList = document.getElementById('input-character-list').value.trim() || default50List;
             config.customApiKey = document.getElementById('input-api-key').value.trim();
             config.aiModel = document.getElementById('input-ai-model').value.trim() || "gemini-2.5-flash";
@@ -531,11 +697,13 @@
             config.t9Position = document.getElementById('input-t9-position').value;
             config.language = document.getElementById('input-language').value;
             
-            localStorage.setItem('akinatorSettingsProV6', JSON.stringify(config));
-            showErrorDot(false);
-            applyT9Position();
-            applyLanguage();
-            closeSettings();
+            // Hanya save jika di select mode (kalau lagi create mode, wajib klik simpan di dalam mode create)
+            if(!document.getElementById('prompt-select-mode').classList.contains('hidden')){
+                config.activePromptId = document.getElementById('input-prompt-select').value;
+                updateCurrentPrompt(); // Auto-save jika ada perubahan sblm ditutup
+            }
+            
+            persistConfig(); showErrorDot(false); applyT9Position(); applyLanguage(); closeSettings();
         }
 
         function openT9() {
@@ -543,21 +711,20 @@
             document.getElementById('t9-display').innerText = "";
             document.getElementById('t9-display').classList.remove('text-red-500', 'animate-shake');
             document.getElementById('t9-target-name').innerText = "";
-            document.getElementById('t9-target-name').classList.remove('opacity-100');
+            document.getElementById('t9-target-name').classList.remove('opacity-100', 'opacity-0');
             document.getElementById('t9-target-name').classList.add('opacity-0');
             document.getElementById('t9-modal').classList.remove('hidden-screen');
         }
 
         function closeT9() { document.getElementById('t9-modal').classList.add('hidden-screen'); }
 
-        // FUNGSI T9 - Sekarang Instan!
         let lastT9Hit = 0;
         function t9Press(num) {
             const now = Date.now();
-            if (now - lastT9Hit < 50) return; // Debounce kilat
+            if (now - lastT9Hit < 50) return; 
             lastT9Hit = now;
-
             if (t9InputString.length >= 2) return; 
+            
             t9InputString += num;
             const displayEl = document.getElementById('t9-display');
             displayEl.innerText = t9InputString;
@@ -567,18 +734,13 @@
             
             if (t9InputString.length === 2) {
                 const listArray = config.characterList.split('\n').map(item => item.trim()).filter(item => item.length > 0);
-                
                 let targetNum = parseInt(t9InputString, 10);
                 if (t9InputString === "00") targetNum = 100;
                 
                 if (targetNum > listArray.length || targetNum === 0) {
                     displayEl.classList.add('text-red-500', 'animate-shake');
                     if (navigator.vibrate) navigator.vibrate([40, 40, 40]);
-                    setTimeout(() => {
-                        t9InputString = "";
-                        displayEl.innerText = "";
-                        displayEl.classList.remove('text-red-500', 'animate-shake');
-                    }, 500);
+                    setTimeout(() => { t9InputString = ""; displayEl.innerText = ""; displayEl.classList.remove('text-red-500', 'animate-shake'); }, 500);
                 } else {
                     forcedTargetIndex = targetNum - 1;
                     const peekName = listArray[forcedTargetIndex] || "Misterius";
@@ -587,7 +749,6 @@
                     nameDisplay.classList.replace('opacity-0', 'opacity-100');
                     
                     isMagicMode = true; 
-                    
                     setTimeout(() => {
                         closeT9();
                         nameDisplay.classList.replace('opacity-100', 'opacity-0');
@@ -605,49 +766,34 @@
         }
 
         function handleImageClick() {
-            if (waitingForMagicTrigger) {
-                waitingForMagicTrigger = false;
-                startMagicSequence();
-            } else {
-                openT9();
-            }
+            if (waitingForMagicTrigger) { waitingForMagicTrigger = false; startMagicSequence(); } 
+            else { openT9(); }
         }
 
         function startMagicSequence() {
             const delay = (parseFloat(config.glitchDelay) || 0) * 1000;
             const duration = (parseFloat(config.glitchDuration) || 1.5) * 1000;
-            
             isProcessing = true;
-            
             setTimeout(() => {
                 document.body.classList.add('glitch-extreme');
                 if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-                
-                setTimeout(() => {
-                    document.body.classList.remove('glitch-extreme');
-                    isProcessing = false; 
-                    startGame(); 
-                }, duration);
+                setTimeout(() => { document.body.classList.remove('glitch-extreme'); isProcessing = false; startGame(); }, duration);
             }, delay);
         }
 
-        // FUNGSI AI Q&A dengan Support Bahasa
         async function fetchNormalQuestion(answer) {
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${config.aiModel}:generateContent?key=${config.customApiKey}`;
             const lang = config.language || 'id';
             
-            if (!answer) {
-                normalChatHistory = [{ role: "user", parts: [{ text: i18n[lang].aiPromptInitial }] }];
-            } else {
+            if (!answer) { normalChatHistory = [{ role: "user", parts: [{ text: i18n[lang].aiPromptInitial }] }]; } 
+            else {
                 normalChatHistory.push({ role: "model", parts: [{ text: document.getElementById('question-text').innerText }] });
                 let promptNext = lang === 'en' ? `My answer: ${answer}. ${i18n[lang].aiPromptNext}` : `Jawaban saya: ${answer}. ${i18n[lang].aiPromptNext}`;
                 normalChatHistory.push({ role: "user", parts: [{ text: promptNext }] });
             }
-
             try {
                 const res = await fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: normalChatHistory }) });
-                if (!res.ok) return null;
-                const data = await res.json();
+                if (!res.ok) return null; const data = await res.json();
                 return data.candidates[0].content.parts[0].text.trim().replace(/\*/g, '');
             } catch (e) { return null; }
         }
@@ -659,13 +805,10 @@
             normalChatHistory.push({ role: "model", parts: [{ text: document.getElementById('question-text').innerText }] });
             let promptGuess = lang === 'en' ? `My answer: ${answer}. ${i18n[lang].aiPromptGuess}` : `Jawaban saya: ${answer}. ${i18n[lang].aiPromptGuess}`;
             normalChatHistory.push({ role: "user", parts: [{ text: promptGuess }] });
-
             try {
                 const res = await fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: normalChatHistory, generationConfig: { responseMimeType: "application/json" } }) });
-                if (!res.ok) return null;
-                const data = await res.json();
-                const text = data.candidates[0].content.parts[0].text;
-                const cleanJson = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+                if (!res.ok) return null; const data = await res.json();
+                const cleanJson = data.candidates[0].content.parts[0].text.replace(/```json/gi, '').replace(/```/g, '').trim();
                 return JSON.parse(cleanJson);
             } catch (e) { return null; }
         }
@@ -673,94 +816,55 @@
         function assignTarget() {
             const listArray = config.characterList.split('\n').map(item => item.trim()).filter(item => item.length > 0);
             if (listArray.length === 0) { fetchedMagicName = "Karakter Misterius"; return; }
-
-            if (forcedTargetIndex >= 0) {
-                fetchedMagicName = listArray[forcedTargetIndex];
-            } else {
-                fetchedMagicName = listArray[Math.floor(Math.random() * listArray.length)];
-            }
+            if (forcedTargetIndex >= 0) { fetchedMagicName = listArray[forcedTargetIndex]; } 
+            else { fetchedMagicName = listArray[Math.floor(Math.random() * listArray.length)]; }
         }
 
         async function fetchCharacterImageFromInternet(characterName) {
             try {
                 let res = await fetch(`https://id.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(characterName)}&prop=pageimages&format=json&pithumbsize=400&origin=*`);
-                let data = await res.json();
-                let pages = data.query.pages;
-                let pageId = Object.keys(pages)[0];
-                if (pageId !== "-1" && pages[pageId].thumbnail) {
-                    return pages[pageId].thumbnail.source;
-                }
-
+                let data = await res.json(); let pageId = Object.keys(data.query.pages)[0];
+                if (pageId !== "-1" && data.query.pages[pageId].thumbnail) return data.query.pages[pageId].thumbnail.source;
+                
                 res = await fetch(`https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(characterName)}&prop=pageimages&format=json&pithumbsize=400&origin=*`);
-                data = await res.json();
-                pages = data.query.pages;
-                pageId = Object.keys(pages)[0];
-                if (pageId !== "-1" && pages[pageId].thumbnail) {
-                    return pages[pageId].thumbnail.source;
-                }
-
+                data = await res.json(); pageId = Object.keys(data.query.pages)[0];
+                if (pageId !== "-1" && data.query.pages[pageId].thumbnail) return data.query.pages[pageId].thumbnail.source;
                 return null;
             } catch (e) { return null; }
         }
 
         function showScreen(screenId) {
             ['screen-start', 'screen-game', 'screen-guess', 'screen-end'].forEach(id => {
-                const el = document.getElementById(id);
-                el.classList.add('hidden-screen');
-                el.classList.remove('flex');
+                const el = document.getElementById(id); el.classList.add('hidden-screen'); el.classList.remove('flex');
             });
-            const targetEl = document.getElementById(screenId);
-            targetEl.classList.remove('hidden-screen');
-            targetEl.classList.add('flex');
+            const targetEl = document.getElementById(screenId); targetEl.classList.remove('hidden-screen'); targetEl.classList.add('flex');
         }
 
         function showLoading(show) { document.getElementById('loading-overlay').classList.toggle('hidden-screen', !show); }
         function showErrorDot(show) { document.getElementById('error-dot').classList.toggle('hidden', !show); }
 
         function resetGameUI() {
-            const lang = config.language || 'id';
-            const dict = i18n[lang];
+            const lang = config.language || 'id'; const dict = i18n[lang];
             const buttons = document.querySelectorAll('#answer-buttons-container button');
             const defaultLabels = [dict.qProbably, dict.qProbablyNot, dict.qYes, dict.qDontKnow, dict.qNo];
-            
-            buttons.forEach((btn, index) => {
-                btn.classList.remove('btn-locked-horror');
-                btn.innerText = defaultLabels[index];
-                delete btn.dataset.locked;
-            });
-            
+            buttons.forEach((btn, index) => { btn.classList.remove('btn-locked-horror'); btn.innerText = defaultLabels[index]; delete btn.dataset.locked; });
             document.getElementById('answer-buttons-container').classList.remove('pointer-events-none', 'opacity-50');
             document.getElementById('question-number').style.display = 'block';
-            document.getElementById('question-text').classList.remove('typewriter-text');
-            document.getElementById('question-text').classList.remove('text-left');
+            document.getElementById('question-text').classList.remove('typewriter-text', 'text-left');
             document.getElementById('question-text').classList.add('text-center');
             document.getElementById('screen-game').style.opacity = '1';
         }
 
         async function startGame() {
             if (isProcessing) return;
-
             if (!config.customApiKey) { showErrorDot(true); return; }
-            
             if (isMagicMode) {
-                assignTarget();
-                currentQuestionIndex = 0;
-                isGameOver = false;
-                resetGameUI();
-                showScreen('screen-game');
-                streamMagicClimax(); 
+                assignTarget(); currentQuestionIndex = 0; isGameOver = false; resetGameUI();
+                showScreen('screen-game'); streamMagicClimax(); 
             } else {
-                showLoading(true);
-                const firstQ = await fetchNormalQuestion(null);
-                showLoading(false);
-
+                showLoading(true); const firstQ = await fetchNormalQuestion(null); showLoading(false);
                 if (!firstQ) { showErrorDot(true); return; }
-                
-                currentQuestionIndex = 0; 
-                isGameOver = false;
-                isProcessing = false;
-                
-                resetGameUI();
+                currentQuestionIndex = 0; isGameOver = false; isProcessing = false; resetGameUI();
                 document.getElementById('question-text').innerText = firstQ;
                 document.getElementById('question-number').innerText = `${i18n[config.language || 'id'].question} 1`;
                 showScreen('screen-game');
@@ -769,217 +873,105 @@
 
         async function processTypeQueue() {
             if (isMagicCancelled) return;
-            
             const qText = document.getElementById('question-text');
-            
             if (typeQueue.length > 0) {
-                const char = typeQueue[0];
-                typeQueue = typeQueue.substring(1);
-                
-                if (char === '\n') {
-                    qText.innerHTML += '<br>';
-                    qText.scrollTop = qText.scrollHeight; 
-                    await new Promise(r => { let id = setTimeout(r, 600); magicTimeouts.push(id); }); 
-                } else {
-                    if (char !== '*') {
-                        qText.innerHTML += char;
-                        qText.scrollTop = qText.scrollHeight; 
-                    }
-                }
-                
-                const speed = Math.random() * 40 + 20; 
-                let tid = setTimeout(processTypeQueue, speed);
-                magicTimeouts.push(tid);
+                const char = typeQueue[0]; typeQueue = typeQueue.substring(1);
+                if (char === '\n') { qText.innerHTML += '<br>'; qText.scrollTop = qText.scrollHeight; await new Promise(r => { let id = setTimeout(r, 600); magicTimeouts.push(id); }); } 
+                else { if (char !== '*') { qText.innerHTML += char; qText.scrollTop = qText.scrollHeight; } }
+                let tid = setTimeout(processTypeQueue, Math.random() * 40 + 20); magicTimeouts.push(tid);
             } else {
                 if (streamFinished) {
-                    document.body.classList.remove('glitch-mild');
-                    qText.classList.remove('typewriter-text');
-                    
-                    magicTimeouts.push(setTimeout(() => {
-                        if (!isMagicCancelled) showReveal();
-                    }, 1500));
-                } else {
-                    let tid = setTimeout(processTypeQueue, 50);
-                    magicTimeouts.push(tid);
-                }
+                    document.body.classList.remove('glitch-mild'); qText.classList.remove('typewriter-text');
+                    magicTimeouts.push(setTimeout(() => { if (!isMagicCancelled) showReveal(); }, 1500));
+                } else { let tid = setTimeout(processTypeQueue, 50); magicTimeouts.push(tid); }
             }
         }
 
-        // FUNGSI STREAMING SULAP DENGAN BAHASA
         async function streamMagicClimax() {
-            isMagicCancelled = false;
-            streamFinished = false;
-            typeQueue = "";
+            isMagicCancelled = false; streamFinished = false; typeQueue = "";
             const lang = config.language || 'id';
-            const dict = i18n[lang];
-            
             const btns = document.querySelectorAll('#answer-buttons-container button');
-            const qNum = document.getElementById('question-number');
-            const qText = document.getElementById('question-text');
+            const qNum = document.getElementById('question-number'), qText = document.getElementById('question-text');
             const chars = "!@#$%^&*()_+{}[]|:;<>,.?/~0123456789";
 
-            qNum.style.display = 'none'; 
-            qText.innerText = ""; 
-            qText.classList.remove('text-center');
-            qText.classList.add('text-left'); 
+            qNum.style.display = 'none'; qText.innerText = ""; qText.classList.remove('text-center'); qText.classList.add('text-left'); 
             document.getElementById('answer-buttons-container').classList.add('pointer-events-none');
 
             let scrambleInt = setInterval(() => {
-                btns.forEach(btn => {
-                    if (btn.dataset.locked !== "true") {
-                        btn.innerText = Array(5).fill(0).map(() => chars[Math.floor(Math.random() * chars.length)]).join('');
-                    }
-                });
-            }, 50);
-            magicIntervals.push(scrambleInt);
+                btns.forEach(btn => { if (btn.dataset.locked !== "true") btn.innerText = Array(5).fill(0).map(() => chars[Math.floor(Math.random() * chars.length)]).join(''); });
+            }, 50); magicIntervals.push(scrambleInt);
 
             btns.forEach((btn, idx) => {
                 let tid = setTimeout(() => {
-                    btn.dataset.locked = "true";
-                    btn.innerText = lang === 'en' ? "YES" : "YA";
-                    btn.classList.add('btn-locked-horror');
-                    if (navigator.vibrate) navigator.vibrate(50);
+                    btn.dataset.locked = "true"; btn.innerText = lang === 'en' ? "YES" : "YA";
+                    btn.classList.add('btn-locked-horror'); if (navigator.vibrate) navigator.vibrate(50);
                     if (idx === btns.length - 1) clearInterval(scrambleInt);
-                }, 600 + (idx * 400));
-                magicTimeouts.push(tid);
+                }, 600 + (idx * 400)); magicTimeouts.push(tid);
             });
 
-            document.body.classList.add('glitch-mild'); 
-            qText.classList.add('typewriter-text');
-            
+            document.body.classList.add('glitch-mild'); qText.classList.add('typewriter-text');
             magicTimeouts.push(setTimeout(processTypeQueue, 1000));
 
-            let prompt = "";
-            if (lang === 'en') {
-                prompt = `Playing a mind reading magic trick. Target: "${fetchedMagicName}". 
-Assume the role of getting a more powerful mind reading power.
-Say EXACTLY this sentence at the beginning: "For some reason I'm very confident this time, so I will directly access your mind..."
-Add a new line, then describe specific physical traits or highly specific facts about this character as if you are divining them (max 3 short sentences, separated by new lines).
-NEVER MENTION THE NAME. and use he/she to reffer to this character. DON'T EVER USE "YOU"
-End with a new line and EXACTLY this sentence: "I already know.. you are thinking of.."
-Write directly and naturally, no JSON, no formatting.`;
-            } else {
-                prompt = `Bermain trik sulap membaca pikiran. Target: "${fetchedMagicName}". 
-Berperanlah seolah anda baru mendapat kekuatan membaca fikiran yang lebih besar.
-Katakan tepat kalimat ini di awal: "Entah kenapa saya kali ini sangat yakin, jadi saya akan langsung mengakses pikiran anda..."
-Beri baris baru, lalu deskripsikan ciri-ciri fisik atau fakta sangat spesifik dari tokoh ini seolah kamu sedang menerawang (maksimal 3 kalimat singkat, pisahkan dengan baris baru).
-JANGAN PERNAH SEBUTKAN NAMANYA. gunakan kata "dia" untuk menyebut karakter ini. JANGAN PERNAH gunakan "Anda" atau semacamnya. 
-Diakhiri dengan baris baru dan kalimat persis ini: "Saya sudah tau.. kamu sedang memikirkan.."
-Tulis secara langsung sealami mungkin, tanpa JSON, tanpa format.`;
-            }
+            let activePromptData = config.customPrompts[config.activePromptId] || defaultMagicPrompts[config.activePromptId] || defaultMagicPrompts["default_id"];
+            let prompt = activePromptData.content.replace(/{TARGET}/g, fetchedMagicName);
 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${config.aiModel}:streamGenerateContent?alt=sse&key=${config.customApiKey}`;
-            
             try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }] })
-                });
-
+                const response = await fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }] }) });
                 if (!response.ok) throw new Error("API failed");
-
-                streamReader = response.body.getReader();
-                const decoder = new TextDecoder();
-                let buffer = '';
-
+                streamReader = response.body.getReader(); const decoder = new TextDecoder(); let buffer = '';
                 while (true) {
-                    if (isMagicCancelled) { 
-                        streamReader.cancel(); 
-                        break; 
-                    }
-                    const { done, value } = await streamReader.read();
-                    if (done) break;
-                    
-                    buffer += decoder.decode(value, { stream: true });
-                    let lines = buffer.split('\n');
-                    buffer = lines.pop(); 
-                    
+                    if (isMagicCancelled) { streamReader.cancel(); break; }
+                    const { done, value } = await streamReader.read(); if (done) break;
+                    buffer += decoder.decode(value, { stream: true }); let lines = buffer.split('\n'); buffer = lines.pop(); 
                     for (let line of lines) {
                         line = line.trim();
                         if (line.startsWith('data: ')) {
-                            const dataStr = line.slice(6).trim();
-                            if (dataStr === '[DONE]') continue; 
-                            try {
-                                const data = JSON.parse(dataStr);
-                                const textPart = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                                if (textPart) {
-                                    typeQueue += textPart;
-                                }
-                            } catch (e) {
-                                console.error("Parse error:", e);
-                            }
+                            const dataStr = line.slice(6).trim(); if (dataStr === '[DONE]') continue; 
+                            try { const data = JSON.parse(dataStr); const textPart = data.candidates?.[0]?.content?.parts?.[0]?.text; if (textPart) typeQueue += textPart; } catch (e) { }
                         }
                     }
                 }
             } catch (e) {
-                console.error("Stream Error", e);
-                typeQueue += (lang === 'en') 
-                    ? "\n\n(Aura is too dark... connection lost...)\n\nI already know.. you are thinking of.."
-                    : "\n\n(Aura terlalu gelap... koneksi terputus...)\n\nSaya sudah tau.. kamu sedang memikirkan..";
-            } finally {
-                streamFinished = true;
-            }
+                typeQueue += (lang === 'en') ? "\n\n(Aura is too dark... connection lost...)\n\nI already know.. you are thinking of.." : "\n\n(Aura terlalu gelap... koneksi terputus...)\n\nSaya sudah tau.. kamu sedang memikirkan..";
+            } finally { streamFinished = true; }
         }
 
         function handleUserAnswer(btnIndex) {
-            const lang = config.language || 'id';
-            const answers = [i18n[lang].qProbably, i18n[lang].qProbablyNot, i18n[lang].qYes, i18n[lang].qDontKnow, i18n[lang].qNo];
-            submitAnswer(answers[btnIndex]);
+            const lang = config.language || 'id'; const dict = i18n[lang];
+            submitAnswer([dict.qProbably, dict.qProbablyNot, dict.qYes, dict.qDontKnow, dict.qNo][btnIndex]);
         }
 
         async function submitAnswer(answer) {
             if (isGameOver || isProcessing) return;
-            isProcessing = true;
-            document.getElementById('screen-game').style.opacity = '0.5';
-            
-            showLoading(true);
-            
+            isProcessing = true; document.getElementById('screen-game').style.opacity = '0.5'; showLoading(true);
             currentQuestionIndex++;
-            
             if (currentQuestionIndex < 10) { 
                 const nextQ = await fetchNormalQuestion(answer);
-                document.getElementById('screen-game').style.opacity = '1';
-                showLoading(false);
-                
+                document.getElementById('screen-game').style.opacity = '1'; showLoading(false);
                 if (nextQ) {
                     document.getElementById('question-number').innerText = `${i18n[config.language || 'id'].question} ${currentQuestionIndex + 1}`;
                     document.getElementById('question-text').innerText = nextQ;
-                    const jinImage = document.getElementById('jin-image');
-                    jinImage.src = currentQuestionIndex % 2 === 0 ? "https://en.akinator.com/assets/img/akitudes_520x650/inspiration_forte.png" : "https://en.akinator.com/assets/img/akitudes_520x650/serein_2.png";
-                } else {
-                    showErrorDot(true);
-                }
+                    document.getElementById('jin-image').src = currentQuestionIndex % 2 === 0 ? "https://en.akinator.com/assets/img/akitudes_520x650/inspiration_forte.png" : "https://en.akinator.com/assets/img/akitudes_520x650/serein_2.png";
+                } else { showErrorDot(true); }
                 isProcessing = false; 
             } else { 
                 const guessData = await fetchNormalGuess(answer);
-                document.getElementById('screen-game').style.opacity = '1';
-                showLoading(false);
-                
+                document.getElementById('screen-game').style.opacity = '1'; showLoading(false);
                 if (guessData) {
                     fetchedMagicName = guessData.guess || "Misterius";
                     magicDescriptionsString = guessData.description || (config.language === 'en' ? "Akinator is tired of guessing." : "Akinator lelah menebak.");
                     showReveal();
-                } else {
-                    showErrorDot(true);
-                    isProcessing = false;
-                }
+                } else { showErrorDot(true); isProcessing = false; }
             }
         }
 
         async function showReveal() {
-            document.body.classList.remove('glitch-mild'); 
-            document.getElementById('guess-name').innerText = fetchedMagicName;
-            
-            if(isMagicMode) {
-                document.getElementById('guess-desc').innerText = i18n[config.language || 'id'].magicDesc;
-            } else {
-                document.getElementById('guess-desc').innerText = magicDescriptionsString;
-            }
+            document.body.classList.remove('glitch-mild'); document.getElementById('guess-name').innerText = fetchedMagicName;
+            document.getElementById('guess-desc').innerText = isMagicMode ? i18n[config.language || 'id'].magicDesc : magicDescriptionsString;
             
             const imgEl = document.getElementById('guess-image'), fallbackEl = document.getElementById('no-image-fallback'), loadingEl = document.getElementById('image-loading');
-            imgEl.classList.add('hidden'); fallbackEl.classList.add('hidden'); loadingEl.style.display = 'flex';
-            showScreen('screen-guess');
+            imgEl.classList.add('hidden'); fallbackEl.classList.add('hidden'); loadingEl.style.display = 'flex'; showScreen('screen-guess');
             
             const imgUrl = await fetchCharacterImageFromInternet(fetchedMagicName);
             loadingEl.style.display = 'none';
@@ -988,33 +980,18 @@ Tulis secara langsung sealami mungkin, tanpa JSON, tanpa format.`;
         }
 
         function handleGuessResult(result) {
-            isGameOver = true;
-            const dict = i18n[config.language || 'id'];
-            document.getElementById('end-title').innerText = result === 'yes' ? dict.endWin : dict.endLose;
-            showScreen('screen-end');
+            isGameOver = true; document.getElementById('end-title').innerText = result === 'yes' ? i18n[config.language || 'id'].endWin : i18n[config.language || 'id'].endLose; showScreen('screen-end');
         }
 
         function resetGame() { 
-            clearMagicTimeouts();
-            document.body.classList.remove('glitch-mild', 'glitch-extreme');
-            showErrorDot(false); 
-            isProcessing = false; 
-            isGameOver = true; 
-            
-            isMagicMode = false;
-            forcedTargetIndex = -1;
-            t9InputString = "";
-            waitingForMagicTrigger = false;
-            
+            clearMagicTimeouts(); document.body.classList.remove('glitch-mild', 'glitch-extreme'); showErrorDot(false); 
+            isProcessing = false; isGameOver = true; isMagicMode = false; forcedTargetIndex = -1; t9InputString = ""; waitingForMagicTrigger = false;
             showScreen('screen-start'); 
         }
 
         function stepperChange(id, delta) {
-            const el = document.getElementById('input-' + id);
-            let val = parseFloat(el.innerText) || 0;
-            val = Math.max(0, Math.round((val + delta) * 10) / 10);
-            el.innerText = val;
-            if (navigator.vibrate) navigator.vibrate(15);
+            const el = document.getElementById('input-' + id); let val = parseFloat(el.innerText) || 0;
+            el.innerText = Math.max(0, Math.round((val + delta) * 10) / 10); if (navigator.vibrate) navigator.vibrate(15);
         }
 
         window.onload = () => { loadSettings(); showScreen('screen-start'); };

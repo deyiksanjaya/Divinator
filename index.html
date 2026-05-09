@@ -235,7 +235,7 @@
                 <!-- Bahasa -->
                 <div class="mb-4 bg-black/20 p-3 rounded-lg border border-[#f7b733]/50">
                     <label data-i18n="langLabel" class="block text-[#f7b733] text-xs mb-2 uppercase tracking-wider font-bold">Bahasa / Language</label>
-                    <select id="input-language" class="w-full p-2.5 rounded bg-white/90 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
+                    <select id="input-language" onchange="changeLanguageLive()" class="w-full p-2.5 rounded bg-white/90 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
                         <option value="id">Indonesian (ID)</option>
                         <option value="en">English (EN)</option>
                     </select>
@@ -250,9 +250,9 @@
                     <input type="text" id="input-ai-model" placeholder="gemini-2.5-flash" class="w-full p-2.5 rounded bg-white/90 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
                 </div>
 
-                <!-- Template Prompt Magic CONTAINER BARU -->
+                <!-- Template Prompt Magic CONTAINER -->
                 <div class="mb-4 bg-black/20 p-3 rounded-lg border border-[#f7b733]/30 relative">
-                    <label data-i18n="promptSectionTitle" class="block text-white/80 text-xs mb-2 uppercase tracking-wider font-bold text-[#f7b733]">Kelola Templat Prompt</label>
+                    <label data-i18n="promptSectionTitle" class="block text-white/80 text-xs mb-2 uppercase tracking-wider font-bold text-[#f7b733]">Kelola Template Prompt</label>
                     
                     <!-- MODE TAMPIL & EDIT -->
                     <div id="prompt-select-mode">
@@ -261,7 +261,7 @@
                         <textarea id="input-prompt-content" rows="6" class="w-full p-2.5 rounded bg-white/90 text-black font-mono focus:outline-none focus:ring-2 focus:ring-[#f7b733] allow-scroll whitespace-pre-wrap break-words resize-none transition-colors" style="line-height: 1.5;"></textarea>
                         
                         <div class="flex items-start justify-between gap-2 mt-2 mb-3">
-                            <p data-i18n="promptHelper" class="text-[10px] text-[#f7b733] leading-tight opacity-80">Gunakan tag <b>{TARGET}</b> untuk memasukkan teks dinamis.</p>
+                            <p data-i18n="promptHelper" class="text-[10px] text-[#f7b733] leading-tight opacity-80">Gunakan tag <b>{TARGET}</b> untuk teks dinamis.</p>
                             <button type="button" id="btn-insert-target-view" onclick="insertTargetTag('input-prompt-content')" class="px-2 py-1 bg-[#f7b733]/20 border border-[#f7b733]/50 text-[#f7b733] font-bold rounded text-[10px] shrink-0 active:bg-[#f7b733]/40 transition-colors touch-manipulation">+ {TARGET}</button>
                         </div>
 
@@ -272,7 +272,7 @@
 
                         <!-- Tombol Edit & Delete HANYA Muncul di Template Custom -->
                         <div id="prompt-edit-actions" class="flex gap-2 mt-2 hidden">
-                            <button type="button" data-i18n="btnUpdate" onclick="updateCurrentPrompt()" class="flex-1 py-2 bg-blue-600/50 border border-blue-400 text-white font-bold rounded text-[10px] uppercase tracking-wider touch-manipulation">Perbarui</button>
+                            <button type="button" data-i18n="btnUpdate" onclick="updateCurrentPrompt()" class="flex-1 py-2 bg-blue-600/50 border border-blue-400 text-white font-bold rounded text-[10px] uppercase tracking-wider touch-manipulation">Update</button>
                             <button type="button" data-i18n="btnDelete" onclick="deleteCurrentPrompt()" class="flex-1 py-2 bg-red-600/50 border border-red-400 text-white font-bold rounded text-[10px] uppercase tracking-wider touch-manipulation">Hapus</button>
                         </div>
                     </div>
@@ -284,7 +284,7 @@
                         <textarea id="new-prompt-content" rows="6" class="w-full p-2.5 rounded bg-white/90 text-black font-mono focus:outline-none focus:ring-2 focus:ring-[#f7b733] allow-scroll whitespace-pre-wrap break-words resize-none" style="line-height: 1.5;"></textarea>
                         
                         <div class="flex items-start justify-between gap-2 mt-2 mb-3">
-                            <p data-i18n="promptHelper" class="text-[10px] text-[#f7b733] leading-tight opacity-80">Gunakan tag <b>{TARGET}</b> untuk memasukkan teks dinamis.</p>
+                            <p data-i18n="promptHelper" class="text-[10px] text-[#f7b733] leading-tight opacity-80">Gunakan tag <b>{TARGET}</b> untuk teks dinamis.</p>
                             <button type="button" onclick="insertTargetTag('new-prompt-content')" class="px-2 py-1 bg-[#f7b733]/20 border border-[#f7b733]/50 text-[#f7b733] font-bold rounded text-[10px] shrink-0 active:bg-[#f7b733]/40 transition-colors touch-manipulation">+ {TARGET}</button>
                         </div>
 
@@ -307,15 +307,15 @@
                 <!-- Group Manual Target -->
                 <div id="group-manual-target" class="mb-4 bg-black/20 p-3 rounded-lg border border-[#f7b733]/50 hidden">
                     <label data-i18n="manualCharLabel" class="block text-[#f7b733] text-xs mb-2 uppercase tracking-wider font-bold">Karakter Target Manual</label>
-                    <input type="text" id="input-manual-target" placeholder="Nama target..." class="w-full p-2.5 rounded bg-white/90 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
+                    <input type="text" id="input-manual-target" placeholder="Masukkan nama target..." class="w-full p-2.5 rounded bg-white/90 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
                 </div>
 
                 <!-- Group T9 Settings -->
                 <div id="group-t9-settings">
                     <!-- Karakter List -->
                     <div class="mb-4 bg-black/20 p-3 rounded-lg border border-white/10">
-                        <label data-i18n="charListLabel" class="block text-white/80 text-xs mb-2 uppercase tracking-wider">List Karakter Target</label>
-                        <p data-i18n="charListDesc" class="text-[10px] text-[#f7b733] mb-2 leading-tight opacity-80">Pisahkan tiap nama dengan baris baru (Enter). Baris 1 akan dipanggil dengan angka 01, baris 100 dengan angka 00.</p>
+                        <label data-i18n="charListLabel" class="block text-white/80 text-xs mb-2 uppercase tracking-wider">Daftar Karakter Target</label>
+                        <p data-i18n="charListDesc" class="text-[10px] text-[#f7b733] mb-2 leading-tight opacity-80">Pisahkan tiap nama dengan baris baru (Enter). Baris 1 = 01, baris 100 = 00.</p>
                         <textarea id="input-character-list" rows="6" class="w-full p-2.5 rounded bg-white/90 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733] allow-scroll whitespace-pre-wrap break-words resize-none" style="line-height: 1.5;"></textarea>
                     </div>
 
@@ -331,7 +331,7 @@
 
                 <!-- Timing Glitch (Global) -->
                 <div class="mb-2 bg-black/20 p-3 rounded-lg border border-white/10">
-                    <label data-i18n="glitchDelayLabel" class="block text-white/80 text-xs mb-3 uppercase tracking-wider">Glitch Transfer (Detik)</label>
+                    <label data-i18n="glitchDelayLabel" class="block text-white/80 text-xs mb-3 uppercase tracking-wider">Delay Glitch (Detik)</label>
                     <div class="flex gap-3">
                         <div class="flex-1 flex flex-col items-center gap-1">
                             <span data-i18n="delayLabel" class="text-white/50 text-[10px] uppercase tracking-widest">Delay</span>
@@ -384,8 +384,8 @@
 
             <div class="w-full flex flex-col items-center z-30 pt-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] shrink-0">
                 <button type="button" class="btn-gold-3d w-[85%] max-w-[320px] py-4 rounded-xl flex flex-col items-center justify-center shadow-[0_10px_20px_rgba(0,0,0,0.5)] relative z-30 touch-manipulation" onclick="startGame()">
-                    <span data-i18n="challengeBtn" class="font-logo font-black text-2xl tracking-wide uppercase">Challenge me</span>
-                    <span data-i18n="readMindSub" class="font-sans text-[11px] font-bold text-[#4d320d] uppercase mt-1 tracking-wider">I will read your mind.</span>
+                    <span data-i18n="challengeBtn" class="font-logo font-black text-2xl tracking-wide uppercase">Tantang Aku</span>
+                    <span data-i18n="readMindSub" class="font-sans text-[11px] font-bold text-[#4d320d] uppercase mt-1 tracking-wider">Aku bisa baca pikiranmu.</span>
                 </button>
             </div>
         </section>
@@ -408,7 +408,7 @@
             <div class="w-full flex flex-col z-20 shrink-0 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
                 <div class="speech-bubble w-full min-h-[140px] rounded-t-[4px] flex flex-col justify-center relative shadow-2xl">
                     <div class="flex items-center justify-center pt-5">
-                        <h2 id="question-number" class="font-logo font-bold text-[20px] text-gray-900 drop-shadow-sm tracking-wide uppercase">Question 1</h2>
+                        <h2 id="question-number" class="font-logo font-bold text-[20px] text-gray-900 drop-shadow-sm tracking-wide uppercase">Pertanyaan 1</h2>
                     </div>
                     <div class="flex-grow flex items-center justify-center px-6 text-left pb-6 mt-2 w-full max-w-[90%] mx-auto">
                         <p id="question-text" class="custom-scroll font-logo font-bold text-[18px] leading-snug text-[#1a1a1a] overflow-y-auto max-h-[120px] w-full text-center">...</p>
@@ -436,14 +436,14 @@
                 </button>
             </div>
             <div class="w-full text-center shrink-0 mb-4 z-20 pt-[calc(env(safe-area-inset-top,0px)+4rem)]">
-                <h2 data-i18n="thinkingTitle" class="font-logo text-3xl font-black akinator-logo-text tracking-wide uppercase">Saya berpikir tentang...</h2>
+                <h2 data-i18n="thinkingTitle" class="font-logo text-3xl font-black akinator-logo-text tracking-wide uppercase">Aku lagi mikirin...</h2>
             </div>
             <div class="flex-grow flex flex-col items-center justify-center relative z-10 px-6 min-h-0">
                 <div class="relative w-48 h-64 bg-[#2d1331] rounded-lg border-4 border-[#ffdf6b] shadow-[0_10px_25px_rgba(0,0,0,0.8)] overflow-hidden flex items-center justify-center mb-6">
                     <img id="guess-image" src="" alt="Character Image" class="w-full h-full object-cover hidden">
                     <div id="no-image-fallback" class="hidden absolute inset-0 bg-gradient-to-b from-[#3d1d3f] to-[#1a0a1c] flex flex-col items-center justify-center">
                         <svg class="w-20 h-20 text-white/20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                        <span data-i18n="noImage" class="text-white/40 text-[10px] font-sans font-bold uppercase tracking-widest mt-3">No Image</span>
+                        <span data-i18n="noImage" class="text-white/40 text-[10px] font-sans font-bold uppercase tracking-widest mt-3">Tidak Ada Gambar</span>
                     </div>
                     <div id="image-loading" class="absolute inset-0 flex items-center justify-center bg-[#2d1331]"><div class="spinner"></div></div>
                 </div>
@@ -451,7 +451,7 @@
                 <p id="guess-desc" class="font-sans font-medium text-xs leading-snug text-center text-white/80 max-w-[85%] uppercase tracking-widest overflow-y-auto max-h-[80px]">...</p>
             </div>
             <div class="w-full flex flex-col z-20 shrink-0 pb-[max(0.5rem,env(safe-area-inset-bottom))] px-4">
-                <div data-i18n="amIRight" class="w-full flex justify-center py-2 mb-2 text-white/80 text-sm font-bold tracking-widest uppercase">Apakah saya benar?</div>
+                <div data-i18n="amIRight" class="w-full flex justify-center py-2 mb-2 text-white/80 text-sm font-bold tracking-widest uppercase">Apa aku benar?</div>
                 <div class="flex w-full h-[70px] gap-2">
                     <button data-i18n="btnYes" type="button" class="btn-gold-3d flex-[1] rounded-xl flex items-center justify-center text-xl shadow-lg touch-manipulation" onclick="handleGuessResult('yes')">Ya</button>
                     <button data-i18n="btnNo" type="button" class="btn-gold-3d flex-[1] rounded-xl flex items-center justify-center text-xl shadow-lg touch-manipulation" onclick="handleGuessResult('no')">Tidak</button>
@@ -461,7 +461,7 @@
 
         <!-- ================= END SCREEN ================= -->
         <section id="screen-end" class="hidden-screen flex flex-col flex-grow fade-in justify-center items-center relative z-20 overflow-hidden">
-            <h1 id="end-title" class="font-logo text-4xl font-black akinator-logo-text tracking-wide mb-8 drop-shadow-xl mt-12 uppercase">Saya Hebat!</h1>
+            <h1 id="end-title" class="font-logo text-4xl font-black akinator-logo-text tracking-wide mb-8 drop-shadow-xl mt-12 uppercase">AKU BENAR!</h1>
             <img id="end-image" src="https://en.akinator.com/assets/img/akitudes_520x650/triomphe.png" alt="End Game" class="h-full max-h-[35vh] object-contain drop-shadow-2xl mb-12">
             <button type="button" class="btn-gold-3d w-[80%] max-w-[280px] py-4 rounded-xl flex items-center justify-center shadow-xl touch-manipulation" onclick="resetGame()">
                 <span data-i18n="playAgain" class="font-logo font-black text-xl tracking-wide uppercase">Main Lagi</span>
@@ -474,51 +474,49 @@
         // Dictionary Bahasa
         const i18n = {
             id: {
-                loading: "Memuat...", settingsTitle: "Pengaturan", langLabel: "Bahasa / Language", apiKeyLabel: "Gemini API Key (Wajib)", 
-                modelLabel: "Model Gemini", charListLabel: "List Karakter Target", charListDesc: "Pisahkan tiap nama dengan baris baru (Enter). Baris 1 = 01, baris 100 = 00.",
-                t9PosLabel: "Posisi T9 Keypad", posRight: "Kanan Bawah", posLeft: "Kiri Bawah", glitchDelayLabel: "Glitch Transfer (Detik)",
+                loading: "Loading...", settingsTitle: "Pengaturan", langLabel: "Bahasa / Language", apiKeyLabel: "Gemini API Key (Wajib)", apiKeyPlaceholder: "Masukkan API Key",
+                modelLabel: "Model Gemini", charListLabel: "Daftar Karakter Target", charListDesc: "Pisahkan tiap nama dengan baris baru (Enter). Baris 1 = 01, baris 100 = 00.",
+                t9PosLabel: "Posisi T9 Keypad", posRight: "Kanan Bawah", posLeft: "Kiri Bawah", glitchDelayLabel: "Delay Glitch (Detik)",
                 delayLabel: "Delay", durationLabel: "Durasi", closeBtn: "Tutup", saveBtn: "Simpan",
-                challengeBtn: "Challenge me", readMindSub: "Saya akan membaca pikiranmu.",
+                challengeBtn: "Tantang Aku", readMindSub: "Aku bisa baca pikiranmu.",
                 qProbably: "Mungkin", qProbablyNot: "Mungkin Tidak", qYes: "Ya", qDontKnow: "Tidak Tahu", qNo: "Tidak",
-                thinkingTitle: "Saya berpikir tentang...", noImage: "Tanpa Gambar", amIRight: "Apakah saya benar?",
-                btnYes: "Ya", btnNo: "Tidak", endWin: "SAYA HEBAT!", endLose: "KAMU MENANG!", playAgain: "Main Lagi",
+                thinkingTitle: "Aku lagi mikirin...", noImage: "Tidak Ada Gambar", amIRight: "Apa aku benar?",
+                btnYes: "Ya", btnNo: "Tidak", endWin: "AKU BENAR!", endLose: "KAMU MENANG!", playAgain: "Main Lagi",
                 magicDesc: "Terbaca dari pikiranmu.", question: "Pertanyaan",
-                promptSectionTitle: "Kelola Templat Prompt", promptHelper: "Gunakan tag <b>{TARGET}</b> untuk memasukkan teks dinamis.",
-                btnCreateNew: "Buat Template Baru", btnSaveNew: "Simpan", btnCancel: "Batal", btnUpdate: "Perbarui", btnDelete: "Hapus", newPromptName: "Nama Template Baru",
+                promptSectionTitle: "Kelola Template Prompt", promptHelper: "Gunakan tag <b>{TARGET}</b> untuk teks dinamis.",
+                btnCreateNew: "Buat Template Baru", btnSaveNew: "Simpan", btnCancel: "Batal", btnUpdate: "Update", btnDelete: "Hapus", newPromptName: "Nama Template Baru",
                 magicModeLabel: "Mode Trigger Magic", modeT9: "Numpad (T9)", modeManual: "Manual", 
                 manualCharLabel: "Karakter Target Manual", manualCharPlaceholder: "Masukkan nama target...",
-                aiPromptInitial: "Kita bermain Akinator. Saya memikirkan tokoh fiksi/nyata. Berikan pertanyaan ke-1 (Maks 10 kata, jawabannya Ya/Tidak/Mungkin). Jangan balas pakai format JSON, langsung teks pertanyaannya saja.",
-                aiPromptNext: "Berikan pertanyaan selanjutnya (Maksimal 10 kata, langsung pertanyaannya saja tanpa basa-basi).",
-                aiPromptGuess: "Permainan selesai. Tebak siapa karakternya. Balas HANYA dengan JSON murni: {\"guess\": \"Nama Karakter\", \"description\": \"1 kalimat deskripsi karakter\"}"
+                aiPromptInitial: "Kita main tebak-tebakan. Aku mikirin tokoh fiksi/nyata. Kasih pertanyaan ke-1 (Maks 10 kata, jawabannya Ya/Tidak/Mungkin). Langsung pertanyaannya aja, nggak usah pakai JSON atau basa-basi.",
+                aiPromptNext: "Kasih pertanyaan selanjutnya (Maks 10 kata, langsung pertanyaannya aja).",
+                aiPromptGuess: "Game selesai. Tebak siapa karakternya. Balas HANYA pakai JSON murni: {\"guess\": \"Nama Karakter\", \"description\": \"1 kalimat deskripsi karakter\"}",
+                mysterious: "Karakter Misterius", auraDark: "\n\n(Koneksi terputus...)\n\nAku udah tahu... kamu lagi mikirin..", akinatorTired: "Aku nyerah, susah nebaknya."
             },
             en: {
-                loading: "Loading...", settingsTitle: "Settings", langLabel: "Language / Bahasa", apiKeyLabel: "Gemini API Key (Required)",
+                loading: "Loading...", settingsTitle: "Settings", langLabel: "Language / Bahasa", apiKeyLabel: "Gemini API Key (Required)", apiKeyPlaceholder: "Enter API Key",
                 modelLabel: "Gemini Model", charListLabel: "Target Character List", charListDesc: "Separate each name with a new line (Enter). Line 1 = 01, line 100 = 00.",
-                t9PosLabel: "T9 Keypad Position", posRight: "Bottom Right", posLeft: "Bottom Left", glitchDelayLabel: "Glitch Transfer (Seconds)",
+                t9PosLabel: "T9 Keypad Position", posRight: "Bottom Right", posLeft: "Bottom Left", glitchDelayLabel: "Glitch Delay (Seconds)",
                 delayLabel: "Delay", durationLabel: "Duration", closeBtn: "Close", saveBtn: "Save",
                 challengeBtn: "Challenge me", readMindSub: "I will read your mind.",
                 qProbably: "Probably", qProbablyNot: "Probably not", qYes: "Yes", qDontKnow: "Don't know", qNo: "No",
-                thinkingTitle: "I am thinking of...", noImage: "No Image", amIRight: "Am I right?",
-                btnYes: "Yes", btnNo: "No", endWin: "I'M THE BEST!", endLose: "YOU WIN!", playAgain: "Play Again",
+                thinkingTitle: "I'm thinking of...", noImage: "No Image", amIRight: "Am I right?",
+                btnYes: "Yes", btnNo: "No", endWin: "I GOT IT!", endLose: "YOU WIN!", playAgain: "Play Again",
                 magicDesc: "Read from your mind.", question: "Question",
-                promptSectionTitle: "Manage Prompt Templates", promptHelper: "Use the <b>{TARGET}</b> tag to insert dynamic text.",
+                promptSectionTitle: "Manage Prompt Templates", promptHelper: "Use the <b>{TARGET}</b> tag for dynamic text.",
                 btnCreateNew: "Create New Template", btnSaveNew: "Save", btnCancel: "Cancel", btnUpdate: "Update", btnDelete: "Delete", newPromptName: "New Template Name",
-                magicModeLabel: "Magic Trigger Mode", modeT9: "Secret Dial (T9)", modeManual: "One Click (Manual)", 
+                magicModeLabel: "Magic Trigger Mode", modeT9: "Numpad (T9)", modeManual: "Manual", 
                 manualCharLabel: "Manual Target Character", manualCharPlaceholder: "Enter target name...",
-                aiPromptInitial: "We are playing Akinator. I'm thinking of a fictional/real character. Give the 1st question (Max 10 words, answers can be Yes/No/Probably/Don't know). Reply directly with the question text, no JSON.",
+                aiPromptInitial: "We are playing a guessing game. I'm thinking of a fictional/real character. Give the 1st question (Max 10 words, answers can be Yes/No/Probably/Don't know). Reply directly with the question text, no JSON or filler.",
                 aiPromptNext: "Give the next question (Max 10 words, straight to the point).",
-                aiPromptGuess: "Game over. Guess the character. Reply ONLY with pure JSON: {\"guess\": \"Character Name\", \"description\": \"1 sentence description\"}"
+                aiPromptGuess: "Game over. Guess the character. Reply ONLY with pure JSON: {\"guess\": \"Character Name\", \"description\": \"1 sentence description\"}",
+                mysterious: "Mysterious Character", auraDark: "\n\n(Connection lost...)\n\nI already know.. you are thinking of..", akinatorTired: "I give up, it's too hard to guess."
             }
         };
 
         const defaultMagicPrompts = {
-            "default_id": {
-                name: "Mistis (Indo - Default)",
-                content: `Bermain trik sulap membaca pikiran. Target: "{TARGET}".\nBerperanlah sebagai entitas mistis yang merasuk ke aplikasi ini.\nKatakan tepat kalimat ini di awal: "Entah kenapa saya kali ini sangat yakin, jadi saya akan langsung mengakses pikiran anda..."\nBeri baris baru, lalu deskripsikan ciri-ciri fisik atau fakta sangat spesifik dari tokoh ini seolah kamu sedang menerawang (maksimal 3 kalimat singkat, pisahkan dengan baris baru).\nJANGAN PERNAH SEBUTKAN NAMANYA.\nDiakhiri dengan baris baru dan kalimat persis ini: "Saya sudah tau.. kamu sedang memikirkan.."\nTulis secara langsung sealami mungkin, tanpa JSON, tanpa format.`
-            },
-            "default_en": {
-                name: "Mystical (English - Default)",
-                content: `Playing a mind reading magic trick. Target: "{TARGET}".\nAssume the role of a mystical entity possessing this app.\nSay EXACTLY this sentence at the beginning: "For some reason I'm very confident this time, so I will directly access your mind..."\nAdd a new line, then describe specific physical traits or highly specific facts about this character as if you are divining them (max 3 short sentences, separated by new lines).\nNEVER MENTION THE NAME.\nEnd with a new line and EXACTLY this sentence: "I already know.. you are thinking of.."\nWrite directly and naturally, no JSON, no formatting.`
+            "default": {
+                name: "Default Template",
+                content: `Playing a mind reading trick. Target: "{TARGET}".\nAssume the role of a mind reader inside this app.\nSay EXACTLY this sentence at the beginning: "My mind is now connected to yours..."\nAdd a new line, then describe specific physical traits or highly specific facts about this character as if you are divining them (max 3 short sentences, separated by new lines).\nNEVER MENTION THE NAME.\nEnd with a new line and EXACTLY this sentence: "I already know.. you are thinking of.."\nWrite directly, no JSON, no formatting.`
             }
         };
 
@@ -534,7 +532,7 @@
             glitchDuration: "1.5",
             t9Position: "right",
             language: "id",
-            activePromptId: "default_id",
+            activePromptId: "default",
             customPrompts: {}
         };
 
@@ -557,9 +555,16 @@
             magicTimeouts = []; magicIntervals = []; typeQueue = "";
         }
 
+        // --- FUNGSI PREVIEW BAHASA LANGSUNG ---
+        function changeLanguageLive() {
+            config.language = document.getElementById('input-language').value;
+            applyLanguage();
+        }
+
         function applyLanguage() {
             const lang = config.language || 'id';
             const dict = i18n[lang];
+            
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (dict[key]) {
@@ -567,9 +572,25 @@
                     else el.innerHTML = dict[key]; 
                 }
             });
-            document.getElementById('new-prompt-name').placeholder = dict.newPromptName;
-            document.getElementById('input-manual-target').placeholder = dict.manualCharPlaceholder;
+            
+            // Handle specific placeholders that might not have data-i18n on them directly
+            const newPromptInput = document.getElementById('new-prompt-name');
+            if (newPromptInput) newPromptInput.placeholder = dict.newPromptName;
+            
+            const manualTargetInput = document.getElementById('input-manual-target');
+            if (manualTargetInput) manualTargetInput.placeholder = dict.manualCharPlaceholder;
+            
+            const apiKeyInput = document.getElementById('input-api-key');
+            if (apiKeyInput) apiKeyInput.placeholder = dict.apiKeyPlaceholder;
+            
             magicDescriptionsString = dict.magicDesc;
+            
+            // Set question dynamically based on language
+            const qNumEl = document.getElementById('question-number');
+            if (qNumEl && currentQuestionIndex >= 0) {
+                qNumEl.innerText = `${dict.question} ${currentQuestionIndex + 1}`;
+            }
+
             resetGameUI();
         }
 
@@ -599,7 +620,7 @@
             }
             
             if (!document.querySelector(`#input-prompt-select option[value="${config.activePromptId}"]`)) {
-                config.activePromptId = "default_id";
+                config.activePromptId = "default";
             }
             select.value = config.activePromptId;
             changePromptSelection();
@@ -619,7 +640,7 @@
                 contentArea.value = activeData.content;
             }
 
-            if (activeId.startsWith('default_')) {
+            if (activeId === 'default') {
                 contentArea.readOnly = true;
                 contentArea.classList.add('bg-white/70');
                 contentArea.classList.remove('bg-white/90');
@@ -678,7 +699,7 @@
 
         function updateCurrentPrompt() {
             const activeId = config.activePromptId;
-            if (activeId.startsWith('default_')) return;
+            if (activeId === 'default') return;
             
             const contentInput = document.getElementById('input-prompt-content');
             config.customPrompts[activeId].content = contentInput.value.trim();
@@ -687,10 +708,10 @@
 
         function deleteCurrentPrompt() {
             const activeId = config.activePromptId;
-            if (activeId.startsWith('default_')) return;
+            if (activeId === 'default') return;
             
             delete config.customPrompts[activeId];
-            config.activePromptId = "default_id";
+            config.activePromptId = "default";
             renderPromptDropdown();
             persistConfig();
         }
@@ -711,7 +732,15 @@
 
         function loadSettings() {
             const saved = localStorage.getItem('akinatorSettingsProV6');
-            if (saved) { const parsed = JSON.parse(saved); config = { ...config, ...parsed }; }
+            if (saved) { 
+                const parsed = JSON.parse(saved); 
+                config = { ...config, ...parsed }; 
+                
+                // Mencegah error kalau user load data yang masih pakai ID prompt lama
+                if (!config.activePromptId || config.activePromptId === 'default_id' || config.activePromptId === 'default_en') {
+                    config.activePromptId = 'default';
+                }
+            }
             if(!config.customPrompts) config.customPrompts = {};
             
             document.getElementById('input-magic-mode').value = config.magicMode || "t9";
@@ -726,7 +755,8 @@
             
             renderPromptDropdown();
             toggleMagicModeUI();
-            applyT9Position(); applyLanguage();
+            applyT9Position(); 
+            applyLanguage();
         }
 
         function openSettings() { document.getElementById('settings-modal').classList.remove('hidden-screen'); }
@@ -748,7 +778,11 @@
                 updateCurrentPrompt();
             }
             
-            persistConfig(); showErrorDot(false); applyT9Position(); applyLanguage(); closeSettings();
+            persistConfig(); 
+            showErrorDot(false); 
+            applyT9Position(); 
+            applyLanguage(); 
+            closeSettings();
         }
 
         function openT9() {
@@ -788,7 +822,7 @@
                     setTimeout(() => { t9InputString = ""; displayEl.innerText = ""; displayEl.classList.remove('text-red-500', 'animate-shake'); }, 500);
                 } else {
                     forcedTargetIndex = targetNum - 1;
-                    const peekName = listArray[forcedTargetIndex] || "Misterius";
+                    const peekName = listArray[forcedTargetIndex] || i18n[config.language || 'id'].mysterious;
                     const nameDisplay = document.getElementById('t9-target-name');
                     nameDisplay.innerText = peekName;
                     nameDisplay.classList.replace('opacity-0', 'opacity-100');
@@ -843,7 +877,7 @@
             if (!answer) { normalChatHistory = [{ role: "user", parts: [{ text: i18n[lang].aiPromptInitial }] }]; } 
             else {
                 normalChatHistory.push({ role: "model", parts: [{ text: document.getElementById('question-text').innerText }] });
-                let promptNext = lang === 'en' ? `My answer: ${answer}. ${i18n[lang].aiPromptNext}` : `Jawaban saya: ${answer}. ${i18n[lang].aiPromptNext}`;
+                let promptNext = lang === 'en' ? `My answer: ${answer}. ${i18n[lang].aiPromptNext}` : `Jawaban: ${answer}. ${i18n[lang].aiPromptNext}`;
                 normalChatHistory.push({ role: "user", parts: [{ text: promptNext }] });
             }
             try {
@@ -858,7 +892,7 @@
             const lang = config.language || 'id';
             
             normalChatHistory.push({ role: "model", parts: [{ text: document.getElementById('question-text').innerText }] });
-            let promptGuess = lang === 'en' ? `My answer: ${answer}. ${i18n[lang].aiPromptGuess}` : `Jawaban saya: ${answer}. ${i18n[lang].aiPromptGuess}`;
+            let promptGuess = lang === 'en' ? `My answer: ${answer}. ${i18n[lang].aiPromptGuess}` : `Jawaban: ${answer}. ${i18n[lang].aiPromptGuess}`;
             normalChatHistory.push({ role: "user", parts: [{ text: promptGuess }] });
             try {
                 const res = await fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: normalChatHistory, generationConfig: { responseMimeType: "application/json" } }) });
@@ -869,13 +903,14 @@
         }
 
         function assignTarget() {
+            const lang = config.language || 'id';
             if (config.magicMode === 'manual') {
-                fetchedMagicName = config.manualTarget || "Karakter Misterius";
+                fetchedMagicName = config.manualTarget || i18n[lang].mysterious;
                 return;
             }
 
             const listArray = config.characterList.split('\n').map(item => item.trim()).filter(item => item.length > 0);
-            if (listArray.length === 0) { fetchedMagicName = "Karakter Misterius"; return; }
+            if (listArray.length === 0) { fetchedMagicName = i18n[lang].mysterious; return; }
             if (forcedTargetIndex >= 0) { fetchedMagicName = listArray[forcedTargetIndex]; } 
             else { fetchedMagicName = listArray[Math.floor(Math.random() * listArray.length)]; }
         }
@@ -972,7 +1007,7 @@
             document.body.classList.add('glitch-mild'); qText.classList.add('typewriter-text');
             magicTimeouts.push(setTimeout(processTypeQueue, 1000));
 
-            let activePromptData = config.customPrompts[config.activePromptId] || defaultMagicPrompts[config.activePromptId] || defaultMagicPrompts["default_id"];
+            let activePromptData = config.customPrompts[config.activePromptId] || defaultMagicPrompts[config.activePromptId] || defaultMagicPrompts["default"];
             let prompt = activePromptData.content.replace(/{TARGET}/g, fetchedMagicName);
 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${config.aiModel}:streamGenerateContent?alt=sse&key=${config.customApiKey}`;
@@ -993,7 +1028,7 @@
                     }
                 }
             } catch (e) {
-                typeQueue += (lang === 'en') ? "\n\n(Aura is too dark... connection lost...)\n\nI already know.. you are thinking of.." : "\n\n(Aura terlalu gelap... koneksi terputus...)\n\nSaya sudah tau.. kamu sedang memikirkan..";
+                typeQueue += i18n[lang].auraDark;
             } finally { streamFinished = true; }
         }
 
@@ -1019,8 +1054,8 @@
                 const guessData = await fetchNormalGuess(answer);
                 document.getElementById('screen-game').style.opacity = '1'; showLoading(false);
                 if (guessData) {
-                    fetchedMagicName = guessData.guess || "Misterius";
-                    magicDescriptionsString = guessData.description || (config.language === 'en' ? "Akinator is tired of guessing." : "Akinator lelah menebak.");
+                    fetchedMagicName = guessData.guess || i18n[config.language || 'id'].mysterious;
+                    magicDescriptionsString = guessData.description || i18n[config.language || 'id'].akinatorTired;
                     showReveal();
                 } else { showErrorDot(true); isProcessing = false; }
             }

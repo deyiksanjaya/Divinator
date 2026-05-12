@@ -2,1094 +2,566 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    
+    <!-- Trik Fullscreen & PWA Meta Tags ala iOS -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#2d1331">
-    <title>Divinator App</title>
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#F2F2F7"> 
+    
+    <title>Gallery</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,700&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="manifest" href="/manifest.json">
     <style>
-        :root {
-            --bg-top: #4a244c;
-            --bg-bottom: #2d1331;
-        }
+        /* Font bawaan Apple (San Francisco) */
         html, body {
             overscroll-behavior: none;
             -webkit-touch-callout: none;
             -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-        }
-
-        body {
-            font-family: 'Lora', serif;
-            background-color: var(--bg-bottom);
-            color: white;
-            margin: 0;
-        }
-
-        .font-logo { font-family: 'Playfair Display', serif; }
-
-        .akinator-logo-text {
-            background: linear-gradient(180deg, #fff5b5 0%, #f7b733 40%, #d87c00 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0px 3px 2px rgba(0,0,0,0.6));
-            -webkit-text-stroke: 0.5px white;
-        }
-
-        .btn-gold-3d {
-            background: linear-gradient(180deg, #ffdf6b 0%, #d8a02c 100%);
-            border-top: 2px solid #fff5b5;
-            border-left: 2px solid #fff5b5;
-            border-right: 2px solid #9e6d15;
-            border-bottom: 4px solid #81560e;
-            text-shadow: 0px 1px 0px rgba(255,255,255,0.4);
-            color: #351e02;
-            transition: transform 0.1s, background-color 0.1s;
-        }
-        .btn-gold-3d:active {
-            background: linear-gradient(180deg, #d8a02c 0%, #ffdf6b 100%);
-            border-top: 4px solid #81560e;
-            border-bottom: 2px solid #fff5b5;
-            transform: translateY(2px);
+            touch-action: pan-y;
+            margin: 0; padding: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #F2F2F7;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
         
-        .btn-locked-horror {
-            background: linear-gradient(180deg, #6b0000 0%, #300000 100%) !important;
-            border-top: 2px solid #ff4d4d !important;
-            border-left: 2px solid #ff4d4d !important;
-            border-right: 2px solid #4a0000 !important;
-            border-bottom: 4px solid #200000 !important;
-            color: #ffcccc !important;
-            text-shadow: 0px 1px 5px rgba(255,0,0,0.8) !important;
-        }
+        /* Area aman untuk notch/poni iPhone */
+        .safe-padding-top { padding-top: max(1rem, env(safe-area-inset-top)); }
+        .safe-padding-bottom { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
 
-        .speech-bubble {
-            background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(240,230,239,0.9) 100%);
-            box-shadow: 0 -10px 20px rgba(0,0,0,0.15);
-        }
+        /* Sembunyiin scrollbar */
+        ::-webkit-scrollbar { display: none; }
 
-        .hidden-screen { display: none !important; }
-
-        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        /* Animasi masuk */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top: 4px solid #f7b733;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        @keyframes shakeT9 {
-            0%, 100% { transform: translateX(0); }
-            20% { transform: translateX(-6px); }
-            40% { transform: translateX(6px); }
-            60% { transform: translateX(-6px); }
-            80% { transform: translateX(6px); }
-        }
-        .animate-shake { animation: shakeT9 0.4s ease-in-out; }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
         
-        #loading-overlay, #settings-modal, #t9-modal {
-            background: rgba(45, 19, 49, 0.85);
-            backdrop-filter: blur(5px);
+        @keyframes slideUpModal {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
         }
-
-        textarea::-webkit-scrollbar { width: 4px; }
-        textarea::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); }
-        textarea::-webkit-scrollbar-thumb { background: rgba(247, 183, 51, 0.5); border-radius: 4px; }
-
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 4px; }
-
-        /* Wajib 16px agar HP tidak auto-zoom saat input di klik */
-        input, textarea, select {
-            font-size: 16px !important; 
-            touch-action: auto;
-            -webkit-user-select: text;
-            user-select: text;
-        }
-
-        /* GLITCH EFFECTS */
-        .glitch-extreme {
-            animation: extremeGlitch 0.25s infinite steps(2) !important;
-            pointer-events: none;
-        }
-        .glitch-extreme::before {
-            content: ""; position: fixed; inset: 0;
-            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.9), rgba(0,0,0,0.9) 2px, transparent 2px, transparent 5px);
-            z-index: 9998; pointer-events: none; mix-blend-mode: overlay;
-        }
-        .glitch-extreme::after {
-            content: ""; position: fixed; inset: 0; z-index: 9999; pointer-events: none;
-            mix-blend-mode: color-burn; animation: panicFlicker 0.1s infinite steps(1);
-        }
-
-        @keyframes extremeGlitch {
-            0% { transform: translate(0, 0); filter: invert(0) contrast(100%); }
-            10% { transform: translate(-10px, 5px) scale(1.05); filter: invert(100%) contrast(300%) drop-shadow(15px 0 0 red) drop-shadow(-15px 0 0 blue); }
-            20% { transform: translate(15px, -10px); filter: hue-rotate(90deg) saturate(300%); }
-            30% { transform: translate(-5px, 15px) skew(15deg); filter: invert(1) drop-shadow(-10px 0 0 lime); }
-            40% { transform: translate(20px, -5px) skew(-15deg); filter: contrast(1000%) saturate(500%); }
-            50% { transform: translate(0, 10px); filter: brightness(10%) contrast(2000%); }
-            60% { transform: translate(-20px, -10px); filter: invert(1) hue-rotate(-50deg) drop-shadow(0 15px 0 red); }
-            70% { transform: translate(10px, 20px) scale(1.1); filter: contrast(400%); }
-            80% { transform: translate(-25px, -5px); filter: invert(1) hue-rotate(180deg); }
-            90% { transform: translate(15px, 10px) skew(10deg); filter: saturate(1000%); }
-            100% { transform: translate(0, 0); filter: invert(0) contrast(100%); }
-        }
-
-        .glitch-mild {
-            animation: mildGlitch 0.2s infinite;
-            filter: saturate(130%) contrast(110%);
-        }
-        .glitch-mild::after {
-            content: ""; position: fixed; inset: 0; z-index: 9999;
-            background: rgba(255,0,0,0.05); mix-blend-mode: color-burn; pointer-events: none;
-            animation: mildFlicker 0.1s infinite;
-        }
-
-        @keyframes mildGlitch {
-            0% { transform: translate(0, 0); filter: hue-rotate(0deg); }
-            25% { transform: translate(-2px, 1px); filter: hue-rotate(5deg); }
-            50% { transform: translate(1px, -1px); filter: hue-rotate(-2deg); }
-            75% { transform: translate(-1px, 2px); filter: hue-rotate(3deg); }
-            100% { transform: translate(0, 0); filter: hue-rotate(0deg); }
-        }
-
-        @keyframes panicFlicker {
-            0% { opacity: 0.1; background: #000; }
-            33% { opacity: 0.9; background: #3b0000; }
-            66% { opacity: 0.4; background: #fff; }
-            100% { opacity: 0.2; background: #000; }
-        }
+        .animate-slide-up { animation: slideUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         
-        .typewriter-text {
-            border-right: 2px solid rgba(0,0,0,0.5);
-            animation: cursorBlink 0.8s infinite;
-        }
-        @keyframes cursorBlink {
-            0%, 100% { border-color: transparent; }
-            50% { border-color: rgba(0,0,0,0.8); }
-        }
-        
-        .t9-btn { touch-action: manipulation; }
+        /* Hilangkan panah spinner di input number */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
-<body class="overflow-hidden h-screen h-[100dvh] w-screen m-0 flex flex-col bg-[var(--bg-bottom)] relative">
+<body class="text-black w-screen h-screen flex flex-col select-none overflow-hidden">
 
-    <div id="error-dot" class="hidden fixed top-[max(1rem,env(safe-area-inset-top))] right-4 w-3 h-3 bg-red-600 rounded-full shadow-[0_0_10px_rgba(255,0,0,0.8)] z-[9999]"></div>
-
-    <img src="https://raw.githubusercontent.com/deyiksanjaya/akeynator/refs/heads/main/IMG_0854.jpeg" 
-         alt="Background" 
-         class="fixed inset-0 w-full h-full object-cover z-0 pointer-events-none">
-
-    <div id="loading-overlay" class="fixed inset-0 z-[100] flex flex-col items-center justify-center hidden-screen">
-        <div class="spinner mb-4"></div>
-        <p data-i18n="loading" class="font-logo text-xl font-bold text-[#f7b733] tracking-wider drop-shadow-md text-center px-6 uppercase tracking-widest">Loading...</p>
-    </div>
-
-    <!-- T9 Modal -->
-    <div id="t9-modal" class="fixed inset-0 z-[300] hidden-screen fade-in">
-        <div id="t9-box" class="absolute bottom-[max(1.5rem,env(safe-area-inset-bottom))] bg-black/90 border border-[#f7b733]/40 p-4 rounded-2xl shadow-2xl w-60 backdrop-blur-md flex flex-col transition-all duration-300 z-10">
-            <div id="t9-display" class="text-[#f7b733] text-right h-8 mb-2 tracking-widest text-2xl font-mono border-b border-white/20 pb-1 transition-colors"></div>
-            
-            <div id="t9-target-name" class="text-green-400 font-bold text-center text-[10px] tracking-widest uppercase mb-4 h-4 opacity-0 transition-opacity"></div>
-            
-            <div class="grid grid-cols-3 gap-2">
-                <button onclick="t9Press('1')" class="t9-btn bg-white/10 py-3 rounded-xl active:bg-white/30 text-white font-bold text-lg transition-colors">1</button>
-                <button onclick="t9Press('2')" class="t9-btn bg-white/10 py-3 rounded-xl active:bg-white/30 text-white font-bold text-lg transition-colors">2</button>
-                <button onclick="t9Press('3')" class="t9-btn bg-white/10 py-3 rounded-xl active:bg-white/30 text-white font-bold text-lg transition-colors">3</button>
-                <button onclick="t9Press('4')" class="t9-btn bg-white/10 py-3 rounded-xl active:bg-white/30 text-white font-bold text-lg transition-colors">4</button>
-                <button onclick="t9Press('5')" class="t9-btn bg-white/10 py-3 rounded-xl active:bg-white/30 text-white font-bold text-lg transition-colors">5</button>
-                <button onclick="t9Press('6')" class="t9-btn bg-white/10 py-3 rounded-xl active:bg-white/30 text-white font-bold text-lg transition-colors">6</button>
-                <button onclick="t9Press('7')" class="t9-btn bg-white/10 py-3 rounded-xl active:bg-white/30 text-white font-bold text-lg transition-colors">7</button>
-                <button onclick="t9Press('8')" class="t9-btn bg-white/10 py-3 rounded-xl active:bg-white/30 text-white font-bold text-lg transition-colors">8</button>
-                <button onclick="t9Press('9')" class="t9-btn bg-white/10 py-3 rounded-xl active:bg-white/30 text-white font-bold text-lg transition-colors">9</button>
-                <button onclick="t9Clear()" class="t9-btn bg-red-500/20 py-3 rounded-xl active:bg-red-500/40 text-red-400 font-bold text-sm transition-colors">DEL</button>
-                <button onclick="t9Press('0')" class="t9-btn bg-white/10 py-3 rounded-xl active:bg-white/30 text-white font-bold text-lg transition-colors">0</button>
-                <div class="py-3"></div>
-            </div>
-            <button data-i18n="closeBtn" onclick="closeT9()" class="t9-btn w-full mt-2 text-white/40 text-xs uppercase tracking-widest py-2 active:text-white transition-colors">Tutup</button>
+    <!-- SCREEN 1: Dashboard / Gallery List -->
+    <div id="dashboard-screen" class="flex-1 flex flex-col w-full h-full overflow-y-auto relative pb-28">
+        
+        <!-- Header (iOS Large Title Style) -->
+        <div class="px-6 pb-2 safe-padding-top bg-[#F2F2F7] sticky top-0 z-20 flex justify-between items-end border-b border-gray-200/50">
+            <h1 class="text-[34px] font-bold tracking-tight mt-4">Gallery</h1>
         </div>
-    </div>
 
-    <!-- SETTINGS MODAL -->
-    <div id="settings-modal" class="fixed inset-0 z-[200] flex items-center justify-center hidden-screen p-4 fade-in">
-        <div class="bg-[#2d1331] w-full max-w-sm rounded-xl border-2 border-[#f7b733] shadow-2xl flex flex-col max-h-[90dvh]">
-            <div class="p-5 overflow-y-auto overscroll-contain allow-scroll custom-scroll" style="touch-action: pan-y;">
-                <div class="flex items-center gap-2 border-b border-[#f7b733]/30 pb-2 mb-4 shrink-0">
-                    <svg class="w-6 h-6 text-[#f7b733]" fill="currentColor" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
-                    <h2 data-i18n="settingsTitle" class="text-[#f7b733] font-logo text-2xl font-bold tracking-tight">Pengaturan</h2>
-                </div>
-                
-                <!-- Bahasa -->
-                <div class="mb-4 bg-black/20 p-3 rounded-lg border border-[#f7b733]/50">
-                    <label data-i18n="langLabel" class="block text-[#f7b733] text-xs mb-2 uppercase tracking-wider font-bold">Bahasa / Language</label>
-                    <select id="input-language" onchange="changeLanguageLive()" class="w-full p-2.5 rounded bg-white/90 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
-                        <option value="id">Indonesian (ID)</option>
-                        <option value="en">English (EN)</option>
-                    </select>
-                </div>
+        <!-- Wadah List Gambar -->
+        <div id="image-list" class="flex flex-col gap-5 w-full max-w-md mx-auto px-4 mt-5">
+            <!-- Item gambar di-inject via JS -->
+        </div>
 
-                <!-- API Key -->
-                <div class="mb-4 bg-black/20 p-3 rounded-lg border border-red-500/30">
-                    <label data-i18n="apiKeyLabel" class="block text-white/80 text-xs mb-1 uppercase tracking-wider font-bold text-red-300">Gemini API Key (Wajib)</label>
-                    <input type="password" id="input-api-key" placeholder="Masukkan API Key" class="w-full p-2.5 rounded bg-white/90 text-black focus:outline-none focus:ring-2 focus:ring-[#f7b733] mb-2">
-                    
-                    <label data-i18n="modelLabel" class="block text-white/80 text-xs mb-1 uppercase tracking-wider font-bold text-red-300">Model Gemini</label>
-                    <input type="text" id="input-ai-model" placeholder="gemini-2.5-flash" class="w-full p-2.5 rounded bg-white/90 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
-                </div>
-
-                <!-- Template Prompt Magic CONTAINER -->
-                <div class="mb-4 bg-black/20 p-3 rounded-lg border border-[#f7b733]/30 relative">
-                    <label data-i18n="promptSectionTitle" class="block text-white/80 text-xs mb-2 uppercase tracking-wider font-bold text-[#f7b733]">Kelola Template Prompt</label>
-                    
-                    <!-- MODE TAMPIL & EDIT -->
-                    <div id="prompt-select-mode">
-                        <select id="input-prompt-select" onchange="changePromptSelection()" class="w-full p-2.5 mb-2 rounded bg-white/90 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]"></select>
-                        
-                        <textarea id="input-prompt-content" rows="6" class="w-full p-2.5 rounded bg-white/90 text-black font-mono focus:outline-none focus:ring-2 focus:ring-[#f7b733] allow-scroll whitespace-pre-wrap break-words resize-none transition-colors" style="line-height: 1.5;"></textarea>
-                        
-                        <div class="flex items-start justify-between gap-2 mt-2 mb-3">
-                            <p data-i18n="promptHelper" class="text-[10px] text-[#f7b733] leading-tight opacity-80">Gunakan tag <b>{TARGET}</b> untuk teks dinamis.</p>
-                            <button type="button" id="btn-insert-target-view" onclick="insertTargetTag('input-prompt-content')" class="px-2 py-1 bg-[#f7b733]/20 border border-[#f7b733]/50 text-[#f7b733] font-bold rounded text-[10px] shrink-0 active:bg-[#f7b733]/40 transition-colors touch-manipulation">+ {TARGET}</button>
-                        </div>
-
-                        <!-- Tombol Tambah Baru selalu ada -->
-                        <div class="flex gap-2">
-                            <button type="button" data-i18n="btnCreateNew" onclick="showCreatePromptMode()" class="flex-1 py-2 bg-[#f7b733] text-[#2d1331] font-bold rounded text-[10px] uppercase tracking-wider touch-manipulation">Buat Template Baru</button>
-                        </div>
-
-                        <!-- Tombol Edit & Delete HANYA Muncul di Template Custom -->
-                        <div id="prompt-edit-actions" class="flex gap-2 mt-2 hidden">
-                            <button type="button" data-i18n="btnUpdate" onclick="updateCurrentPrompt()" class="flex-1 py-2 bg-blue-600/50 border border-blue-400 text-white font-bold rounded text-[10px] uppercase tracking-wider touch-manipulation">Update</button>
-                            <button type="button" data-i18n="btnDelete" onclick="deleteCurrentPrompt()" class="flex-1 py-2 bg-red-600/50 border border-red-400 text-white font-bold rounded text-[10px] uppercase tracking-wider touch-manipulation">Hapus</button>
-                        </div>
-                    </div>
-
-                    <!-- MODE BUAT BARU (Hidden by default) -->
-                    <div id="prompt-create-mode" class="hidden">
-                        <input type="text" id="new-prompt-name" placeholder="Nama Template Baru" class="w-full p-2.5 mb-2 rounded bg-white/90 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
-                        
-                        <textarea id="new-prompt-content" rows="6" class="w-full p-2.5 rounded bg-white/90 text-black font-mono focus:outline-none focus:ring-2 focus:ring-[#f7b733] allow-scroll whitespace-pre-wrap break-words resize-none" style="line-height: 1.5;"></textarea>
-                        
-                        <div class="flex items-start justify-between gap-2 mt-2 mb-3">
-                            <p data-i18n="promptHelper" class="text-[10px] text-[#f7b733] leading-tight opacity-80">Gunakan tag <b>{TARGET}</b> untuk teks dinamis.</p>
-                            <button type="button" onclick="insertTargetTag('new-prompt-content')" class="px-2 py-1 bg-[#f7b733]/20 border border-[#f7b733]/50 text-[#f7b733] font-bold rounded text-[10px] shrink-0 active:bg-[#f7b733]/40 transition-colors touch-manipulation">+ {TARGET}</button>
-                        </div>
-
-                        <div class="flex gap-2">
-                            <button type="button" data-i18n="btnCancel" onclick="cancelCreatePromptMode()" class="flex-1 py-2 bg-gray-600/50 border border-gray-400 text-white font-bold rounded text-[10px] uppercase tracking-wider touch-manipulation">Batal</button>
-                            <button type="button" data-i18n="btnSaveNew" onclick="saveNewPrompt()" class="flex-1 py-2 bg-[#f7b733] text-[#2d1331] font-bold rounded text-[10px] uppercase tracking-wider touch-manipulation">Simpan</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Mode Trigger Magic -->
-                <div class="mb-4 bg-black/20 p-3 rounded-lg border border-white/10">
-                    <label data-i18n="magicModeLabel" class="block text-[#f7b733] text-xs mb-2 uppercase tracking-wider font-bold">Mode Trigger Magic</label>
-                    <select id="input-magic-mode" onchange="toggleMagicModeUI()" class="w-full p-2.5 rounded bg-white/90 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
-                        <option value="t9" data-i18n="modeT9">Numpad (T9)</option>
-                        <option value="manual" data-i18n="modeManual">Manual</option>
-                    </select>
-                </div>
-
-                <!-- Group Manual Target -->
-                <div id="group-manual-target" class="mb-4 bg-black/20 p-3 rounded-lg border border-[#f7b733]/50 hidden">
-                    <label data-i18n="manualCharLabel" class="block text-[#f7b733] text-xs mb-2 uppercase tracking-wider font-bold">Karakter Target Manual</label>
-                    <input type="text" id="input-manual-target" placeholder="Masukkan nama target..." class="w-full p-2.5 rounded bg-white/90 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
-                </div>
-
-                <!-- Group T9 Settings -->
-                <div id="group-t9-settings">
-                    <!-- Karakter List -->
-                    <div class="mb-4 bg-black/20 p-3 rounded-lg border border-white/10">
-                        <label data-i18n="charListLabel" class="block text-white/80 text-xs mb-2 uppercase tracking-wider">Daftar Karakter Target</label>
-                        <p data-i18n="charListDesc" class="text-[10px] text-[#f7b733] mb-2 leading-tight opacity-80">Pisahkan tiap nama dengan baris baru (Enter). Baris 1 = 01, baris 100 = 00.</p>
-                        <textarea id="input-character-list" rows="6" class="w-full p-2.5 rounded bg-white/90 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733] allow-scroll whitespace-pre-wrap break-words resize-none" style="line-height: 1.5;"></textarea>
-                    </div>
-
-                    <!-- Posisi T9 -->
-                    <div class="mb-4 bg-black/20 p-3 rounded-lg border border-white/10">
-                        <label data-i18n="t9PosLabel" class="block text-white/80 text-xs mb-2 uppercase tracking-wider">Posisi T9 Keypad</label>
-                        <select id="input-t9-position" class="w-full p-2.5 rounded bg-white/90 text-black font-semibold focus:outline-none focus:ring-2 focus:ring-[#f7b733]">
-                            <option value="right" data-i18n="posRight">Kanan Bawah</option>
-                            <option value="left" data-i18n="posLeft">Kiri Bawah</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Timing Glitch (Global) -->
-                <div class="mb-2 bg-black/20 p-3 rounded-lg border border-white/10">
-                    <label data-i18n="glitchDelayLabel" class="block text-white/80 text-xs mb-3 uppercase tracking-wider">Delay Glitch (Detik)</label>
-                    <div class="flex gap-3">
-                        <div class="flex-1 flex flex-col items-center gap-1">
-                            <span data-i18n="delayLabel" class="text-white/50 text-[10px] uppercase tracking-widest">Delay</span>
-                            <div class="flex items-center w-full bg-white/10 rounded-lg overflow-hidden border border-white/20">
-                                <button type="button" onclick="stepperChange('glitch-delay', -0.5)" class="w-10 h-10 flex items-center justify-center text-[#f7b733] text-xl font-bold active:bg-white/20 transition-colors shrink-0 touch-manipulation">&#8722;</button>
-                                <span id="input-glitch-delay" class="flex-1 text-center text-white font-bold text-base">0</span>
-                                <button type="button" onclick="stepperChange('glitch-delay', 0.5)" class="w-10 h-10 flex items-center justify-center text-[#f7b733] text-xl font-bold active:bg-white/20 transition-colors shrink-0 touch-manipulation">+</button>
-                            </div>
-                        </div>
-                        <div class="flex-1 flex flex-col items-center gap-1">
-                            <span data-i18n="durationLabel" class="text-white/50 text-[10px] uppercase tracking-widest">Durasi</span>
-                            <div class="flex items-center w-full bg-white/10 rounded-lg overflow-hidden border border-white/20">
-                                <button type="button" onclick="stepperChange('glitch-duration', -0.5)" class="w-10 h-10 flex items-center justify-center text-[#f7b733] text-xl font-bold active:bg-white/20 transition-colors shrink-0 touch-manipulation">&#8722;</button>
-                                <span id="input-glitch-duration" class="flex-1 text-center text-white font-bold text-base">1.5</span>
-                                <button type="button" onclick="stepperChange('glitch-duration', 0.5)" class="w-10 h-10 flex items-center justify-center text-[#f7b733] text-xl font-bold active:bg-white/20 transition-colors shrink-0 touch-manipulation">+</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="p-4 border-t border-[#f7b733]/30 flex justify-end gap-3 shrink-0">
-                <button data-i18n="closeBtn" type="button" class="px-5 py-2 bg-white/10 rounded-lg text-white font-bold touch-manipulation" onclick="closeSettings()">Tutup</button>
-                <button data-i18n="saveBtn" type="button" class="px-5 py-2 bg-gradient-to-r from-[#f7b733] to-[#d87c00] text-[#2d1331] font-black rounded-lg shadow-lg active:scale-95 transition-transform touch-manipulation" onclick="saveSettingsApp()">Simpan</button>
+        <!-- Tombol "add more image" -->
+        <div class="flex flex-col items-center justify-center cursor-pointer mt-6 mb-10 w-full max-w-md mx-auto px-4" onclick="document.getElementById('file-input').click()">
+            <div class="w-full py-8 bg-white rounded-2xl flex flex-col items-center justify-center active:bg-gray-100 transition-colors shadow-sm border border-gray-100">
+                <svg class="w-10 h-10 text-[#007AFF] mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4" />
+                </svg>
+                <p class="text-[17px] text-[#007AFF] font-medium">Add More Image</p>
             </div>
         </div>
+        <input type="file" id="file-input" accept="image/*" class="hidden">
     </div>
 
-    <div id="main-app-container" class="flex-grow w-full max-w-md mx-auto flex flex-col relative z-10 transition-all duration-75">
-
-        <!-- ================= START SCREEN ================= -->
-        <section id="screen-start" class="flex flex-col flex-grow fade-in w-full">
-            <header class="relative flex justify-center items-center px-6 pt-[max(1.5rem,env(safe-area-inset-top))] pb-4 shrink-0 w-full min-h-[80px]">
-                
-                <!-- Tombol Pengaturan Floating -->
-                <div class="absolute left-6 top-0 bottom-0 pt-[max(1.5rem,env(safe-area-inset-top))] pb-4 flex items-center z-50">
-                    <button type="button" class="w-10 h-10 rounded-full flex items-center justify-center active:bg-white/10 transition-colors touch-manipulation" onclick="openSettings()">
-                        <svg class="w-8 h-8 text-[#f7b733] drop-shadow-md" fill="currentColor" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
-                    </button>
-                </div>
-                
-                <!-- Logo Akinator Besar -->
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Akinator.svg/1280px-Akinator.svg.png" alt="Akinator Logo" class="h-24 object-contain drop-shadow-lg z-10 pointer-events-none">
-            
-            </header>
-
-            <div class="flex-grow flex justify-center items-center relative px-4 z-10 min-h-0">
-                <img src="genie.PNG" alt="Akinator" class="w-full h-full max-h-[100vh] object-contain drop-shadow-[0_15px_15px_rgba(0,0,0,0.5)] z-10 cursor-pointer transition-transform active:scale-95 touch-manipulation" onclick="handleImageClick()">
-            </div>
-
-            <div class="w-full flex flex-col items-center z-30 pt-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] shrink-0">
-                <button type="button" class="btn-gold-3d w-[85%] max-w-[320px] py-4 rounded-xl flex flex-col items-center justify-center shadow-[0_10px_20px_rgba(0,0,0,0.5)] relative z-30 touch-manipulation" onclick="startGame()">
-                    <span data-i18n="challengeBtn" class="font-logo font-black text-2xl tracking-wide uppercase">Tantang Aku</span>
-                    <span data-i18n="readMindSub" class="font-sans text-[11px] font-bold text-[#4d320d] uppercase mt-1 tracking-wider">Aku bisa baca pikiranmu.</span>
-                </button>
-            </div>
-        </section>
-
-        <!-- ================= GAME SCREEN ================= -->
-        <section id="screen-game" class="hidden-screen flex flex-col flex-grow fade-in w-full">
-            <div class="flex justify-between items-center px-4 pt-[max(1.5rem,env(safe-area-inset-top))] z-50 w-full shrink-0">
-                <button type="button" class="w-10 h-10 rounded-full bg-black/30 border border-white/20 flex items-center justify-center shadow-lg active:bg-black/50 transition-colors backdrop-blur-sm pointer-events-auto touch-manipulation" onclick="resetGame()">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
-                </button>
-                <button type="button" class="w-10 h-10 rounded-full bg-gradient-to-b from-[#fce484] to-[#d4a02d] flex items-center justify-center shadow-lg border border-[#fdf2b9] active:scale-95 transition-transform pointer-events-auto touch-manipulation" onclick="resetGame()">
-                    <svg class="w-5 h-5 text-[#4a2e10] fill-current" viewBox="0 0 24 24"><path d="M12 3l10 9h-3v9H5v-9H2L12 3z"/></svg>
-                </button>
-            </div>
-
-            <div class="flex-grow flex justify-center items-end relative z-10 mb-[-15px] min-h-0">
-                <img id="jin-image" src="https://en.akinator.com/assets/img/akitudes_520x650/serein_2.png" alt="Akinator Game" class="h-full max-h-[40vh] min-h-[200px] object-contain drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)] transition-all duration-300">
-            </div>
-
-            <div class="w-full flex flex-col z-20 shrink-0 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
-                <div class="speech-bubble w-full min-h-[140px] rounded-t-[4px] flex flex-col justify-center relative shadow-2xl">
-                    <div class="flex items-center justify-center pt-5">
-                        <h2 id="question-number" class="font-logo font-bold text-[20px] text-gray-900 drop-shadow-sm tracking-wide uppercase">Pertanyaan 1</h2>
-                    </div>
-                    <div class="flex-grow flex items-center justify-center px-6 text-left pb-6 mt-2 w-full max-w-[90%] mx-auto">
-                        <p id="question-text" class="custom-scroll font-logo font-bold text-[18px] leading-snug text-[#1a1a1a] overflow-y-auto max-h-[120px] w-full text-center">...</p>
-                    </div>
-                </div>
-                <div id="answer-buttons-container" class="w-full font-sans text-[16px] font-bold text-[#351e02] pb-2 transition-opacity duration-300">
-                    <div class="flex w-full h-[65px]">
-                        <button type="button" class="btn-gold-3d flex-1 flex items-center justify-center touch-manipulation" onclick="handleUserAnswer(0)"></button>
-                        <button type="button" class="btn-gold-3d flex-1 flex items-center justify-center touch-manipulation" onclick="handleUserAnswer(1)"></button>
-                    </div>
-                    <div class="flex w-full h-[65px]">
-                        <button type="button" class="btn-gold-3d flex-[1] flex items-center justify-center touch-manipulation" onclick="handleUserAnswer(2)"></button>
-                        <button type="button" class="btn-gold-3d flex-[1.2] flex items-center justify-center leading-tight touch-manipulation" onclick="handleUserAnswer(3)"></button>
-                        <button type="button" class="btn-gold-3d flex-[1] flex items-center justify-center touch-manipulation" onclick="handleUserAnswer(4)"></button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ================= GUESS SCREEN (REVEAL) ================= -->
-        <section id="screen-guess" class="hidden-screen flex flex-col flex-grow fade-in w-full">
-            <div class="flex justify-start px-4 pt-[max(1.5rem,env(safe-area-inset-top))] z-50 w-full shrink-0 absolute top-0 left-0">
-                <button type="button" class="w-10 h-10 rounded-full bg-black/30 border border-white/20 flex items-center justify-center shadow-lg active:bg-black/50 transition-colors backdrop-blur-sm pointer-events-auto touch-manipulation" onclick="resetGame()">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg>
-                </button>
-            </div>
-            <div class="w-full text-center shrink-0 mb-4 z-20 pt-[calc(env(safe-area-inset-top,0px)+4rem)]">
-                <h2 data-i18n="thinkingTitle" class="font-logo text-3xl font-black akinator-logo-text tracking-wide uppercase">Aku lagi mikirin...</h2>
-            </div>
-            <div class="flex-grow flex flex-col items-center justify-center relative z-10 px-6 min-h-0">
-                <div class="relative w-48 h-64 bg-[#2d1331] rounded-lg border-4 border-[#ffdf6b] shadow-[0_10px_25px_rgba(0,0,0,0.8)] overflow-hidden flex items-center justify-center mb-6">
-                    <img id="guess-image" src="" alt="Character Image" class="w-full h-full object-cover hidden">
-                    <div id="no-image-fallback" class="hidden absolute inset-0 bg-gradient-to-b from-[#3d1d3f] to-[#1a0a1c] flex flex-col items-center justify-center">
-                        <svg class="w-20 h-20 text-white/20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                        <span data-i18n="noImage" class="text-white/40 text-[10px] font-sans font-bold uppercase tracking-widest mt-3">Tidak Ada Gambar</span>
-                    </div>
-                    <div id="image-loading" class="absolute inset-0 flex items-center justify-center bg-[#2d1331]"><div class="spinner"></div></div>
-                </div>
-                <h3 id="guess-name" class="font-logo font-black text-3xl text-center text-white drop-shadow-md mb-2 uppercase">...</h3>
-                <p id="guess-desc" class="font-sans font-medium text-xs leading-snug text-center text-white/80 max-w-[85%] uppercase tracking-widest overflow-y-auto max-h-[80px]">...</p>
-            </div>
-            <div class="w-full flex flex-col z-20 shrink-0 pb-[max(0.5rem,env(safe-area-inset-bottom))] px-4">
-                <div data-i18n="amIRight" class="w-full flex justify-center py-2 mb-2 text-white/80 text-sm font-bold tracking-widest uppercase">Apa aku benar?</div>
-                <div class="flex w-full h-[70px] gap-2">
-                    <button data-i18n="btnYes" type="button" class="btn-gold-3d flex-[1] rounded-xl flex items-center justify-center text-xl shadow-lg touch-manipulation" onclick="handleGuessResult('yes')">Ya</button>
-                    <button data-i18n="btnNo" type="button" class="btn-gold-3d flex-[1] rounded-xl flex items-center justify-center text-xl shadow-lg touch-manipulation" onclick="handleGuessResult('no')">Tidak</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- ================= END SCREEN ================= -->
-        <section id="screen-end" class="hidden-screen flex flex-col flex-grow fade-in justify-center items-center relative z-20 overflow-hidden">
-            <h1 id="end-title" class="font-logo text-4xl font-black akinator-logo-text tracking-wide mb-8 drop-shadow-xl mt-12 uppercase">AKU BENAR!</h1>
-            <img id="end-image" src="https://en.akinator.com/assets/img/akitudes_520x650/triomphe.png" alt="End Game" class="h-full max-h-[35vh] object-contain drop-shadow-2xl mb-12">
-            <button type="button" class="btn-gold-3d w-[80%] max-w-[280px] py-4 rounded-xl flex items-center justify-center shadow-xl touch-manipulation" onclick="resetGame()">
-                <span data-i18n="playAgain" class="font-logo font-black text-xl tracking-wide uppercase">Main Lagi</span>
+    <!-- Tombol "add AI image" (Bottom Toolbar ala iOS) -->
+    <div class="fixed bottom-0 left-0 w-full bg-[#F9F9F9]/90 backdrop-blur-xl border-t border-gray-300/60 z-30 safe-padding-bottom">
+        <div class="w-full max-w-md mx-auto px-4 py-3">
+            <button onclick="openAIModal()" class="w-full bg-[#007AFF] text-white rounded-xl py-3.5 text-[17px] font-semibold active:bg-[#005bb5] transition-colors flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Add AI Image
             </button>
-        </section>
-
+        </div>
     </div>
+
+    <!-- SCREEN 2: Fullscreen Image View -->
+    <div id="image-screen" class="fixed inset-0 hidden bg-black z-40">
+        
+        <!-- Dua layer gambar untuk efek transisi Crossfade yang mulus -->
+        <img id="display-image-1" class="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-100" alt="Image View 1">
+        <img id="display-image-2" class="absolute inset-0 w-full h-full object-contain pointer-events-none opacity-0" alt="Image View 2">
+
+        <!-- Area sentuh / gesture -->
+        <div id="touch-area" class="absolute inset-0 z-10 touch-none"></div>
+
+        <!-- Kontrol Overlay Atas -->
+        <div id="image-overlay-top" class="absolute top-0 left-0 w-full px-4 pb-3 flex justify-between items-end bg-gradient-to-b from-black/60 to-transparent transition-opacity duration-300 safe-padding-top h-[100px] z-20 pointer-events-none">
+            <button onclick="closeFullscreen()" class="text-[#007AFF] flex items-center gap-1 text-[17px] active:opacity-50 pointer-events-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+                </svg>
+                Gallery
+            </button>
+            <div class="flex gap-4 pointer-events-auto">
+                <button id="btn-hapus" class="text-white active:opacity-50">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Settings per Gambar -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-[#F2F2F7] rounded-[20px] w-full max-w-[320px] flex flex-col overflow-hidden transform scale-95 transition-transform duration-300" id="settings-modal-box">
+            
+            <div class="p-5 pb-4">
+                <h3 class="text-[17px] font-bold text-black mb-1 text-center" id="settings-title">Image Settings</h3>
+                <p class="text-[13px] text-gray-500 mb-5 text-center px-4">Atur cara layar berpindah ke gambar selanjutnya.</p>
+                
+                <!-- Transition Setting -->
+                <div class="mb-5">
+                    <label class="text-[13px] text-gray-500 font-medium mb-1.5 block uppercase tracking-wide">Transition</label>
+                    <div class="flex bg-gray-200/80 rounded-[9px] p-1 shadow-inner">
+                        <button id="set-trans-fade" onclick="updateModalSetting('transition', 'fade')" class="flex-1 py-1.5 text-[14px] rounded-[7px] bg-white shadow font-semibold text-black transition-all">Fade</button>
+                        <button id="set-trans-instant" onclick="updateModalSetting('transition', 'instant')" class="flex-1 py-1.5 text-[14px] rounded-[7px] text-gray-500 font-semibold transition-all">Instant</button>
+                    </div>
+                </div>
+
+                <!-- Trigger Setting -->
+                <div class="mb-5">
+                    <label class="text-[13px] text-gray-500 font-medium mb-1.5 block uppercase tracking-wide">Trigger</label>
+                    <div class="flex bg-gray-200/80 rounded-[9px] p-1 shadow-inner">
+                        <button id="set-trig-tap" onclick="updateModalSetting('trigger', 'tap')" class="flex-1 py-1.5 text-[14px] rounded-[7px] bg-white shadow font-semibold text-black transition-all">Tap</button>
+                        <button id="set-trig-swipe" onclick="updateModalSetting('trigger', 'swipe')" class="flex-1 py-1.5 text-[14px] rounded-[7px] text-gray-500 font-semibold transition-all">Swipe Up</button>
+                    </div>
+                </div>
+
+                <!-- Duration Setting -->
+                <div>
+                    <label class="text-[13px] text-gray-500 font-medium mb-1.5 block uppercase tracking-wide">Duration (seconds)</label>
+                    <div class="relative">
+                        <input type="number" id="set-duration" step="0.1" min="0" class="w-full bg-white rounded-[10px] px-4 py-3 text-[17px] font-semibold outline-none focus:ring-2 focus:ring-[#007AFF] transition-all shadow-sm">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tutup Modal -->
+            <div class="flex border-t border-gray-300/80 bg-white">
+                <button onclick="saveAndCloseSettings()" class="flex-1 py-3.5 text-[17px] font-bold text-[#007AFF] active:bg-gray-100 transition-colors">Selesai</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Generate AI Image -->
+    <div id="ai-modal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-[20px] w-full max-w-[340px] flex flex-col text-center overflow-hidden transform scale-95 transition-transform duration-300" id="ai-modal-box">
+            <div class="p-5 pb-4">
+                <h3 class="text-[17px] font-semibold text-black mb-1">AI Generator</h3>
+                <p class="text-[13px] text-gray-500 mb-4">Masukkan deskripsi untuk membuat gambar.</p>
+                <textarea id="ai-prompt" class="w-full bg-[#F2F2F7] rounded-xl p-3 outline-none text-[15px] resize-none text-black placeholder-gray-400 border border-transparent focus:border-[#007AFF] transition-colors" rows="4" placeholder="Contoh: Pemandangan kota masa depan..."></textarea>
+                
+                <div id="ai-loading" class="hidden flex-col items-center justify-center py-4">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#007AFF]"></div>
+                    <p class="text-[13px] mt-3 text-gray-500">Memproses...</p>
+                </div>
+            </div>
+            <div class="flex border-t border-gray-200" id="ai-actions">
+                <button onclick="closeAIModal()" class="flex-1 py-3 text-[17px] text-[#007AFF] active:bg-gray-100 transition-colors border-r border-gray-200">Batal</button>
+                <button onclick="generateAIImage()" class="flex-1 py-3 text-[17px] font-semibold text-[#007AFF] active:bg-gray-100 transition-colors">Buat</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast-container" class="fixed top-12 left-1/2 -translate-x-1/2 z-[60] flex flex-col gap-2 pointer-events-none w-max max-w-[90%]"></div>
 
     <script>
-        // Dictionary Bahasa
-        const i18n = {
-            id: {
-                loading: "Loading...", settingsTitle: "Pengaturan", langLabel: "Bahasa / Language", apiKeyLabel: "Gemini API Key (Wajib)", apiKeyPlaceholder: "Masukkan API Key",
-                modelLabel: "Model Gemini", charListLabel: "Daftar Karakter Target", charListDesc: "Pisahkan tiap nama dengan baris baru (Enter). Baris 1 = 01, baris 100 = 00.",
-                t9PosLabel: "Posisi T9 Keypad", posRight: "Kanan Bawah", posLeft: "Kiri Bawah", glitchDelayLabel: "Delay Glitch (Detik)",
-                delayLabel: "Delay", durationLabel: "Durasi", closeBtn: "Tutup", saveBtn: "Simpan",
-                challengeBtn: "Tantang Aku", readMindSub: "Aku bisa baca pikiranmu.",
-                qProbably: "Mungkin", qProbablyNot: "Mungkin Tidak", qYes: "Ya", qDontKnow: "Tidak Tahu", qNo: "Tidak",
-                thinkingTitle: "Aku lagi mikirin...", noImage: "Tidak Ada Gambar", amIRight: "Apa aku benar?",
-                btnYes: "Ya", btnNo: "Tidak", endWin: "AKU BENAR!", endLose: "KAMU MENANG!", playAgain: "Main Lagi",
-                magicDesc: "Terbaca dari pikiranmu.", question: "Pertanyaan",
-                promptSectionTitle: "Kelola Template Prompt", promptHelper: "Gunakan tag <b>{TARGET}</b> untuk teks dinamis.",
-                btnCreateNew: "Buat Template Baru", btnSaveNew: "Simpan", btnCancel: "Batal", btnUpdate: "Update", btnDelete: "Hapus", newPromptName: "Nama Template Baru",
-                magicModeLabel: "Mode Trigger Magic", modeT9: "Numpad (T9)", modeManual: "Manual", 
-                manualCharLabel: "Karakter Target Manual", manualCharPlaceholder: "Masukkan nama target...",
-                aiPromptInitial: "Kita main tebak-tebakan. Aku mikirin tokoh fiksi/nyata. Kasih pertanyaan ke-1 (Maks 10 kata, jawabannya Ya/Tidak/Mungkin). Langsung pertanyaannya aja, nggak usah pakai JSON atau basa-basi.",
-                aiPromptNext: "Kasih pertanyaan selanjutnya (Maks 10 kata, langsung pertanyaannya aja).",
-                aiPromptGuess: "Game selesai. Tebak siapa karakternya. Balas HANYA pakai JSON murni: {\"guess\": \"Nama Karakter\", \"description\": \"1 kalimat deskripsi karakter\"}",
-                mysterious: "Karakter Misterius", auraDark: "\n\n(Koneksi terputus...)\n\nAku udah tahu... kamu lagi mikirin..", akinatorTired: "Aku nyerah, susah nebaknya."
-            },
-            en: {
-                loading: "Loading...", settingsTitle: "Settings", langLabel: "Language / Bahasa", apiKeyLabel: "Gemini API Key (Required)", apiKeyPlaceholder: "Enter API Key",
-                modelLabel: "Gemini Model", charListLabel: "Target Character List", charListDesc: "Separate each name with a new line (Enter). Line 1 = 01, line 100 = 00.",
-                t9PosLabel: "T9 Keypad Position", posRight: "Bottom Right", posLeft: "Bottom Left", glitchDelayLabel: "Glitch Delay (Seconds)",
-                delayLabel: "Delay", durationLabel: "Duration", closeBtn: "Close", saveBtn: "Save",
-                challengeBtn: "Challenge me", readMindSub: "I will read your mind.",
-                qProbably: "Probably", qProbablyNot: "Probably not", qYes: "Yes", qDontKnow: "Don't know", qNo: "No",
-                thinkingTitle: "I'm thinking of...", noImage: "No Image", amIRight: "Am I right?",
-                btnYes: "Yes", btnNo: "No", endWin: "I GOT IT!", endLose: "YOU WIN!", playAgain: "Play Again",
-                magicDesc: "Read from your mind.", question: "Question",
-                promptSectionTitle: "Manage Prompt Templates", promptHelper: "Use the <b>{TARGET}</b> tag for dynamic text.",
-                btnCreateNew: "Create New Template", btnSaveNew: "Save", btnCancel: "Cancel", btnUpdate: "Update", btnDelete: "Delete", newPromptName: "New Template Name",
-                magicModeLabel: "Magic Trigger Mode", modeT9: "Numpad (T9)", modeManual: "Manual", 
-                manualCharLabel: "Manual Target Character", manualCharPlaceholder: "Enter target name...",
-                aiPromptInitial: "We are playing a guessing game. I'm thinking of a fictional/real character. Give the 1st question (Max 10 words, answers can be Yes/No/Probably/Don't know). Reply directly with the question text, no JSON or filler.",
-                aiPromptNext: "Give the next question (Max 10 words, straight to the point).",
-                aiPromptGuess: "Game over. Guess the character. Reply ONLY with pure JSON: {\"guess\": \"Character Name\", \"description\": \"1 sentence description\"}",
-                mysterious: "Mysterious Character", auraDark: "\n\n(Connection lost...)\n\nI already know.. you are thinking of..", akinatorTired: "I give up, it's too hard to guess."
-            }
-        };
+        const manifestBlob = new Blob([JSON.stringify({
+            name: "Gallery", short_name: "Gallery", start_url: location.href, display: "standalone", background_color: "#F2F2F7", theme_color: "#F2F2F7"
+        })], {type: 'application/json'});
+        document.head.insertAdjacentHTML('beforeend', `<link rel="manifest" href="${URL.createObjectURL(manifestBlob)}">`);
 
-        const defaultMagicPrompts = {
-            "default": {
-                name: "Default Template",
-                content: `Playing a mind reading trick. Target: "{TARGET}".\nAssume the role of a mind reader inside this app.\nSay EXACTLY this sentence at the beginning: "My mind is now connected to yours..."\nAdd a new line, then describe specific physical traits or highly specific facts about this character as if you are divining them (max 3 short sentences, separated by new lines).\nNEVER MENTION THE NAME.\nEnd with a new line and EXACTLY this sentence: "I already know.. you are thinking of.."\nWrite directly, no JSON, no formatting.`
-            }
-        };
+        // --- KONFIGURASI INDEXEDDB ---
+        const DB_NAME = 'ImageViewerDB_iOS_v2';
+        const STORE_NAME = 'gallery_images';
+        let globalImages = []; 
+        let currentIndex = 0;
+        let activeImageLayer = 1; 
 
-        const default50List = "Taylor Swift\nTom Cruise\nLeonardo DiCaprio\nBrad Pitt\nScarlett Johansson\nRobert Downey Jr\nJohnny Depp\nWill Smith\nAngelina Jolie\nDwayne Johnson\nCristiano Ronaldo\nLionel Messi\nJustin Bieber\nSelena Gomez\nKaty Perry\nRihanna\nLady Gaga\nEminem\nChris Hemsworth\nVin Diesel\nKeanu Reeves\nChris Evans\nRyan Reynolds\nZendaya\nTom Holland\nMargot Robbie\nElon Musk\nMark Zuckerberg\nBill Gates\nSteve Jobs\nAriana Grande\nBillie Eilish\nBeyonce\nDrake\nSnoop Dogg\nKanye West\nJay-Z\nEd Sheeran\nBruno Mars\nShawn Mendes\nThe Weeknd\nPost Malone\nKylie Jenner\nKendall Jenner\nKim Kardashian\nEmma Watson\nJennifer Lawrence\nNatalie Portman\nAnne Hathaway\nGal Gadot";
+        // Default settings buat gambar baru
+        const DEFAULT_SETTINGS = { transition: 'fade', trigger: 'tap', duration: 0.5 };
 
-        let config = {
-            magicMode: "t9", // "t9" atau "manual"
-            manualTarget: "",
-            characterList: default50List,
-            customApiKey: "",
-            aiModel: "gemini-2.5-flash",
-            glitchDelay: "0",
-            glitchDuration: "1.5",
-            t9Position: "right",
-            language: "id",
-            activePromptId: "default",
-            customPrompts: {}
-        };
-
-        let currentQuestionIndex = 0, isGameOver = false, isProcessing = false;
-        let isMagicMode = false, isMagicCancelled = false, waitingForMagicTrigger = false;
-        let fetchedMagicName = "", magicDescriptionsString = "", t9InputString = "", forcedTargetIndex = -1;
-        let normalChatHistory = [], magicTimeouts = [], magicIntervals = [];
-        let streamReader = null, typeQueue = "", streamFinished = false;
-
-        document.addEventListener('touchmove', function(event) {
-            const isScrollableArea = event.target.closest('.allow-scroll');
-            const isInputField = event.target.closest('input, textarea, select');
-            if (!isScrollableArea && !isInputField) { event.preventDefault(); }
-        }, { passive: false });
-
-        function clearMagicTimeouts() {
-            isMagicCancelled = true;
-            if (streamReader) { try { streamReader.cancel(); } catch(e){} streamReader = null; }
-            magicTimeouts.forEach(clearTimeout); magicIntervals.forEach(clearInterval);
-            magicTimeouts = []; magicIntervals = []; typeQueue = "";
-        }
-
-        // --- FUNGSI PREVIEW BAHASA LANGSUNG ---
-        function changeLanguageLive() {
-            config.language = document.getElementById('input-language').value;
-            applyLanguage();
-        }
-
-        function applyLanguage() {
-            const lang = config.language || 'id';
-            const dict = i18n[lang];
-            
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (dict[key]) {
-                    if (el.tagName === 'INPUT' && el.hasAttribute('placeholder')) el.placeholder = dict[key];
-                    else el.innerHTML = dict[key]; 
-                }
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, 1);
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+                };
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
             });
+        }
+
+        async function saveImageToDB(file, isAI = false) {
+            const db = await openDB();
+            return new Promise((resolve) => {
+                const transaction = db.transaction(STORE_NAME, 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                // Kita tambahin settings ke record DB pas nyimpen
+                const request = store.add({ 
+                    file: file, 
+                    timestamp: new Date().getTime(), 
+                    isAI: isAI,
+                    settings: { ...DEFAULT_SETTINGS } 
+                });
+                request.onsuccess = () => resolve(request.result);
+            });
+        }
+
+        async function updateImageInDB(record) {
+            const db = await openDB();
+            return new Promise((resolve) => {
+                const transaction = db.transaction(STORE_NAME, 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.put(record); // Update / overwrite
+                request.onsuccess = () => resolve();
+            });
+        }
+
+        async function getAllImagesFromDB() {
+            const db = await openDB();
+            return new Promise((resolve) => {
+                const transaction = db.transaction(STORE_NAME, 'readonly');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result.sort((a,b) => a.timestamp - b.timestamp));
+            });
+        }
+
+        async function deleteImageFromDB(id) {
+            const db = await openDB();
+            return new Promise((resolve) => {
+                const transaction = db.transaction(STORE_NAME, 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.delete(id);
+                request.onsuccess = () => resolve();
+            });
+        }
+
+        const dashboardScreen = document.getElementById('dashboard-screen');
+        const imageScreen = document.getElementById('image-screen');
+        const fileInput = document.getElementById('file-input');
+        const imageListContainer = document.getElementById('image-list');
+        const toastContainer = document.getElementById('toast-container');
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = `bg-black/80 backdrop-blur-md text-white px-5 py-2.5 rounded-full shadow-lg text-[15px] flex items-center justify-center animate-slide-up pointer-events-auto`;
+            toast.innerHTML = `<span>${message}</span>`;
+            toastContainer.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 2500);
+        }
+
+        // --- MANAJEMEN SETTING PER GAMBAR ---
+        let editingImageId = null;
+        let tempModalSettings = { transition: 'fade', trigger: 'tap', duration: 0.5 };
+
+        function updateModalSetting(key, val) {
+            tempModalSettings[key] = val;
+            renderSettingsUI();
+        }
+
+        function renderSettingsUI() {
+            // Update UI Button Transition
+            const isFade = tempModalSettings.transition === 'fade';
+            document.getElementById('set-trans-fade').className = `flex-1 py-1.5 text-[14px] rounded-[7px] font-semibold transition-all ${isFade ? 'bg-white shadow text-black' : 'text-gray-500 bg-transparent'}`;
+            document.getElementById('set-trans-instant').className = `flex-1 py-1.5 text-[14px] rounded-[7px] font-semibold transition-all ${!isFade ? 'bg-white shadow text-black' : 'text-gray-500 bg-transparent'}`;
+
+            // Update UI Button Trigger
+            const isTap = tempModalSettings.trigger === 'tap';
+            document.getElementById('set-trig-tap').className = `flex-1 py-1.5 text-[14px] rounded-[7px] font-semibold transition-all ${isTap ? 'bg-white shadow text-black' : 'text-gray-500 bg-transparent'}`;
+            document.getElementById('set-trig-swipe').className = `flex-1 py-1.5 text-[14px] rounded-[7px] font-semibold transition-all ${!isTap ? 'bg-white shadow text-black' : 'text-gray-500 bg-transparent'}`;
+
+            document.getElementById('set-duration').value = tempModalSettings.duration;
+        }
+
+        function openSettings(id, title) {
+            editingImageId = id;
+            document.getElementById('settings-title').innerText = title + " Settings";
             
-            // Handle specific placeholders that might not have data-i18n on them directly
-            const newPromptInput = document.getElementById('new-prompt-name');
-            if (newPromptInput) newPromptInput.placeholder = dict.newPromptName;
+            const imgRecord = globalImages.find(i => i.id === id);
+            // Kalau gambar jadul blm ada settingnya, pake default
+            tempModalSettings = { ...(imgRecord.settings || DEFAULT_SETTINGS) }; 
+
+            renderSettingsUI();
             
-            const manualTargetInput = document.getElementById('input-manual-target');
-            if (manualTargetInput) manualTargetInput.placeholder = dict.manualCharPlaceholder;
-            
-            const apiKeyInput = document.getElementById('input-api-key');
-            if (apiKeyInput) apiKeyInput.placeholder = dict.apiKeyPlaceholder;
-            
-            magicDescriptionsString = dict.magicDesc;
-            
-            // Set question dynamically based on language
-            const qNumEl = document.getElementById('question-number');
-            if (qNumEl && currentQuestionIndex >= 0) {
-                qNumEl.innerText = `${dict.question} ${currentQuestionIndex + 1}`;
+            const modal = document.getElementById('settings-modal');
+            const box = document.getElementById('settings-modal-box');
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            setTimeout(() => { modal.classList.remove('opacity-0'); box.classList.remove('scale-95'); }, 10);
+        }
+
+        async function saveAndCloseSettings() {
+            // Simpan durasi dari input
+            const inputDur = document.getElementById('set-duration').value;
+            tempModalSettings.duration = inputDur === '' ? 0 : parseFloat(inputDur);
+
+            // Simpan ke DB
+            const imgRecord = globalImages.find(i => i.id === editingImageId);
+            if (imgRecord) {
+                imgRecord.settings = { ...tempModalSettings };
+                await updateImageInDB(imgRecord);
             }
 
-            resetGameUI();
+            // Tutup Modal
+            const modal = document.getElementById('settings-modal');
+            const box = document.getElementById('settings-modal-box');
+            modal.classList.add('opacity-0'); box.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+            
+            showToast("Settings tersimpan");
         }
 
-        function applyT9Position() {
-            const t9Box = document.getElementById('t9-box');
-            if (config.t9Position === 'left') { t9Box.classList.remove('right-6'); t9Box.classList.add('left-6'); } 
-            else { t9Box.classList.remove('left-6'); t9Box.classList.add('right-6'); }
-        }
 
-        // --- MANAJEMEN PROMPT TEMPLATE ---
-        function renderPromptDropdown() {
-            const select = document.getElementById('input-prompt-select');
-            select.innerHTML = '';
-            
-            for (let id in defaultMagicPrompts) {
-                let opt = document.createElement('option');
-                opt.value = id; opt.text = defaultMagicPrompts[id].name;
-                select.appendChild(opt);
-            }
-            
-            if (config.customPrompts) {
-                for (let id in config.customPrompts) {
-                    let opt = document.createElement('option');
-                    opt.value = id; opt.text = config.customPrompts[id].name;
-                    select.appendChild(opt);
-                }
-            }
-            
-            if (!document.querySelector(`#input-prompt-select option[value="${config.activePromptId}"]`)) {
-                config.activePromptId = "default";
-            }
-            select.value = config.activePromptId;
-            changePromptSelection();
-        }
+        // --- RENDER DASHBOARD ---
+        async function loadDashboard() {
+            imageListContainer.innerHTML = '';
+            globalImages = await getAllImagesFromDB();
+            if (globalImages.length === 0) return;
 
-        function changePromptSelection() {
-            const select = document.getElementById('input-prompt-select');
-            const contentArea = document.getElementById('input-prompt-content');
-            const editActions = document.getElementById('prompt-edit-actions');
-            const btnInsertTarget = document.getElementById('btn-insert-target-view');
-            const activeId = select.value;
-            
-            config.activePromptId = activeId;
-            let activeData = config.customPrompts[activeId] || defaultMagicPrompts[activeId];
-            
-            if (activeData) {
-                contentArea.value = activeData.content;
-            }
-
-            if (activeId === 'default') {
-                contentArea.readOnly = true;
-                contentArea.classList.add('bg-white/70');
-                contentArea.classList.remove('bg-white/90');
-                editActions.classList.add('hidden');
-                btnInsertTarget.classList.add('hidden');
-            } else {
-                contentArea.readOnly = false;
-                contentArea.classList.remove('bg-white/70');
-                contentArea.classList.add('bg-white/90');
-                editActions.classList.remove('hidden');
-                btnInsertTarget.classList.remove('hidden');
-            }
-        }
-        
-        function insertTargetTag(textareaId) {
-            const textarea = document.getElementById(textareaId);
-            const cursorPos = textarea.selectionStart;
-            const textBefore = textarea.value.substring(0, cursorPos);
-            const textAfter = textarea.value.substring(textarea.selectionEnd, textarea.value.length);
-            
-            textarea.value = textBefore + '{TARGET}' + textAfter;
-            textarea.selectionStart = textarea.selectionEnd = cursorPos + '{TARGET}'.length;
-            textarea.focus();
-        }
-
-        function showCreatePromptMode() {
-            document.getElementById('prompt-select-mode').classList.add('hidden');
-            document.getElementById('prompt-create-mode').classList.remove('hidden');
-            document.getElementById('new-prompt-content').value = '';
-            document.getElementById('new-prompt-name').value = '';
-        }
-
-        function cancelCreatePromptMode() {
-            document.getElementById('prompt-create-mode').classList.add('hidden');
-            document.getElementById('prompt-select-mode').classList.remove('hidden');
-        }
-
-        function saveNewPrompt() {
-            const nameInput = document.getElementById('new-prompt-name');
-            const contentInput = document.getElementById('new-prompt-content');
-            const name = nameInput.value.trim();
-            const content = contentInput.value.trim();
-            
-            if (!name || !content) return;
-            
-            const newId = 'custom_' + Date.now();
-            if(!config.customPrompts) config.customPrompts = {};
-            
-            config.customPrompts[newId] = { name: name, content: content };
-            config.activePromptId = newId;
-            
-            renderPromptDropdown();
-            persistConfig();
-            cancelCreatePromptMode();
-        }
-
-        function updateCurrentPrompt() {
-            const activeId = config.activePromptId;
-            if (activeId === 'default') return;
-            
-            const contentInput = document.getElementById('input-prompt-content');
-            config.customPrompts[activeId].content = contentInput.value.trim();
-            persistConfig();
-        }
-
-        function deleteCurrentPrompt() {
-            const activeId = config.activePromptId;
-            if (activeId === 'default') return;
-            
-            delete config.customPrompts[activeId];
-            config.activePromptId = "default";
-            renderPromptDropdown();
-            persistConfig();
-        }
-
-        function persistConfig() { localStorage.setItem('akinatorSettingsProV6', JSON.stringify(config)); }
-
-        // --- SISTEM ---
-        function toggleMagicModeUI() {
-            const mode = document.getElementById('input-magic-mode').value;
-            if (mode === 'manual') {
-                document.getElementById('group-t9-settings').classList.add('hidden');
-                document.getElementById('group-manual-target').classList.remove('hidden');
-            } else {
-                document.getElementById('group-t9-settings').classList.remove('hidden');
-                document.getElementById('group-manual-target').classList.add('hidden');
-            }
-        }
-
-        function loadSettings() {
-            const saved = localStorage.getItem('akinatorSettingsProV6');
-            if (saved) { 
-                const parsed = JSON.parse(saved); 
-                config = { ...config, ...parsed }; 
+            globalImages.forEach((imgData, index) => {
+                const objectUrl = URL.createObjectURL(imgData.file);
+                const title = imgData.isAI ? `Image ${index + 1} (AI)` : `Image ${index + 1}`;
                 
-                // Mencegah error kalau user load data yang masih pakai ID prompt lama
-                if (!config.activePromptId || config.activePromptId === 'default_id' || config.activePromptId === 'default_en') {
-                    config.activePromptId = 'default';
-                }
-            }
-            if(!config.customPrompts) config.customPrompts = {};
-            
-            document.getElementById('input-magic-mode').value = config.magicMode || "t9";
-            document.getElementById('input-manual-target').value = config.manualTarget || "";
-            document.getElementById('input-character-list').value = config.characterList || default50List;
-            document.getElementById('input-api-key').value = config.customApiKey || "";
-            document.getElementById('input-ai-model').value = config.aiModel || "gemini-2.5-flash"; 
-            document.getElementById('input-glitch-delay').innerText = config.glitchDelay || "0";
-            document.getElementById('input-glitch-duration').innerText = config.glitchDuration || "1.5";
-            document.getElementById('input-t9-position').value = config.t9Position || "right";
-            document.getElementById('input-language').value = config.language || "id";
-            
-            renderPromptDropdown();
-            toggleMagicModeUI();
-            applyT9Position(); 
-            applyLanguage();
+                const itemHTML = `
+                    <div class="bg-white rounded-[14px] overflow-hidden shadow-sm animate-fade-in border border-black/5">
+                        <div class="px-4 py-3 border-b border-black/5 flex justify-between items-center">
+                            <h2 class="text-[17px] font-medium text-black">${title}</h2>
+                            <!-- Tombol Settings per Gambar (Icon Gear) -->
+                            <button onclick="openSettings(${imgData.id}, '${title}')" class="text-gray-400 hover:text-[#007AFF] active:scale-95 transition-all bg-gray-100 p-1.5 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="w-full h-60 bg-gray-100 cursor-pointer" onclick="openFullscreen(${index})">
+                            <img src="${objectUrl}" class="w-full h-full object-cover" alt="${title}">
+                        </div>
+                    </div>
+                `;
+                imageListContainer.insertAdjacentHTML('beforeend', itemHTML);
+            });
         }
 
-        function openSettings() { document.getElementById('settings-modal').classList.remove('hidden-screen'); }
-        function closeSettings() { document.getElementById('settings-modal').classList.add('hidden-screen'); loadSettings(); }
+        // --- VIEWER & TRANSISI ---
+        function openFullscreen(index) {
+            if(globalImages.length === 0) return;
+            currentIndex = index;
+            const url = URL.createObjectURL(globalImages[currentIndex].file);
+            
+            const img1 = document.getElementById('display-image-1');
+            const img2 = document.getElementById('display-image-2');
+            
+            img1.style.transitionDuration = '0s';
+            img2.style.transitionDuration = '0s';
 
-        function saveSettingsApp() {
-            config.magicMode = document.getElementById('input-magic-mode').value;
-            config.manualTarget = document.getElementById('input-manual-target').value.trim();
-            config.characterList = document.getElementById('input-character-list').value.trim() || default50List;
-            config.customApiKey = document.getElementById('input-api-key').value.trim();
-            config.aiModel = document.getElementById('input-ai-model').value.trim() || "gemini-2.5-flash";
-            config.glitchDelay = document.getElementById('input-glitch-delay').innerText.trim() || "0";
-            config.glitchDuration = document.getElementById('input-glitch-duration').innerText.trim() || "1.5";
-            config.t9Position = document.getElementById('input-t9-position').value;
-            config.language = document.getElementById('input-language').value;
-            
-            if(!document.getElementById('prompt-select-mode').classList.contains('hidden')){
-                config.activePromptId = document.getElementById('input-prompt-select').value;
-                updateCurrentPrompt();
-            }
-            
-            persistConfig(); 
-            showErrorDot(false); 
-            applyT9Position(); 
-            applyLanguage(); 
-            closeSettings();
+            img1.src = url;
+            img1.style.opacity = 1;
+            img2.style.opacity = 0;
+            activeImageLayer = 1;
+
+            dashboardScreen.classList.add('hidden');
+            imageScreen.classList.remove('hidden');
+            document.querySelector('meta[name="theme-color"]').setAttribute("content", "#000000");
         }
 
-        function openT9() {
-            t9InputString = "";
-            document.getElementById('t9-display').innerText = "";
-            document.getElementById('t9-display').classList.remove('text-red-500', 'animate-shake');
-            document.getElementById('t9-target-name').innerText = "";
-            document.getElementById('t9-target-name').classList.remove('opacity-100', 'opacity-0');
-            document.getElementById('t9-target-name').classList.add('opacity-0');
-            document.getElementById('t9-modal').classList.remove('hidden-screen');
+        function closeFullscreen() {
+            imageScreen.classList.add('hidden');
+            dashboardScreen.classList.remove('hidden');
+            document.querySelector('meta[name="theme-color"]').setAttribute("content", "#F2F2F7");
         }
 
-        function closeT9() { document.getElementById('t9-modal').classList.add('hidden-screen'); }
-
-        let lastT9Hit = 0;
-        function t9Press(num) {
-            const now = Date.now();
-            if (now - lastT9Hit < 50) return; 
-            lastT9Hit = now;
-            if (t9InputString.length >= 2) return; 
+        function changeImage(direction = 'next') {
+            if (globalImages.length <= 1) return;
             
-            t9InputString += num;
-            const displayEl = document.getElementById('t9-display');
-            displayEl.innerText = t9InputString;
-            displayEl.classList.remove('text-red-500', 'animate-shake');
-            
-            if (navigator.vibrate) navigator.vibrate(10);
-            
-            if (t9InputString.length === 2) {
-                const listArray = config.characterList.split('\n').map(item => item.trim()).filter(item => item.length > 0);
-                let targetNum = parseInt(t9InputString, 10);
-                if (t9InputString === "00") targetNum = 100;
-                
-                if (targetNum > listArray.length || targetNum === 0) {
-                    displayEl.classList.add('text-red-500', 'animate-shake');
-                    if (navigator.vibrate) navigator.vibrate([40, 40, 40]);
-                    setTimeout(() => { t9InputString = ""; displayEl.innerText = ""; displayEl.classList.remove('text-red-500', 'animate-shake'); }, 500);
-                } else {
-                    forcedTargetIndex = targetNum - 1;
-                    const peekName = listArray[forcedTargetIndex] || i18n[config.language || 'id'].mysterious;
-                    const nameDisplay = document.getElementById('t9-target-name');
-                    nameDisplay.innerText = peekName;
-                    nameDisplay.classList.replace('opacity-0', 'opacity-100');
-                    
-                    isMagicMode = true; 
-                    setTimeout(() => {
-                        closeT9();
-                        nameDisplay.classList.replace('opacity-100', 'opacity-0');
-                        waitingForMagicTrigger = true; 
-                    }, 1000);
-                }
-            }
-        }
+            // Baca settingan gambar SAAT INI (bukan gambar berikutnya)
+            const currentImgSettings = globalImages[currentIndex].settings || DEFAULT_SETTINGS;
 
-        function t9Clear() {
-            t9InputString = t9InputString.slice(0, -1);
-            document.getElementById('t9-display').innerText = t9InputString;
-            document.getElementById('t9-display').classList.remove('text-red-500', 'animate-shake');
-            if (navigator.vibrate) navigator.vibrate(15);
-        }
-
-        function handleImageClick() {
-            if (waitingForMagicTrigger) { 
-                waitingForMagicTrigger = false; 
-                startMagicSequence(); 
+            if (direction === 'next') {
+                currentIndex = (currentIndex + 1) % globalImages.length;
             } else {
-                if (config.magicMode === 'manual') {
-                    // Jika di mode manual, abaikan T9, langsung set target dan trigger magic
-                    isMagicMode = true;
-                    startMagicSequence();
-                } else {
-                    openT9();
-                }
+                currentIndex = (currentIndex - 1 + globalImages.length) % globalImages.length;
+            }
+
+            const url = URL.createObjectURL(globalImages[currentIndex].file);
+            const img1 = document.getElementById('display-image-1');
+            const img2 = document.getElementById('display-image-2');
+
+            // Eksekusi durasi dan transisi berdasarkan settingan gambar yang DITINGGALKAN
+            let dur = currentImgSettings.transition === 'instant' ? 0 : parseFloat(currentImgSettings.duration);
+            if (isNaN(dur) || dur < 0) dur = 0;
+
+            img1.style.transitionDuration = `${dur}s`;
+            img2.style.transitionDuration = `${dur}s`;
+
+            if (activeImageLayer === 1) {
+                img2.src = url;
+                img2.style.opacity = 1;
+                img1.style.opacity = 0;
+                activeImageLayer = 2;
+            } else {
+                img1.src = url;
+                img1.style.opacity = 1;
+                img2.style.opacity = 0;
+                activeImageLayer = 1;
             }
         }
 
-        function startMagicSequence() {
-            const delay = (parseFloat(config.glitchDelay) || 0) * 1000;
-            const duration = (parseFloat(config.glitchDuration) || 1.5) * 1000;
-            isProcessing = true;
-            setTimeout(() => {
-                document.body.classList.add('glitch-extreme');
-                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-                setTimeout(() => { document.body.classList.remove('glitch-extreme'); isProcessing = false; startGame(); }, duration);
-            }, delay);
-        }
+        // Logic Touch Screen
+        const touchArea = document.getElementById('touch-area');
+        let startX = 0, startY = 0;
 
-        async function fetchNormalQuestion(answer) {
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${config.aiModel}:generateContent?key=${config.customApiKey}`;
-            const lang = config.language || 'id';
-            
-            if (!answer) { normalChatHistory = [{ role: "user", parts: [{ text: i18n[lang].aiPromptInitial }] }]; } 
+        touchArea.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        }, { passive: true });
+
+        touchArea.addEventListener('touchend', (e) => {
+            let endX = e.changedTouches[0].clientX;
+            let endY = e.changedTouches[0].clientY;
+            let diffX = startX - endX;
+            let diffY = startY - endY;
+            let distance = Math.sqrt(diffX*diffX + diffY*diffY);
+
+            // Cek trigger dari gambar yang sedang aktif diliat
+            const activeTrigger = (globalImages[currentIndex].settings || DEFAULT_SETTINGS).trigger;
+
+            // Deteksi Tap
+            if (distance < 10) {
+                if (activeTrigger === 'tap') {
+                    changeImage('next');
+                }
+            } 
+            // Deteksi Swipe
             else {
-                normalChatHistory.push({ role: "model", parts: [{ text: document.getElementById('question-text').innerText }] });
-                let promptNext = lang === 'en' ? `My answer: ${answer}. ${i18n[lang].aiPromptNext}` : `Jawaban: ${answer}. ${i18n[lang].aiPromptNext}`;
-                normalChatHistory.push({ role: "user", parts: [{ text: promptNext }] });
-            }
-            try {
-                const res = await fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: normalChatHistory }) });
-                if (!res.ok) return null; const data = await res.json();
-                return data.candidates[0].content.parts[0].text.trim().replace(/\*/g, '');
-            } catch (e) { return null; }
-        }
-
-        async function fetchNormalGuess(answer) {
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${config.aiModel}:generateContent?key=${config.customApiKey}`;
-            const lang = config.language || 'id';
-            
-            normalChatHistory.push({ role: "model", parts: [{ text: document.getElementById('question-text').innerText }] });
-            let promptGuess = lang === 'en' ? `My answer: ${answer}. ${i18n[lang].aiPromptGuess}` : `Jawaban: ${answer}. ${i18n[lang].aiPromptGuess}`;
-            normalChatHistory.push({ role: "user", parts: [{ text: promptGuess }] });
-            try {
-                const res = await fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: normalChatHistory, generationConfig: { responseMimeType: "application/json" } }) });
-                if (!res.ok) return null; const data = await res.json();
-                const cleanJson = data.candidates[0].content.parts[0].text.replace(/```json/gi, '').replace(/```/g, '').trim();
-                return JSON.parse(cleanJson);
-            } catch (e) { return null; }
-        }
-
-        function assignTarget() {
-            const lang = config.language || 'id';
-            if (config.magicMode === 'manual') {
-                fetchedMagicName = config.manualTarget || i18n[lang].mysterious;
-                return;
-            }
-
-            const listArray = config.characterList.split('\n').map(item => item.trim()).filter(item => item.length > 0);
-            if (listArray.length === 0) { fetchedMagicName = i18n[lang].mysterious; return; }
-            if (forcedTargetIndex >= 0) { fetchedMagicName = listArray[forcedTargetIndex]; } 
-            else { fetchedMagicName = listArray[Math.floor(Math.random() * listArray.length)]; }
-        }
-
-        async function fetchCharacterImageFromInternet(characterName) {
-            try {
-                let res = await fetch(`https://id.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(characterName)}&prop=pageimages&format=json&pithumbsize=400&origin=*`);
-                let data = await res.json(); let pageId = Object.keys(data.query.pages)[0];
-                if (pageId !== "-1" && data.query.pages[pageId].thumbnail) return data.query.pages[pageId].thumbnail.source;
-                
-                res = await fetch(`https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(characterName)}&prop=pageimages&format=json&pithumbsize=400&origin=*`);
-                data = await res.json(); pageId = Object.keys(data.query.pages)[0];
-                if (pageId !== "-1" && data.query.pages[pageId].thumbnail) return data.query.pages[pageId].thumbnail.source;
-                return null;
-            } catch (e) { return null; }
-        }
-
-        function showScreen(screenId) {
-            ['screen-start', 'screen-game', 'screen-guess', 'screen-end'].forEach(id => {
-                const el = document.getElementById(id); el.classList.add('hidden-screen'); el.classList.remove('flex');
-            });
-            const targetEl = document.getElementById(screenId); targetEl.classList.remove('hidden-screen'); targetEl.classList.add('flex');
-        }
-
-        function showLoading(show) { document.getElementById('loading-overlay').classList.toggle('hidden-screen', !show); }
-        function showErrorDot(show) { document.getElementById('error-dot').classList.toggle('hidden', !show); }
-
-        function resetGameUI() {
-            const lang = config.language || 'id'; const dict = i18n[lang];
-            const buttons = document.querySelectorAll('#answer-buttons-container button');
-            const defaultLabels = [dict.qProbably, dict.qProbablyNot, dict.qYes, dict.qDontKnow, dict.qNo];
-            buttons.forEach((btn, index) => { btn.classList.remove('btn-locked-horror'); btn.innerText = defaultLabels[index]; delete btn.dataset.locked; });
-            document.getElementById('answer-buttons-container').classList.remove('pointer-events-none', 'opacity-50');
-            document.getElementById('question-number').style.display = 'block';
-            document.getElementById('question-text').classList.remove('typewriter-text', 'text-left');
-            document.getElementById('question-text').classList.add('text-center');
-            document.getElementById('screen-game').style.opacity = '1';
-        }
-
-        async function startGame() {
-            if (isProcessing) return;
-            if (!config.customApiKey) { showErrorDot(true); return; }
-            if (isMagicMode) {
-                assignTarget(); currentQuestionIndex = 0; isGameOver = false; resetGameUI();
-                showScreen('screen-game'); streamMagicClimax(); 
-            } else {
-                showLoading(true); const firstQ = await fetchNormalQuestion(null); showLoading(false);
-                if (!firstQ) { showErrorDot(true); return; }
-                currentQuestionIndex = 0; isGameOver = false; isProcessing = false; resetGameUI();
-                document.getElementById('question-text').innerText = firstQ;
-                document.getElementById('question-number').innerText = `${i18n[config.language || 'id'].question} 1`;
-                showScreen('screen-game');
-            }
-        }
-
-        async function processTypeQueue() {
-            if (isMagicCancelled) return;
-            const qText = document.getElementById('question-text');
-            if (typeQueue.length > 0) {
-                const char = typeQueue[0]; typeQueue = typeQueue.substring(1);
-                if (char === '\n') { qText.innerHTML += '<br>'; qText.scrollTop = qText.scrollHeight; await new Promise(r => { let id = setTimeout(r, 600); magicTimeouts.push(id); }); } 
-                else { if (char !== '*') { qText.innerHTML += char; qText.scrollTop = qText.scrollHeight; } }
-                let tid = setTimeout(processTypeQueue, Math.random() * 40 + 20); magicTimeouts.push(tid);
-            } else {
-                if (streamFinished) {
-                    document.body.classList.remove('glitch-mild'); qText.classList.remove('typewriter-text');
-                    magicTimeouts.push(setTimeout(() => { if (!isMagicCancelled) showReveal(); }, 1500));
-                } else { let tid = setTimeout(processTypeQueue, 50); magicTimeouts.push(tid); }
-            }
-        }
-
-        async function streamMagicClimax() {
-            isMagicCancelled = false; streamFinished = false; typeQueue = "";
-            const lang = config.language || 'id';
-            const btns = document.querySelectorAll('#answer-buttons-container button');
-            const qNum = document.getElementById('question-number'), qText = document.getElementById('question-text');
-            const chars = "!@#$%^&*()_+{}[]|:;<>,.?/~0123456789";
-
-            qNum.style.display = 'none'; qText.innerText = ""; qText.classList.remove('text-center'); qText.classList.add('text-left'); 
-            document.getElementById('answer-buttons-container').classList.add('pointer-events-none');
-
-            let scrambleInt = setInterval(() => {
-                btns.forEach(btn => { if (btn.dataset.locked !== "true") btn.innerText = Array(5).fill(0).map(() => chars[Math.floor(Math.random() * chars.length)]).join(''); });
-            }, 50); magicIntervals.push(scrambleInt);
-
-            btns.forEach((btn, idx) => {
-                let tid = setTimeout(() => {
-                    btn.dataset.locked = "true"; btn.innerText = lang === 'en' ? "YES" : "YA";
-                    btn.classList.add('btn-locked-horror'); if (navigator.vibrate) navigator.vibrate(50);
-                    if (idx === btns.length - 1) clearInterval(scrambleInt);
-                }, 600 + (idx * 400)); magicTimeouts.push(tid);
-            });
-
-            document.body.classList.add('glitch-mild'); qText.classList.add('typewriter-text');
-            magicTimeouts.push(setTimeout(processTypeQueue, 1000));
-
-            let activePromptData = config.customPrompts[config.activePromptId] || defaultMagicPrompts[config.activePromptId] || defaultMagicPrompts["default"];
-            let prompt = activePromptData.content.replace(/{TARGET}/g, fetchedMagicName);
-
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${config.aiModel}:streamGenerateContent?alt=sse&key=${config.customApiKey}`;
-            try {
-                const response = await fetch(apiUrl, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }] }) });
-                if (!response.ok) throw new Error("API failed");
-                streamReader = response.body.getReader(); const decoder = new TextDecoder(); let buffer = '';
-                while (true) {
-                    if (isMagicCancelled) { streamReader.cancel(); break; }
-                    const { done, value } = await streamReader.read(); if (done) break;
-                    buffer += decoder.decode(value, { stream: true }); let lines = buffer.split('\n'); buffer = lines.pop(); 
-                    for (let line of lines) {
-                        line = line.trim();
-                        if (line.startsWith('data: ')) {
-                            const dataStr = line.slice(6).trim(); if (dataStr === '[DONE]') continue; 
-                            try { const data = JSON.parse(dataStr); const textPart = data.candidates?.[0]?.content?.parts?.[0]?.text; if (textPart) typeQueue += textPart; } catch (e) { }
-                        }
+                if (activeTrigger === 'swipe') {
+                    // Swipe minimal 40px
+                    if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 40) {
+                        if (diffY > 0) changeImage('next'); // Swipe Up
+                        else changeImage('prev'); // Swipe Down
                     }
                 }
-            } catch (e) {
-                typeQueue += i18n[lang].auraDark;
-            } finally { streamFinished = true; }
+            }
+        });
+
+        // Hapus Gambar
+        document.getElementById('btn-hapus').addEventListener('click', async () => {
+            if (globalImages.length > 0 && confirm("Hapus gambar ini?")) {
+                await deleteImageFromDB(globalImages[currentIndex].id);
+                await loadDashboard(); 
+                
+                if (globalImages.length === 0) {
+                    closeFullscreen();
+                } else {
+                    currentIndex = currentIndex >= globalImages.length ? globalImages.length - 1 : currentIndex;
+                    const url = URL.createObjectURL(globalImages[currentIndex].file);
+                    const activeImg = activeImageLayer === 1 ? document.getElementById('display-image-1') : document.getElementById('display-image-2');
+                    activeImg.src = url;
+                }
+                showToast('Terhapus');
+            }
+        });
+
+        fileInput.addEventListener('change', async (e) => {
+            if (e.target.files[0]) {
+                await saveImageToDB(e.target.files[0], false);
+                loadDashboard();
+            }
+            fileInput.value = ''; 
+        });
+
+        // --- AI GENERATOR ---
+        function openAIModal() {
+            document.getElementById('ai-modal').classList.remove('hidden');
+            document.getElementById('ai-modal').classList.add('flex');
+            setTimeout(() => {
+                document.getElementById('ai-modal').classList.remove('opacity-0');
+                document.getElementById('ai-modal-box').classList.remove('scale-95');
+            }, 10);
+            document.getElementById('ai-prompt').value = '';
         }
 
-        function handleUserAnswer(btnIndex) {
-            const lang = config.language || 'id'; const dict = i18n[lang];
-            submitAnswer([dict.qProbably, dict.qProbablyNot, dict.qYes, dict.qDontKnow, dict.qNo][btnIndex]);
+        function closeAIModal() {
+            document.getElementById('ai-modal').classList.add('opacity-0');
+            document.getElementById('ai-modal-box').classList.add('scale-95');
+            setTimeout(() => {
+                document.getElementById('ai-modal').classList.add('hidden');
+                document.getElementById('ai-modal').classList.remove('flex');
+            }, 300);
         }
 
-        async function submitAnswer(answer) {
-            if (isGameOver || isProcessing) return;
-            isProcessing = true; document.getElementById('screen-game').style.opacity = '0.5'; showLoading(true);
-            currentQuestionIndex++;
-            if (currentQuestionIndex < 10) { 
-                const nextQ = await fetchNormalQuestion(answer);
-                document.getElementById('screen-game').style.opacity = '1'; showLoading(false);
-                if (nextQ) {
-                    document.getElementById('question-number').innerText = `${i18n[config.language || 'id'].question} ${currentQuestionIndex + 1}`;
-                    document.getElementById('question-text').innerText = nextQ;
-                    document.getElementById('jin-image').src = currentQuestionIndex % 2 === 0 ? "https://en.akinator.com/assets/img/akitudes_520x650/inspiration_forte.png" : "https://en.akinator.com/assets/img/akitudes_520x650/serein_2.png";
-                } else { showErrorDot(true); }
-                isProcessing = false; 
-            } else { 
-                const guessData = await fetchNormalGuess(answer);
-                document.getElementById('screen-game').style.opacity = '1'; showLoading(false);
-                if (guessData) {
-                    fetchedMagicName = guessData.guess || i18n[config.language || 'id'].mysterious;
-                    magicDescriptionsString = guessData.description || i18n[config.language || 'id'].akinatorTired;
-                    showReveal();
-                } else { showErrorDot(true); isProcessing = false; }
+        async function generateAIImage() {
+            const promptText = document.getElementById('ai-prompt').value.trim();
+            if (!promptText) return;
+
+            document.getElementById('ai-actions').classList.add('hidden');
+            document.getElementById('ai-prompt').classList.add('hidden');
+            document.getElementById('ai-loading').classList.remove('hidden');
+            document.getElementById('ai-loading').classList.add('flex');
+
+            try {
+                const apiKey = ""; 
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+                
+                let response;
+                let retries = 0;
+                while (retries <= 5) {
+                    try {
+                        response = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ instances: { prompt: promptText }, parameters: { sampleCount: 1 } })
+                        });
+                        if (response.ok) break; 
+                        if (retries === 5) throw new Error("Gagal");
+                    } catch (e) { if (retries === 5) throw e; }
+                    await new Promise(r => setTimeout(r, [1000, 2000, 4000, 8000, 16000][retries]));
+                    retries++;
+                }
+
+                const result = await response.json();
+                if (result.predictions && result.predictions[0] && result.predictions[0].bytesBase64Encoded) {
+                    const byteChars = atob(result.predictions[0].bytesBase64Encoded);
+                    const byteNums = new Array(byteChars.length);
+                    for (let i=0; i<byteChars.length; i++) byteNums[i] = byteChars.charCodeAt(i);
+                    const blob = new Blob([new Uint8Array(byteNums)], {type: 'image/png'});
+                    
+                    await saveImageToDB(blob, true);
+                    closeAIModal();
+                    loadDashboard();
+                    setTimeout(() => dashboardScreen.scrollTo({ top: dashboardScreen.scrollHeight, behavior: 'smooth' }), 100);
+                } else throw new Error("Invalid");
+            } catch (error) { showToast("Gagal membuat gambar"); } 
+            finally {
+                document.getElementById('ai-actions').classList.remove('hidden');
+                document.getElementById('ai-prompt').classList.remove('hidden');
+                document.getElementById('ai-loading').classList.add('hidden');
+                document.getElementById('ai-loading').classList.remove('flex');
             }
         }
 
-        async function showReveal() {
-            document.body.classList.remove('glitch-mild'); document.getElementById('guess-name').innerText = fetchedMagicName;
-            document.getElementById('guess-desc').innerText = isMagicMode ? i18n[config.language || 'id'].magicDesc : magicDescriptionsString;
-            
-            const imgEl = document.getElementById('guess-image'), fallbackEl = document.getElementById('no-image-fallback'), loadingEl = document.getElementById('image-loading');
-            imgEl.classList.add('hidden'); fallbackEl.classList.add('hidden'); loadingEl.style.display = 'flex'; showScreen('screen-guess');
-            
-            const imgUrl = await fetchCharacterImageFromInternet(fetchedMagicName);
-            loadingEl.style.display = 'none';
-            if (imgUrl) { imgEl.src = imgUrl; imgEl.onload = () => imgEl.classList.remove('hidden'); imgEl.onerror = () => fallbackEl.classList.remove('hidden'); } 
-            else { fallbackEl.classList.remove('hidden'); }
-        }
-
-        function handleGuessResult(result) {
-            isGameOver = true; document.getElementById('end-title').innerText = result === 'yes' ? i18n[config.language || 'id'].endWin : i18n[config.language || 'id'].endLose; showScreen('screen-end');
-        }
-
-        function resetGame() { 
-            clearMagicTimeouts(); document.body.classList.remove('glitch-mild', 'glitch-extreme'); showErrorDot(false); 
-            isProcessing = false; isGameOver = true; isMagicMode = false; forcedTargetIndex = -1; t9InputString = ""; waitingForMagicTrigger = false;
-            showScreen('screen-start'); 
-        }
-
-        function stepperChange(id, delta) {
-            const el = document.getElementById('input-' + id); let val = parseFloat(el.innerText) || 0;
-            el.innerText = Math.max(0, Math.round((val + delta) * 10) / 10); if (navigator.vibrate) navigator.vibrate(15);
-        }
-
-        window.onload = () => { loadSettings(); showScreen('screen-start'); };
+        // Init App
+        loadDashboard();
     </script>
 </body>
 </html>
